@@ -1,0 +1,29 @@
+{
+    "name" : "Tab Capturing & Sharing",
+    "author": "Muaz Khan",
+    "version" : "1.3",
+    "manifest_version" : 2,
+    "description" : "This WebRTC tab capturing extension captures tab and shares using WebRTC Peer-to-Peer connections.",
+    "homepage_url": "https://www.webrtc-experiment.com/",
+    "background": {
+        "scripts": ["RTCMultiConnection-v1.9.js", "tab-capturing.js"],
+		"persistent": false
+    },
+    "permissions": [
+        "tabCapture", "activeTab", "contextMenus"
+    ],
+    "browser_action" : {
+		"default_icon" : "images/tabCapture22.png",
+		"default_title" : "Share this tab!"
+	},
+	"icons" : {
+		"16" : "images/tabCapture16.png",
+		"22" : "images/tabCapture22.png",
+		"32" : "images/tabCapture32.png",
+		"48" : "images/tabCapture48.png",
+		"128": "images/tabCapture128.png"
+	},
+	"web_accessible_resources": [
+		"images/tabCapture48.png"
+	]
+}
