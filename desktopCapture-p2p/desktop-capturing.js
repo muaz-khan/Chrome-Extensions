@@ -1,7 +1,6 @@
-﻿// Muaz Khan          - https://github.com/muaz-khan
-// MIT License        - https://www.WebRTC-Experiment.com/licence/
-// ==============================================================
-// webrtc-extension   - https://github.com/muaz-khan/WebRTC-Experiment/tree/master/desktop-sharing
+﻿// Muaz Khan     - https://github.com/muaz-khan
+// MIT License   - https://www.WebRTC-Experiment.com/licence/
+// Source Code   - https://github.com/muaz-khan/Chrome-Extensions
 
 // this page is using desktopCapture API to capture and share desktop
 // http://developer.chrome.com/extensions/desktopCapture.html
@@ -14,52 +13,27 @@ chrome.contextMenus.create({
 }, contextMenuSuccessCallback);
 
 function contextMenuSuccessCallback() {
-    chrome.contextMenus.onClicked.addListener(toggle);
-    chrome.browserAction.onClicked.addListener(toggle);
+    chrome.contextMenus.onClicked.addListener(captureDesktop);
+    chrome.browserAction.onClicked.addListener(captureDesktop);
 
-    function toggle() {
-        if (!localStorage.getItem('desktop-sharing') && !localStorage.getItem('desktop-media-request-id')) {
-            localStorage.setItem('desktop-sharing', true);
-            captureDesktop();
-
-            chrome.contextMenus.update(contextMenuID, {
-                title: 'Stop sharing Desktop.'
-            });
-
-            console.log('Desktop sharing started...');
-        } else {
-            if (connection) {
-                // www.RTCMultiConnection.org/docs/close/
-                connection.close();
-            }
-
-            if (localStorage['desktop-media-request-id']) {
-                chrome.desktopCapture.cancelChooseDesktopMedia(parseInt(localStorage['desktop-media-request-id']));
-            }
-
-            localStorage.removeItem('desktop-sharing');
-            localStorage.removeItem('desktop-media-request-id');
-
-            chrome.browserAction.setIcon({
-                path: 'images/desktopCapture22.png'
-            });
-
-            chrome.contextMenus.update(contextMenuID, {
-                title: 'Share Desktop!'
-            });
-
-            console.log('Desktop sharing stopped...');
+    function captureDesktop() {
+        if (connection && connection.attachStreams[0]) {
+            connection.attachStreams[0].onended = function() {};
+            connection.attachStreams[0].stop();
+            setDefaults();
             return;
         }
-    }
 
-    // this method captures Desktop stream
-    
-    function captureDesktop() {
         var desktop_id = chrome.desktopCapture.chooseDesktopMedia(
-            ["screen", "window"], onAccessApproved);
-            
-        localStorage.setItem('desktop-media-request-id', desktop_id);
+            ['screen', 'window'], function(chromeMediaSourceId) {
+                onAccessApproved(chromeMediaSourceId);
+
+                chrome.contextMenus.update(contextMenuID, {
+                    title: 'Stop sharing Desktop'
+                });
+
+                console.log('Desktop sharing started...');
+            });
     }
 
     function onAccessApproved(chromeMediaSourceId) {
@@ -74,13 +48,8 @@ function contextMenuSuccessCallback() {
                 mandatory: {
                     chromeMediaSource: 'desktop',
                     chromeMediaSourceId: chromeMediaSourceId,
-                    minWidth: 1280,
-                    minHeight: 720,
-                    
-                    maxWidth: 1920,
-                    maxHeight: 1080,
-                    
-                    minAspectRatio: 1.77
+                    maxWidth: screen.width > 1920 ? screen.width : 1920,
+                    maxHeight: screen.height > 1080 ? screen.height : 1080
                 }
             }
         }, gotStream, getUserMediaError);
@@ -90,6 +59,27 @@ function contextMenuSuccessCallback() {
                 alert('Unable to capture Desktop. Note that Chrome internal pages cannot be captured.');
                 return;
             }
+
+            stream.onended = function() {
+                setDefaults();
+                chrome.runtime.reload();
+            };
+
+            // as it is reported that if you drag chrome screen's status-bar
+            // and scroll up/down the screen-viewer page.
+            // chrome auto-stops the screen without firing any 'onended' event.
+            // chrome also hides screen status bar.
+            chrome.windows.create({
+                url: chrome.extension.getURL('_generated_background_page.html'),
+                type: 'popup',
+                focused: false,
+                width: 20,
+                height: 20,
+                top: screen.height * 2,
+                left: screen.width * 2
+            }, function(win) {
+                background_page_id = win.id;
+            });
 
             setupRTCMultiConnection(stream);
             chrome.browserAction.setIcon({
@@ -105,25 +95,27 @@ function contextMenuSuccessCallback() {
     // RTCMultiConnection - www.RTCMultiConnection.org
     var connection;
 
-    function setupRTCMultiConnection(stream) {
-        // #174, thanks @alberttsai for pointing out this issue!
-        // chrome.tabs.create({ url: chrome.extension.getURL('_generated_background_page.html') });
+    var background_page_id;
 
+    var popup_id;
+
+    function setupRTCMultiConnection(stream) {
         // www.RTCMultiConnection.org/docs/
         connection = new RTCMultiConnection();
-        
-        connection.channel = connection.token();
-        
+
+        connection.channel = connection.sessionid = connection.userid;
+
         connection.autoReDialOnFailure = true;
+        connection.getExternalIceServers = false;
 
         // www.RTCMultiConnection.org/docs/bandwidth/
         connection.bandwidth = {
-            video: 300 // 300kbps
+            screen: 300 // 300kbps
         };
 
         // www.RTCMultiConnection.org/docs/session/
         connection.session = {
-            video: true,
+            screen: true,
             oneway: true
         };
 
@@ -136,8 +128,8 @@ function contextMenuSuccessCallback() {
         // www.RTCMultiConnection.org/docs/openSignalingChannel/
         connection.openSignalingChannel = openSignalingChannel;
 
-        // www.RTCMultiConnection.org/docs/dontAttachStream/
-        connection.dontAttachStream = true;
+        // www.RTCMultiConnection.org/docs/dontCaptureUserMedia/
+        connection.dontCaptureUserMedia = true;
 
         // www.RTCMultiConnection.org/docs/attachStreams/
         connection.attachStreams.push(stream);
@@ -148,15 +140,22 @@ function contextMenuSuccessCallback() {
         });
 
         var domain = 'https://www.webrtc-experiment.com';
-        var resultingURL = domain + '/desktop-sharing/?userid=' + connection.userid + '&sessionid=' + connection.channel;
-        chrome.tabs.create({
-            url: resultingURL
+        var resultingURL = domain + '/view/?sessionid=' + connection.sessionid;
+
+        chrome.windows.create({
+            url: "data:text/html,<h1>Copy Following Private URL:</h1><input type='text' value='" + resultingURL + "' style='width:100%;font-size:1.2em;'><br>You can share this private-session URI with fellows using email or social networks.",
+            type: 'popup',
+            width: screen.width / 2,
+            height: 170
+        }, function(win) {
+            popup_id = win.id;
         });
     }
 
     // using websockets for signaling
 
     var webSocketURI = 'wss://wsnodejs.nodejitsu.com:443';
+
     function openSignalingChannel(config) {
         config.channel = config.channel || this.channel;
         var websocket = new WebSocket(webSocketURI);
@@ -166,13 +165,15 @@ function contextMenuSuccessCallback() {
                 channel: config.channel
             }));
             if (config.callback) config.callback(websocket);
-            console.log('WebSocket connection is opened!');
         };
         websocket.onerror = function() {
-            console.error('Unable to connect to ' + webSocketURI);
-            if(connection.stats.numberOfConnectedUsers == 0) {
-                chrome.runtime.reload();
-            }
+            chrome.runtime.reload();
+            chrome.windows.create({
+                url: "data:text/html,<h1>Unable to connect to " + webSocketURI + "</h1>",
+                type: 'popup',
+                width: screen.width / 3,
+                height: 100
+            });
         };
         websocket.onmessage = function(event) {
             config.onmessage(JSON.parse(event.data));
@@ -184,5 +185,35 @@ function contextMenuSuccessCallback() {
                 channel: config.channel
             }));
         };
+    }
+    
+    function setDefaults() {
+        if (connection) {
+            connection.close();
+            connection.attachStreams = [];
+        }
+        
+        chrome.browserAction.setIcon({
+            path: 'images/desktopCapture22.png'
+        });
+
+        chrome.contextMenus.update(contextMenuID, {
+            title: 'Share Desktop'
+        });
+
+        console.log('Desktop sharing stopped...');
+
+        if (background_page_id) {
+            chrome.windows.remove(background_page_id);
+            background_page_id = null;
+        }
+
+        if (popup_id) {
+            try {
+                chrome.windows.remove(popup_id);
+            } catch (e) {}
+
+            popup_id = null;
+        }
     }
 }
