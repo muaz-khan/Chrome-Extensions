@@ -10,7 +10,7 @@ A few chrome extensions are supporting direct p2p screen steaming; whilst others
 2. [desktopCapture with p2p streaming](https://chrome.google.com/webstore/detail/webrtc-desktop-sharing/nkemblooioekjnpfekmjhpgkackcajhg)
 3. [tabCapture with p2p streaming](https://chrome.google.com/webstore/detail/tab-capturing-sharing/pcnepejfgcmidedoimegcafiabjnodhk)
 
-## [Screen-Capturing.js](https://github.com/muaz-khan/Chrome-Extensions/tree/master/Screen-Capturing) / [Demo](https://www.webrtc-experiment.com/Screen-Capturing/)
+## [Screen-Capturing.js](https://github.com/muaz-khan/Chrome-Extensions/tree/master/Screen-Capturing.js) / [Demo](https://www.webrtc-experiment.com/Screen-Capturing/)
 
 > Screen-Capturing.js can be used in any demo/project/library.
 > It provides simple methods to integrate "Screen-Capturing" extension
@@ -20,7 +20,7 @@ A few chrome extensions are supporting direct p2p screen steaming; whilst others
 
 Read more here:
 
-* https://github.com/muaz-khan/Chrome-Extensions/tree/master/Screen-Capturing
+* https://github.com/muaz-khan/Chrome-Extensions/tree/master/Screen-Capturing.js
 
 ## Credits
 

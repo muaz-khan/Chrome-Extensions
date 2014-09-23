@@ -4,7 +4,7 @@
 
 // Muaz Khan     - www.MuazKhan.com
 // MIT License   - www.WebRTC-Experiment.com/licence
-// Documentation - https://github.com/muaz-khan/Chrome-Extensions/tree/master/Screen-Capturing
+// Documentation - https://github.com/muaz-khan/Chrome-Extensions/tree/master/Screen-Capturing.js
 // Demo          - https://www.webrtc-experiment.com/Screen-Capturing/
 
 // ___________________
