@@ -1,4 +1,4 @@
-# [Screen-Capturing.js](https://github.com/muaz-khan/Chrome-Extensions/tree/master/Screen-Capturing.js) / [Demo](https://www.webrtc-experiment.com/Screen-Capturing/)
+# [Screen-Capturing.js](https://github.com/muaz-khan/Chrome-Extensions/tree/master/Screen-Capturing) / [Demo](https://www.webrtc-experiment.com/Screen-Capturing/)
 
 > Screen-Capturing.js can be used in any demo/project/library.
 > It provides simple methods to integrate "Screen-Capturing" extension
@@ -25,7 +25,7 @@
                     </li>
                     
                     <li>
-                        <a href="https://github.com/muaz-khan/Chrome-Extensions/tree/master/Screen-Capturing.js">Source code of Screen-Capturing.js</a>
+                        <a href="https://github.com/muaz-khan/Chrome-Extensions/tree/master/Screen-Capturing">Source code of Screen-Capturing.js</a>
                     </li>
                 </ol>
                 
@@ -102,4 +102,4 @@ getChromeExtensionStatus('your-extension-id', function(status) {
 
 ## License
 
-[Screen-Capturing.js](https://github.com/muaz-khan/Chrome-Extensions/tree/master/Screen-Capturing.js) are released under [MIT licence](https://www.webrtc-experiment.com/licence/) . Copyright (c) [Muaz Khan](https://plus.google.com/+MuazKhan).
+[Screen-Capturing.js](https://github.com/muaz-khan/Chrome-Extensions/tree/master/Screen-Capturing) are released under [MIT licence](https://www.webrtc-experiment.com/licence/) . Copyright (c) [Muaz Khan](https://plus.google.com/+MuazKhan).
