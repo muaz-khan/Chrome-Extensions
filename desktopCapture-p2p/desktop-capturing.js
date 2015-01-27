@@ -38,7 +38,13 @@ function contextMenuSuccessCallback() {
 
     function onAccessApproved(chromeMediaSourceId) {
         if (!chromeMediaSourceId) {
-            alert('Desktop Capture access is rejected.');
+            setDefaults();
+            chrome.windows.create({
+                url: "data:text/html,<h1>Desktop Capture access is rejected.</h1>",
+                type: 'popup',
+                width: screen.width / 2,
+                height: 170
+            });
             return;
         }
 
@@ -62,7 +68,13 @@ function contextMenuSuccessCallback() {
 
         function gotStream(stream) {
             if (!stream) {
-                alert('Unable to capture Desktop. Note that Chrome internal pages cannot be captured.');
+                setDefaults();
+                chrome.windows.create({
+                    url: "data:text/html,<h1>Unable to capture Desktop. Note that Chrome internal pages cannot be captured.</h1>",
+                    type: 'popup',
+                    width: screen.width / 2,
+                    height: 170
+                });
                 return;
             }
 
@@ -94,7 +106,13 @@ function contextMenuSuccessCallback() {
         }
 
         function getUserMediaError(e) {
-            alert('getUserMediaError: ' + JSON.stringify(e, null, '---'));
+            setDefaults();
+            chrome.windows.create({
+                    url: "data:text/html,<h1>getUserMediaError: " + JSON.stringify(e, null, '---') + "</h1>",
+                    type: 'popup',
+                    width: screen.width / 2,
+                    height: 170
+                });
         }
     }
 
@@ -196,13 +214,24 @@ function contextMenuSuccessCallback() {
             if (config.callback) config.callback(websocket);
         };
         websocket.onerror = function() {
-            chrome.runtime.reload();
+            setDefaults();
             chrome.windows.create({
                 url: "data:text/html,<h1>Unable to connect to " + webSocketURI + "</h1>",
                 type: 'popup',
-                width: screen.width / 3,
-                height: 100
+                width: screen.width / 2,
+                height: 170
             });
+            chrome.runtime.reload();
+        };
+        websocket.onclose = function() {
+            setDefaults();
+            chrome.windows.create({
+                url: "data:text/html,<h1>WebSocket connection is closed.</h1>",
+                type: 'popup',
+                width: screen.width / 2,
+                height: 170
+            });
+            chrome.runtime.reload();
         };
         websocket.onmessage = function(event) {
             config.onmessage(JSON.parse(event.data));
