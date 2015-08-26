@@ -1,9 +1,10 @@
-﻿<title>WebRTC Desktop Viewer ® Muaz Khan</title>
+﻿
+<title>WebRTC Desktop Viewer ® Muaz Khan</title>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta charset="utf-8">
 
-<meta name="description" content="AppRTC like RTCMultiConnection demo where styles and layout is taken from AppRTC demo." />
-<meta name="keywords" content="AppRTC,RTCMultiConnection,AppRTC-Look,WebRTC" />
+<meta name="description" content="This WebRTC Experiment page shows privately shared screens, desktops, and parts of the screens." />
+<meta name="keywords" content="WebRTC,Desktop-Sharing,Screen-Sharing,RTCWeb,WebRTC-Experiment,WebRTC-Demo" />
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <link rel="author" type="text/html" href="https://plus.google.com/+MuazKhan">
@@ -284,6 +285,14 @@ var infoBar = document.getElementById('info-bar');
 
 connection.onstatechange = function(state) {
     infoBar.innerHTML = state.name + ': ' + state.reason;
+
+    if(state.name == 'request-rejected' && params.p) {
+        infoBar.innerHTML = 'Password (' + params.p + ') did not match with broadcaster, that is why your participation request has been rejected.<br>Please contact him and ask for valid password.';
+    }
+
+    if(state.name === 'room-not-available') {
+        infoBar.innerHTML = 'Screen share session is closed or paused. You will join automatically when share session is resumed.';
+    }
 };
 
 connection.onstreamid = function(event) {
@@ -444,12 +453,6 @@ websocket.onopen = function() {
 
         // http://www.rtcmulticonnection.org/docs/join/
         connection.join(sessionDescription);
-    }
-};
-
-connection.onstatechange = function(state) {
-    if(state.name == 'request-rejected' && params.p) {
-        infoBar.innerHTML = 'Password (' + params.p + ') did not match with broadcaster, that is why your participation request has been rejected.<br>Please contact him and ask for valid password.';
     }
 };
 </script>
