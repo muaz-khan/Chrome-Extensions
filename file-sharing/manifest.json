@@ -1,7 +1,7 @@
 {
 	"name" : "WebRTC File Sharing",
     "author": "Muaz Khan",
-	"version" : "1.2",
+	"version" : "1.3",
 	"manifest_version" : 2,
     "minimum_chrome_version": "34",
 	"description" : "Instantly/Privately share files with multiple users without uploading to server!",
@@ -12,7 +12,7 @@
 	},
 	"browser_action" : {
 		"default_icon" : "images/fileCapture22.png",
-		"default_title" : "Share Desktop!"
+		"default_title" : "Click to open file sharing page."
 	},
 	"icons" : {
 		"16" : "images/fileCapture16.png",
