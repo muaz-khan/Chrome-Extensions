@@ -1,7 +1,6 @@
 ﻿// Muaz Khan     - https://github.com/muaz-khan
 // MIT License   - https://www.WebRTC-Experiment.com/licence/
 // Source Code   - https://github.com/muaz-khan/Chrome-Extensions
-
 var iframe = document.querySelector('iframe');
 
 var btnSelectFile = document.querySelector('.btn-select-file');
@@ -18,16 +17,22 @@ btnSelectFile.onclick = function() {
         document.querySelector('.overlay').style.display = 'none';
         iframe.style.display = 'block';
 
-        if(file.type.match(/image|video|audio|pdf|txt|js|css|php|py/g)) {
+        if (file.type.match(/image|video|audio|pdf|txt|javascript|css|php|py/g)) {
             iframe.src = URL.createObjectURL(file);
-        }
-        else {
+        } else {
             iframe.src = 'images/unknown.png';
         }
 
         iframe.onload = function() {
-            iframe.contentWindow.document.body.style.textAlign = 'center';
-            iframe.contentWindow.document.body.style.background = 'black';
+            if (file.type.match(/image|video|audio|pdf/g)) {
+                iframe.contentWindow.document.body.style.textAlign = 'center';
+                iframe.contentWindow.document.body.style.background = 'black';
+                iframe.contentWindow.document.body.style.color = 'white';
+                return;
+            }
+            iframe.contentWindow.document.body.style.textAlign = 'left';
+            iframe.contentWindow.document.body.style.background = 'white';
+            iframe.contentWindow.document.body.style.color = 'black';
         };
 
         onFileSelected(file);
@@ -50,8 +55,9 @@ function setupWebRTCConnection() {
     // www.RTCMultiConnection.org/docs/
     connection = new RTCMultiConnection();
 
-    connection.setCustomSocketHandler(PubNubConnection);
-    
+    connection.socketURL = 'https://rtcmulticonnection.herokuapp.com:443/';
+    connection.socketMessageEvent = 'file-sharing';
+
     connection.chunkSize = chunk_size;
 
     connection.sdpConstraints.mandatory = {
@@ -61,7 +67,7 @@ function setupWebRTCConnection() {
 
     connection.enableFileSharing = true;
 
-    if(room_id && room_id.length) {
+    if (room_id && room_id.length) {
         connection.userid = room_id;
     }
 
@@ -77,12 +83,20 @@ function setupWebRTCConnection() {
     connection.onopen = function(e) {
         appendLog('Data connection has been opened between you and <b>' + e.userid + '</b>');
 
-        if(!lastSelectedFile) return;
+        if (!lastSelectedFile) return;
         var file = lastSelectedFile;
         setTimeout(function() {
             appendLog('Sharing file <b>' + file.name + '</b> ( ' + bytesToSize(file.size) + ' ) with <b>' + e.userid + '</b>');
             connection.shareFile(file, e.userid);
         }, 300);
+    };
+
+    connection.onclose = function(e) {
+        appendLog('Data connection has been closed between you and <b>' + e.userid + '</b>. Re-Connecting..');
+    };
+
+    connection.onerror = function(e) {
+        appendLog('Data connection failed. between you and <b>' + e.userid + '</b>. Retrying..');
     };
 
     setFileProgressBarHandlers(connection);
@@ -161,7 +175,7 @@ function setFileProgressBarHandlers(connection) {
     // www.RTCMultiConnection.org/docs/onFileEnd/
     connection.onFileEnd = function(file) {
         var div = document.getElementById(file.uuid);
-        if(div) {
+        if (div) {
             div.parentNode.removeChild(div);
         }
 
@@ -201,12 +215,17 @@ function onFileSelected(file) {
 }
 
 var numberOfUsers = document.getElementById('number-of-users');
+
 function incrementOrDecrementUsers(user) {
-    if(!numberOfUsers.getAttribute('data-users')) {
+    if (!numberOfUsers.getAttribute('data-users')) {
         numberOfUsers.setAttribute('data-users', '');
     }
-    if(numberOfUsers.getAttribute('data-users').indexOf(user.userid) !== -1 && user.status === 'offline') {
-        numberOfUsers.innerHTML = parseInt(numberOfUsers.innerHTML) -1;
+    if (numberOfUsers.getAttribute('data-users').indexOf(user.userid) !== -1 && user.status === 'offline') {
+        numberOfUsers.innerHTML = parseInt(numberOfUsers.innerHTML) - 1;
+
+        if (parseInt(numberOfUsers.innerHTML) < 0) {
+            numberOfUsers.innerHTML = 0;
+        }
         return;
     }
 

@@ -41,11 +41,11 @@
 		    -webkit-user-select: none;
 		    border-radius: 50%;
 		    text-shadow: 2px 2px white;
-		    border: 2px solid white;
-		    outline: 2px solid white;
-		    background-color: #F5F4F4;
+		    border: 2px solid #E8E8E8;
+		    background-color: #D5D8D8;
 		    cursor: pointer;
 		    background-image: url(images/fileCapture128.png);
+		    outline: none;
 		}
 
 		.btn-select-file:hover {
@@ -80,6 +80,8 @@
 			bottom: 0;
 			z-index: 6;
 			font-size: medium;
+			overflow: auto;
+			height: 100%;
 		}
 
 		#logs p {
@@ -128,9 +130,8 @@
 	<div id="logs"></div>
 
 	<script type="text/javascript" src="FileBufferReader.js"></script>
-	<script type="text/javascript" src="RTCMultiConnection.js"></script>
-	<script type="text/javascript" src="PubNubConnection.js"></script>
-	<script type="text/javascript" src="websocket.js"></script>
+	<script type="text/javascript" src="RTCMultiConnection.min.js"></script>
+	<script type="text/javascript" src="socket.io.js"></script>
 	<script type="text/javascript" src="file-sharing.js"></script>
 </body>
 </html>
