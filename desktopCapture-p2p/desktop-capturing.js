@@ -7,9 +7,9 @@ chrome.browserAction.onClicked.addListener(captureDesktop);
 
 function captureDesktop() {
     if (connection && connection.attachStreams[0]) {
-        //connection.attachStreams[0].onended = function() {};
+        setDefaults();
         connection.attachStreams[0].stop();
-        // setDefaults();
+        return;
     }
 
     chrome.browserAction.setTitle({
@@ -140,12 +140,16 @@ function onAccessApproved(chromeMediaSourceId) {
             url: chrome.extension.getURL('_generated_background_page.html'),
             type: 'popup',
             focused: false,
-            width: 5,
-            height: 5,
-            top: screen.height * 2,
-            left: screen.width * 2
+            width: 1,
+            height: 1,
+            top: parseInt(screen.height),
+            left: parseInt(screen.width)
         }, function(win) {
-            background_page_id = win.id;
+            var background_page_id = win.id;
+
+            setTimeout(function() {
+                chrome.windows.remove(background_page_id);
+            }, 3000);
         });
 
         setupRTCMultiConnection(stream);
@@ -168,8 +172,6 @@ function onAccessApproved(chromeMediaSourceId) {
 
 // RTCMultiConnection - www.RTCMultiConnection.org
 var connection;
-
-var background_page_id;
 var popup_id;
 
 function setBadgeText(text) {
@@ -324,6 +326,10 @@ function setupRTCMultiConnection(stream) {
             height: 170
         });
 
+        if(connection && connection.numberOfConnectedUsers > 0) {
+            return;
+        }
+
         setDefaults();
         chrome.runtime.reload();
     };
@@ -335,6 +341,10 @@ function setupRTCMultiConnection(stream) {
             width: screen.width / 2,
             height: 150
         });
+
+        if(connection && connection.numberOfConnectedUsers > 0) {
+            return;
+        }
 
         setDefaults();
         chrome.runtime.reload();
@@ -358,11 +368,17 @@ function setupRTCMultiConnection(stream) {
             resultingURL += '&p=' + room_password;
         }
 
+        var popup_width = 600;
+        var popup_height = 170;
+
         chrome.windows.create({
-            url: "data:text/html,<h1>Copy following private URL:</h1><input type='text' value='" + resultingURL + "' style='width:100%;font-size:1.2em;'><br>You can share this private-session URI with fellows using email or social networks.",
+            url: "data:text/html,<title>Unique Room URL</title><h1 style='text-align:center'>Copy following private URL:</h1><input type='text' value='" + resultingURL + "' style='text-align:center;width:100%;font-size:1.2em;'><p style='text-align:center'>You can share this private-session URI with fellows using email or social networks.</p>",
             type: 'popup',
-            width: screen.width / 2,
-            height: 170
+            width: popup_width,
+            height: popup_height,
+            top: parseInt((screen.height / 2) - (popup_height / 2)),
+            left: parseInt((screen.width / 2) - (popup_width / 2)),
+            focused: true
         }, function(win) {
             popup_id = win.id;
         });
@@ -378,11 +394,6 @@ function setDefaults() {
     chrome.browserAction.setIcon({
         path: 'images/desktopCapture22.png'
     });
-
-    if (background_page_id) {
-        chrome.windows.remove(background_page_id);
-        background_page_id = null;
-    }
 
     if (popup_id) {
         try {
