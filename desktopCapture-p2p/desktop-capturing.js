@@ -1,8 +1,10 @@
 ﻿// Muaz Khan     - https://github.com/muaz-khan
 // MIT License   - https://www.WebRTC-Experiment.com/licence/
 // Source Code   - https://github.com/muaz-khan/Chrome-Extensions
+
 // this page is using desktopCapture API to capture and share desktop
 // http://developer.chrome.com/extensions/desktopCapture.html
+
 chrome.browserAction.onClicked.addListener(captureDesktop);
 
 function captureDesktop() {
@@ -319,6 +321,10 @@ function setupRTCMultiConnection(stream) {
     };
 
     websocket.onerror = function() {
+        if(connection && connection.numberOfConnectedUsers > 0) {
+            return;
+        }
+
         chrome.windows.create({
             url: "data:text/html,<h1>Failed connecting the WebSockets server. Please click screen icon to try again.</h1>",
             type: 'popup',
@@ -326,25 +332,21 @@ function setupRTCMultiConnection(stream) {
             height: 170
         });
 
-        if(connection && connection.numberOfConnectedUsers > 0) {
-            return;
-        }
-
         setDefaults();
         chrome.runtime.reload();
     };
 
     websocket.onclose = function() {
+        if(connection && connection.numberOfConnectedUsers > 0) {
+            return;
+        }
+
         chrome.windows.create({
             url: "data:text/html,<p style='font-size:25px;'>WebSocket connection seems closed. It is not possible to share your screen without using a medium like WebSockets. Please click screen icon to share again.</p>",
             type: 'popup',
             width: screen.width / 2,
             height: 150
         });
-
-        if(connection && connection.numberOfConnectedUsers > 0) {
-            return;
-        }
 
         setDefaults();
         chrome.runtime.reload();
