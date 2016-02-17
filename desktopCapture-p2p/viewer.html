@@ -244,12 +244,6 @@ connection.optionalArgument = {
     }],
     mandatory: {}
 };
-
-connection.ondisconnected = function(event) {
-    infoBar.innerHTML = 'Screen sharing has been closed.';
-    infoBar.style.display = 'block';
-    location.reload();
-};
 </script>
 
 <script>
@@ -321,15 +315,18 @@ connection.onstream = function(e) {
 // if user left
 connection.onleave = function(e) {
     transitionToWaiting();
+    connection.onSessionClosed();
 };
 
 connection.onSessionClosed = function() {
     infoBar.innerHTML = 'Screen sharing has been closed.';
     infoBar.style.display = 'block';
-    location.reload();
+    connection.closed();
+    websocket.onopen();
 };
 
-connection.onstreamended = function() {};
+connection.ondisconnected = connection.onSessionClosed;
+connection.onstreamended = connection.onSessionClosed;
 
 function waitForRemoteVideo() {
     // Call the getVideoTracks method via adapter.js.

@@ -1,7 +1,7 @@
 {
 	"name" : "WebRTC Desktop Sharing",
     "author": "Muaz Khan",
-	"version" : "2.0",
+	"version" : "2.1",
 	"manifest_version" : 2,
     "minimum_chrome_version": "34",
 	"description" : "Share screen of any application or entire screen or screen of any chrome tab. It is private, full-HD screen sharing.",

@@ -100,9 +100,7 @@ function onAccessApproved(chromeMediaSourceId) {
                     maxHeight: resolutions.maxHeight,
                     minFrameRate: 30,
                     maxFrameRate: 64,
-                    minAspectRatio: 1.77,
-                    googLeakyBucket: true,
-                    googTemporalLayeredScreencast: true
+                    minAspectRatio: 1.77
                 },
                 optional: []
             }
