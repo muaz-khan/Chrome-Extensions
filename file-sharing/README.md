@@ -1,4 +1,4 @@
-# [Chrome Extensions](https://github.com/muaz-khan/Chrome-Extensions) to share files (peer-to-peer) / [Demo](https://rtcxp.com/fs)
+# [Chrome Extension](https://github.com/muaz-khan/Chrome-Extensions) to share files / [Demo](https://rtcxp.com/fs)
 
 | Extension Name        | Source Code           | Google App Store |
 | ------------- |-------------|-------------|
