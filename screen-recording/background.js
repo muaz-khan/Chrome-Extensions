@@ -46,12 +46,12 @@ function onAccessApproved(chromeMediaSourceId) {
                 chromeMediaSourceId: chromeMediaSourceId,
                 maxWidth: 29999,
                 maxHeight: 8640,
-                minFrameRate: 30,
-                maxFrameRate: 128,
-                minAspectRatio: 1.77 // 2.39
+                minFrameRate: 4000000, // vp8/vp9 doesn't applies any max-limit
+                maxFrameRate: 4000000, // however seems works only with webcam stream?
+                minAspectRatio: 1.77   // 2.39 (aspect-ratio issues?)
             },
             optional: [{
-                bandwidth: 1024 * 8 * 1024
+                bandwidth: 4000000 // 4mbps
             }]
         }
     };
@@ -59,9 +59,17 @@ function onAccessApproved(chromeMediaSourceId) {
     navigator.webkitGetUserMedia(constraints, gotStream, getUserMediaError);
 
     function gotStream(stream) {
-        recorder = RecordRTC(stream, {
+        // opus (smallest 6kbps, maximum 128kbps)
+        // vp8 (smallest 100kbps)
+        var options = {
             type: 'video'
-        });
+        };
+
+        if(getChromeVersion() >= 52) {
+            options.bitsPerSecond = 4000000; // forcing 4MBps
+        }
+
+        recorder = RecordRTC(stream, options);
         recorder.startRecording();
         recorder.stream = stream;
 
@@ -99,6 +107,10 @@ function stopScreenRecording() {
         clearTimeout(timer);
     }
     setBadgeText('');
+
+    chrome.browserAction.setTitle({
+        title: 'Record Screen'
+    });
 }
 
 function setDefaults() {
@@ -169,11 +181,32 @@ function checkTime() {
     var timeDifference = Date.now() - initialTime;
     var formatted = convertTime(timeDifference);
     setBadgeText(formatted);
+
+    chrome.browserAction.setTitle({
+        title: 'Recording duration: ' + formatted
+    });
 }
 
 function convertTime(miliseconds) {
     var totalSeconds = Math.floor(miliseconds / 1000);
     var minutes = Math.floor(totalSeconds / 60);
     var seconds = totalSeconds - minutes * 60;
+
+    minutes += '';
+    seconds += '';
+
+    if(minutes.length === 1) {
+        minutes = '0' + minutes;
+    }
+
+    if(seconds.length === 1) {
+        seconds = '0' + seconds;
+    }
+
     return minutes + ':' + seconds;
+}
+
+function getChromeVersion () {     
+    var raw = navigator.userAgent.match(/Chrom(e|ium)\/([0-9]+)\./);
+    return raw ? parseInt(raw[2], 10) : 52;
 }
