@@ -2,13 +2,13 @@
 	"name" : "RecordRTC",
 	"short_name" : "RecordRTC",
     "author": "Muaz Khan",
-	"version" : "1.1",
+	"version" : "1.4",
 	"manifest_version" : 2,
     "minimum_chrome_version": "34",
 	"description" : "RecordRTC is used to record entire screen or record any application screen.",
     "homepage_url": "https://www.WebRTC-Experiment.com/RecordRTC/",
     "background": {
-	    "scripts": ["background.js"],
+	    "scripts": ["background.js", "RecordRTC.min.js"],
 	    "persistent": false
 	},
 	"browser_action" : {
@@ -22,8 +22,12 @@
 		"48" : "images/main-icon.png",
 		"128": "images/main-icon.png"
 	},
-	"permissions": ["desktopCapture"],
+	"permissions": ["desktopCapture", "storage"],
 	"web_accessible_resources": [
 		"images/main-icon.png"
-	]
+	],
+	"options_ui": {
+       "page": "options.html",
+       "chrome_style": false
+    }
 }
