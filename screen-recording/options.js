@@ -19,15 +19,19 @@ chrome.storage.sync.get(null, function(items) {
     } else {
         chrome.storage.sync.set({
             videoBitsPerSecond: 4000
-        }, function() {});
+        }, function() {
+            document.getElementById('videoBitsPerSecond').value = 4000;
+        });
     }
 
     if (items['audioBitsPerSecond']) {
         document.getElementById('audioBitsPerSecond').value = items['audioBitsPerSecond'];
     } else {
         chrome.storage.sync.set({
-            audioBitsPerSecond: 16
-        }, function() {});
+            audioBitsPerSecond: 128
+        }, function() {
+            document.getElementById('audioBitsPerSecond').value = 128;
+        });
     }
 
     if (items['enableTabAudio']) {
@@ -35,7 +39,9 @@ chrome.storage.sync.get(null, function(items) {
     } else {
         chrome.storage.sync.set({
             enableTabAudio: 'false'
-        }, function() {});
+        }, function() {
+            document.getElementById('enableTabAudio').removeAttribute('checked');
+        });
     }
 });
 

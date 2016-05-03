@@ -27,7 +27,12 @@ function captureDesktop() {
         screenSources = ['tab', 'audio'];
     }
 
-    var desktop_id = chrome.desktopCapture.chooseDesktopMedia(screenSources, onAccessApproved);
+    try {
+        chrome.desktopCapture.chooseDesktopMedia(screenSources, onAccessApproved);
+    }
+    catch(e) {
+        getUserMediaError();
+    }
 }
 
 var recorder;
@@ -44,14 +49,20 @@ function onAccessApproved(chromeMediaSourceId) {
         video: {
             mandatory: {
                 chromeMediaSource: 'desktop',
-                chromeMediaSourceId: chromeMediaSourceId,
-                maxWidth: resolutions.maxWidth,
-                maxHeight: resolutions.maxHeight,
-                minAspectRatio: aspectRatio
+                chromeMediaSourceId: chromeMediaSourceId
             },
             optional: []
         }
     };
+
+    if(aspectRatio) {
+        constraints.video.mandatory.minAspectRatio = aspectRatio;
+    }
+
+    if(resolutions.maxWidth && resolutions.maxHeight) {
+        constraints.video.mandatory.maxWidth = resolutions.maxWidth;
+        constraints.video.mandatory.maxHeight = resolutions.maxHeight;
+    }
 
     if(enableTabAudio) {
         constraints.audio = {
@@ -72,24 +83,32 @@ function onAccessApproved(chromeMediaSourceId) {
         };
 
         if(getChromeVersion() >= 52) {
-            audioBitsPerSecond = parseInt(audioBitsPerSecond);
-            if(!audioBitsPerSecond || audioBitsPerSecond > 128) { // 128000
-                audioBitsPerSecond = 128;
-            }
-            if(!audioBitsPerSecond || audioBitsPerSecond < 6) {
-                audioBitsPerSecond = 6; // opus (smallest 6kbps, maximum 128kbps)
+            if(audioBitsPerSecond) {
+                audioBitsPerSecond = parseInt(audioBitsPerSecond);
+                if(!audioBitsPerSecond || audioBitsPerSecond > 128) { // 128000
+                    audioBitsPerSecond = 128;
+                }
+                if(!audioBitsPerSecond || audioBitsPerSecond < 6) {
+                    audioBitsPerSecond = 6; // opus (smallest 6kbps, maximum 128kbps)
+                }
             }
 
-            videoBitsPerSecond = parseInt(videoBitsPerSecond);
-            if(!videoBitsPerSecond || videoBitsPerSecond < 100) {
-                videoBitsPerSecond = 100; // vp8 (smallest 100kbps)
+            if(videoBitsPerSecond) {
+                videoBitsPerSecond = parseInt(videoBitsPerSecond);
+                if(!videoBitsPerSecond || videoBitsPerSecond < 100) {
+                    videoBitsPerSecond = 100; // vp8 (smallest 100kbps)
+                }
             }
 
             if(enableTabAudio) {
-                options.audioBitsPerSecond = audioBitsPerSecond * 1000;
-                options.videoBitsPerSecond = videoBitsPerSecond * 1000;
+                if(audioBitsPerSecond) {
+                    options.audioBitsPerSecond = audioBitsPerSecond * 1000;
+                }
+                if(videoBitsPerSecond) {
+                    options.videoBitsPerSecond = videoBitsPerSecond * 1000;
+                }
             }
-            else {
+            else if(videoBitsPerSecond) {
                 options.bitsPerSecond = videoBitsPerSecond * 1000;
             }
         }
@@ -108,11 +127,6 @@ function onAccessApproved(chromeMediaSourceId) {
 
         initialTime = Date.now()
         timer = setInterval(checkTime, 100);
-    }
-
-    function getUserMediaError(e) {
-        setDefaults();
-        chrome.runtime.reload();
     }
 }
 
@@ -236,7 +250,10 @@ function getChromeVersion () {
     return raw ? parseInt(raw[2], 10) : 52;
 }
 
-var resolutions = {};
+var resolutions = {
+    maxWidth: 29999,
+    maxHeight: 8640
+};
 var aspectRatio = 1.77;
 var audioBitsPerSecond = 128;
 var videoBitsPerSecond = 4000;
@@ -439,4 +456,26 @@ function getUserConfigs(callback) {
 
         captureDesktop();
     });
+}
+
+var alreadyHadGUMError = false;
+function getUserMediaError() {
+    if(!alreadyHadGUMError) {
+        // retry with default values
+        resolutions = {};
+        aspectRatio = false;
+        audioBitsPerSecond = false;
+        videoBitsPerSecond = false;
+
+        enableTabAudio = false;
+
+        // below line makes sure we retried merely once
+        alreadyHadGUMError = true;
+
+        captureDesktop();
+        return;
+    }
+
+    setDefaults();
+    chrome.runtime.reload();
 }
