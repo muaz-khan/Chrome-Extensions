@@ -79,7 +79,8 @@ function onAccessApproved(chromeMediaSourceId) {
     function gotStream(stream) {
         var options = {
             type: 'video',
-            disableLogs: true
+            disableLogs: false,
+            recorderType: MediaStreamRecorder // StereoAudioRecorder
         };
 
         if(getChromeVersion() >= 52) {
@@ -113,6 +114,25 @@ function onAccessApproved(chromeMediaSourceId) {
             }
         }
 
+        if(audioStream && audioStream.getAudioTracks && audioStream.getAudioTracks().length) {
+            audioPlayer = document.createElement('audio');
+            audioPlayer.src = URL.createObjectURL(audioStream);
+
+            context = new AudioContext();
+
+            var gainNode = context.createGain();
+            gainNode.connect(context.destination);
+            gainNode.gain.value = 0; // don't play for self
+            
+            mediaStremSource = context.createMediaStreamSource(audioStream);
+            mediaStremSource.connect(gainNode);
+
+            mediaStremDestination = context.createMediaStreamDestination();
+            mediaStremSource.connect(mediaStremDestination)
+
+            stream.addTrack(mediaStremDestination.stream.getAudioTracks()[0]);
+        }
+
         recorder = RecordRTC(stream, options);
         recorder.startRecording();
         recorder.stream = stream;
@@ -125,10 +145,16 @@ function onAccessApproved(chromeMediaSourceId) {
             stopScreenRecording();
         };
 
+        recorder.stream.getVideoTracks()[0].onended = function() {
+            recorder.stream.onended();
+        };
+
         initialTime = Date.now()
         timer = setInterval(checkTime, 100);
     }
 }
+
+var peer;
 
 function stopScreenRecording() {
     isRecording = false;
@@ -140,6 +166,26 @@ function stopScreenRecording() {
             setDefaults();
             chrome.runtime.reload();
         }, 1000);
+
+        runtimePort.postMessage({
+            stopStream: true,
+            messageFromContentScript1234: true
+        });
+
+        try {
+            peer.close();
+            peer = null;
+        }
+        catch(e) {}
+
+        try {
+            audioPlayer.src = null;
+            mediaStremDestination.disconnect();
+            mediaStremSource.disconnect();
+            context.disconnect();
+            context = null;
+        }
+        catch(e) {}
     });
 
     if (timer) {
@@ -259,8 +305,10 @@ var audioBitsPerSecond = 128;
 var videoBitsPerSecond = 4000;
 
 var enableTabAudio = false;
+var enableMicrophone = false;
+var audioStream = false;
 
-function getUserConfigs(callback) {
+function getUserConfigs() {
     chrome.storage.sync.get(null, function(items) {
         if (items['audioBitsPerSecond']) {
             audioBitsPerSecond = parseInt(items['audioBitsPerSecond']);
@@ -272,6 +320,10 @@ function getUserConfigs(callback) {
 
         if (items['enableTabAudio']) {
             enableTabAudio = items['enableTabAudio'] == 'true';
+        }
+
+        if (items['enableMicrophone']) {
+            enableMicrophone = items['enableMicrophone'] == 'true';
         }
 
         var _resolutions = items['resolutions'];
@@ -362,7 +414,7 @@ function getUserConfigs(callback) {
             //  ~16:9
             aspectRatio = 1.77;
 
-            resolutions.maxWidth = 1360;
+            resolutions.maxWidth = 1366;
             resolutions.maxHeight = 768;
         }
 
@@ -454,6 +506,16 @@ function getUserConfigs(callback) {
             resolutions.maxHeight = 360;
         }
 
+        if(enableMicrophone) {
+            lookupForHTTPsTab(function(notification) {
+                if(notification === 'no-https-tab') {
+                    // skip microphone
+                    captureDesktop();
+                }
+            });
+            return;
+        }
+
         captureDesktop();
     });
 }
@@ -468,6 +530,8 @@ function getUserMediaError() {
         videoBitsPerSecond = false;
 
         enableTabAudio = false;
+        enableMicrophone = false;
+        audioStream = false;
 
         // below line makes sure we retried merely once
         alreadyHadGUMError = true;
@@ -479,3 +543,98 @@ function getUserMediaError() {
     setDefaults();
     chrome.runtime.reload();
 }
+
+// Check whether new version is installed
+chrome.runtime.onInstalled.addListener(function(details){
+    if(details.reason.search(/install/g) === -1) return;
+    chrome.runtime.openOptionsPage();
+});
+
+// Check for updates
+chrome.runtime.onUpdateAvailable.addListener(function(details){
+    chrome.runtime.reload();
+});
+
+var runtimePort;
+
+chrome.runtime.onConnect.addListener(function(port) {
+    runtimePort = port;
+
+    runtimePort.onMessage.addListener(function(message) {
+        if (!message || !message.messageFromContentScript1234) {
+            return;
+        }
+
+        if(message.sdp){
+            createAnswer(message.sdp);
+        }
+    });
+});
+
+function lookupForHTTPsTab(callback) {
+    chrome.tabs.query({
+        // active: true,
+        // currentWindow: true
+    }, function(tabs) {
+        var tabFound;
+        tabs.forEach(function(tab) {
+            if(!tabFound && tab.url.length && tab.url.indexOf('https:') === 0 && !tab.incognito) {
+                tabFound = tab;
+            }
+
+            if(tab.active && tab.selected && tab.url.length && tab.url.indexOf('https:') === 0 && !tab.incognito) {
+                tabFound = tab;
+            }
+        });
+
+        if(tabFound) {
+            executeScript(tabFound.id);
+        }
+        else {
+            callback('no-https-tab');
+        }
+    });
+}
+
+function executeScript(tabId) {
+    chrome.tabs.update(tabId, {active: true});
+    chrome.tabs.executeScript(tabId, {
+        file: 'content-script.js'
+    });
+}
+
+function createAnswer(sdp) {
+    peer = new webkitRTCPeerConnection(null);
+
+    peer.onicecandidate = function(event) {
+        if (!event || !!event.candidate) return;
+
+        runtimePort.postMessage({
+            sdp: peer.localDescription,
+            messageFromContentScript1234: true
+        });
+    };
+
+    peer.onaddstream = function(event) {
+        audioStream = event.stream;
+        captureDesktop();
+    };
+
+    peer.setRemoteDescription(new RTCSessionDescription(sdp));
+
+    peer.createAnswer(function(sdp) {
+        peer.setLocalDescription(sdp);
+    }, function() {}, {
+        optional: [],
+        mandatory: {
+            OfferToReceiveAudio: true,
+            OfferToReceiveVideo: false
+        }
+    });
+}
+
+var audioPlayer, context, mediaStremSource, mediaStremDestination;
+
+// for testing purpose only
+// function setDefaults() {}
+// chrome.runtime.reload = function() {};

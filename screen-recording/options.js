@@ -43,6 +43,16 @@ chrome.storage.sync.get(null, function(items) {
             document.getElementById('enableTabAudio').removeAttribute('checked');
         });
     }
+
+    if (items['enableMicrophone']) {
+        document.getElementById('enableMicrophone').checked = items['enableMicrophone'] === 'true';
+    } else {
+        chrome.storage.sync.set({
+            enableMicrophone: 'false'
+        }, function() {
+            document.getElementById('enableMicrophone').removeAttribute('checked');
+        });
+    }
 });
 
 document.getElementById('resolutions').onchange = function() {
@@ -63,6 +73,17 @@ document.getElementById('enableTabAudio').onchange = function() {
         enableTabAudio: this.checked ? 'true' : 'false'
     }, function() {
         document.getElementById('enableTabAudio').disabled = false;
+        hideSaving();
+    });
+};
+
+document.getElementById('enableMicrophone').onchange = function() {
+    this.disabled = true;
+    showSaving();
+    chrome.storage.sync.set({
+        enableMicrophone: this.checked ? 'true' : 'false'
+    }, function() {
+        document.getElementById('enableMicrophone').disabled = false;
         hideSaving();
     });
 };
@@ -98,3 +119,26 @@ function hideSaving() {
         document.getElementById('applying-changes').style.display = 'none';
     }, 700);
 }
+
+document.getElementById('enableMicrophone-help').onclick = function() {
+    var html = '<br><br>You can record your own voice as well.';
+    html += '<br><br>';
+    html += '<span style="color:red;">This feature requires at least one HTTPs tab.</span>';
+    html += '<br><br>';
+    html += 'For example, you can open <a href="https://google.com">https://google.com</a> or <a href="https://rtcxp.com">https://rtcxp.com</a>';
+    html += '<br><br>';
+    html += 'HTTPs tab will be used to capture your microphone.';
+    html += '<br><br>';
+    html += 'Chrome does not allows microphone-capturing on any non-HTTPs page.';
+    html += '<br><br>';
+    html += '<span style="color:red;">Your voice will be recorded along with full screen or any app\'s selected screen.</span>';
+    html += '<br><br>';
+    html += 'This will help you make presentation videos!';
+
+    var parentNode = this.parentNode;
+    parentNode.style.fontSize = '20px';
+    parentNode.innerHTML = html;
+
+    parentNode.tabIndex = 0;
+    parentNode.focus();
+};

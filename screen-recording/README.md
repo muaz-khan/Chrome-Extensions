@@ -2,7 +2,40 @@
 
 [RecordRTC](https://github.com/muaz-khan/RecordRTC) is used to record entire screen or record any application screen.
 
-Note: Audio+Tab recording will be added in next versions. It will allow you record audio along with screen!!
+1.  Audio+Tab recording means voice or audio that is being played on selected tab. It can be a youtube page, an `<audio>` player or whatever. So it is NOT microphone audio; it is your tab's audio.
+2. "Enable Microphone" feature works for any screen. You can enable microphone and record your own voice along with full screen or screen of any application.
+
+#### Note
+
+"Enable Microphone" feature requires an HTTPs page where you can click the extension icon.
+
+You simply need to open `https://google.com` or `https://rtcxp.com` or any HTTPs page, and then click the chrome extension icon.
+
+You need to keep above page opened during recording. You can minimize or hide above page however it MUST kept opened during recording.
+
+## Resolutions
+
+Currently this chrome extension supports following resolutions:
+
+| Resolution Name   | Resolution Width/Height   | Aspect-Ratio  |
+| -------------     |-------------              |-------------  |
+| Default           | 29999  x 8640             | 1.77 (16:9)   |
+| 4K UHD            | 3840   x 2160             | 1.77 (16:9)   |
+| WQXGA             | 2560   x 1600             | 1.6  (16:10)  |
+| WQHD              | 2560   x 1440             | 1.77 (16:9)   |
+| WUXGA             | 1920   x 1200             | 1.77 (16:9)   |
+| Full HD           | 1920   x 1080             | 1.77 (16:9)   |
+| WSXGA+            | 1680   x 1050             | 1.6  (16:10)  |
+| UXGA              | 1600   x 1200             | 1.3  (4:3)    |
+| HD+               | 1600   x 900              | 1.77 (16:9)   |
+| WGGA+             | 1440   x 900              | 1.6  (16:10)  |
+| HD                | 1360   x 768              | 1.77 (~16:9)  |
+| SXGA              | 1280   x 1024             | 1.25 (5:4)    |
+| XGA+              | 1152   x 864              | 1.77 (16:9)   |
+| XGA               | 1024   x 768              | 1.3  (4:3)    |
+| SVGA              | 800    x 600              | 1.3  (4:3)    |
+| 720p              | 1280   x 720              | 1.77 (16:9)   |
+| 360p              | 640    x 360              | 1.77 (16:9)   |
 
 10 minutes should be considered max-recording limit. However this app supports more!
 

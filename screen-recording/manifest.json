@@ -2,7 +2,7 @@
 	"name" : "RecordRTC",
 	"short_name" : "RecordRTC",
     "author": "Muaz Khan",
-	"version" : "1.6",
+	"version" : "1.9",
 	"manifest_version" : 2,
     "minimum_chrome_version": "34",
 	"description" : "RecordRTC is used to record entire screen or record any application screen or audio+tab. Longest possible!",
@@ -22,7 +22,7 @@
 		"48" : "images/main-icon.png",
 		"128": "images/main-icon.png"
 	},
-	"permissions": ["desktopCapture", "storage"],
+	"permissions": ["desktopCapture", "storage", "tabs", "<all_urls>"],
 	"web_accessible_resources": [
 		"images/main-icon.png"
 	],
