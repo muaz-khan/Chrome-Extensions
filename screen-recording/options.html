@@ -66,6 +66,25 @@ input[disabled], label[disabled] {
 
 <h1 id="applying-changes" style="position:absolute;right:10px;top:-10px;color:green;font-weight:normal;font-size:14px!important;display:none;">Applying Changes...</h1>
 
+<input type="checkbox" id="enableMicrophone"> <label for="enableMicrophone">Include Microphone?</label>
+<br>
+<small style="font-size:13px;margin-left:32px;display:block;">
+    Record your own voice using Microphone. <img id="enableMicrophone-help" src="images/help.png" class="help-img">
+</small>
+
+<br>
+<hr>
+<br>
+
+<input type="checkbox" id="enableTabAudio"> <label for="enableTabAudio">Enable audio+tab recording?</label>
+<br>
+<small style="font-size:13px;margin-left:32px;display:block;">
+    Record all-audios on a tab. Record entire conference!
+</small>
+
+<br>
+<hr>
+
 <h2>Select Resolutions:</h2>
 <select id="resolutions" size=5>
     <option>Default (29999x8640)</option>
@@ -92,40 +111,35 @@ input[disabled], label[disabled] {
     <option>360p (640x360)</option>
 </select>
 
+
+<br><br>
+<hr>
+
+<h2>Select Video Codecs:</h2>
+<select id="videoCodec" size=3>
+    <option>Default</option>
+    <option>VP8</option>
+    <option>VP9</option>
+</select>
+
 <br><br>
 
 <hr>
 <br>
 
+<label for="videoMaxFrameRates">Video Framerates</label>
+<input type="text" id="videoMaxFrameRates" value="" style="margin-bottom:5px;width:70px;"> fps
+
+<hr>
+<br>
+
 <label for="videoBitsPerSecond">Video Bitrates</label>
-<input type="text" id="videoBitsPerSecond" value="4000" style="margin-bottom:5px;width:70px;"> kbps
+<input type="text" id="videoBitsPerSecond" value="" style="margin-bottom:5px;width:70px;"> kbps
 
 <br>
 
 <label for="audioBitsPerSecond">Audio Bitrates</label>
-<input type="text" id="audioBitsPerSecond" value="128" style="width:70px;"> kbps
-
-<br>
-
-<br>
-<hr>
-<br>
-
-<input type="checkbox" id="enableMicrophone"> <label for="enableMicrophone">Include Microphone?</label>
-<br>
-<small style="font-size:13px;margin-left:32px;display:block;">
-    Record your own voice using Microphone. <img id="enableMicrophone-help" src="images/help.png" class="help-img">
-</small>
-
-<br>
-<hr>
-<br>
-
-<input type="checkbox" id="enableTabAudio"> <label for="enableTabAudio">Enable audio+tab recording?</label>
-<br>
-<small style="font-size:13px;margin-left:32px;display:block;">
-    Record audio that is being played on the selected tab.
-</small>
+<input type="text" id="audioBitsPerSecond" value="" style="width:70px;"> kbps
 
 
 <script src="options.js"></script>

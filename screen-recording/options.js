@@ -14,13 +14,33 @@ chrome.storage.sync.get(null, function(items) {
         });
     }
 
+    if (items['videoCodec']) {
+        document.getElementById('videoCodec').value = items['videoCodec'];
+    } else {
+        chrome.storage.sync.set({
+            videoCodec: 'fit-screen'
+        }, function() {
+            document.getElementById('videoCodec').value = 'Default';
+        });
+    }
+
+    if (items['videoMaxFrameRates']) {
+        document.getElementById('videoMaxFrameRates').value = items['videoMaxFrameRates'];
+    } else {
+        chrome.storage.sync.set({
+            videoMaxFrameRates: ''
+        }, function() {
+            document.getElementById('videoMaxFrameRates').value = '';
+        });
+    }
+
     if (items['videoBitsPerSecond']) {
         document.getElementById('videoBitsPerSecond').value = items['videoBitsPerSecond'];
     } else {
         chrome.storage.sync.set({
-            videoBitsPerSecond: 4000
+            videoBitsPerSecond: ''
         }, function() {
-            document.getElementById('videoBitsPerSecond').value = 4000;
+            document.getElementById('videoBitsPerSecond').value = '';
         });
     }
 
@@ -28,9 +48,9 @@ chrome.storage.sync.get(null, function(items) {
         document.getElementById('audioBitsPerSecond').value = items['audioBitsPerSecond'];
     } else {
         chrome.storage.sync.set({
-            audioBitsPerSecond: 128
+            audioBitsPerSecond: ''
         }, function() {
-            document.getElementById('audioBitsPerSecond').value = 128;
+            document.getElementById('audioBitsPerSecond').value = '';
         });
     }
 
@@ -62,6 +82,28 @@ document.getElementById('resolutions').onchange = function() {
         resolutions: this.value
     }, function() {
         document.getElementById('resolutions').disabled = false;
+        hideSaving();
+    });
+};
+
+document.getElementById('videoCodec').onchange = function() {
+    this.disabled = true;
+    showSaving();
+    chrome.storage.sync.set({
+        videoCodec: this.value
+    }, function() {
+        document.getElementById('videoCodec').disabled = false;
+        hideSaving();
+    });
+};
+
+document.getElementById('videoMaxFrameRates').onblur = function() {
+    this.disabled = true;
+    showSaving();
+    chrome.storage.sync.set({
+        videoMaxFrameRates: this.value
+    }, function() {
+        document.getElementById('videoMaxFrameRates').disabled = false;
         hideSaving();
     });
 };

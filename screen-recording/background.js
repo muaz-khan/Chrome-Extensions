@@ -59,6 +59,15 @@ function onAccessApproved(chromeMediaSourceId) {
         constraints.video.mandatory.minAspectRatio = aspectRatio;
     }
 
+    if(videoMaxFrameRates && videoMaxFrameRates.toString().length) {
+        videoMaxFrameRates = parseInt(videoMaxFrameRates);
+
+        // 30 fps seems max-limit in Chrome?
+        if(videoMaxFrameRates /* && videoMaxFrameRates <= 30 */) {
+            constraints.video.maxFrameRate = videoMaxFrameRates;
+        }
+    }
+
     if(resolutions.maxWidth && resolutions.maxHeight) {
         constraints.video.mandatory.maxWidth = resolutions.maxWidth;
         constraints.video.mandatory.maxHeight = resolutions.maxHeight;
@@ -83,6 +92,14 @@ function onAccessApproved(chromeMediaSourceId) {
             recorderType: MediaStreamRecorder // StereoAudioRecorder
         };
 
+        if(videoCodec && videoCodec !== 'Default') {
+            // chrome 49+= supports vp8+vp9 (30 fps) and opus 48khz
+            // firefox 30+ VP8 + vorbis 44.1 khz
+
+            // video/webm,codecs=vp9
+            options.mimeType = 'video/webm; codecs=' + videoCodec.toLowerCase();
+        }
+
         if(getChromeVersion() >= 52) {
             if(audioBitsPerSecond) {
                 audioBitsPerSecond = parseInt(audioBitsPerSecond);
@@ -101,7 +118,7 @@ function onAccessApproved(chromeMediaSourceId) {
                 }
             }
 
-            if(enableTabAudio) {
+            if(enableTabAudio || enableMicrophone) {
                 if(audioBitsPerSecond) {
                     options.audioBitsPerSecond = audioBitsPerSecond * 1000;
                 }
@@ -134,7 +151,15 @@ function onAccessApproved(chromeMediaSourceId) {
         }
 
         recorder = RecordRTC(stream, options);
-        recorder.startRecording();
+        
+        try {
+            recorder.startRecording();
+            alreadyHadGUMError = false;
+        }
+        catch(e) {
+            getUserMediaError();
+        }
+
         recorder.stream = stream;
 
         isRecording = true;
@@ -167,10 +192,13 @@ function stopScreenRecording() {
             chrome.runtime.reload();
         }, 1000);
 
-        runtimePort.postMessage({
-            stopStream: true,
-            messageFromContentScript1234: true
-        });
+        try {
+            runtimePort.postMessage({
+                stopStream: true,
+                messageFromContentScript1234: true
+            });
+        }
+        catch(e) {}
 
         try {
             peer.close();
@@ -308,6 +336,9 @@ var enableTabAudio = false;
 var enableMicrophone = false;
 var audioStream = false;
 
+var videoCodec = 'Default';
+var videoMaxFrameRates = '';
+
 function getUserConfigs() {
     chrome.storage.sync.get(null, function(items) {
         if (items['audioBitsPerSecond']) {
@@ -324,6 +355,14 @@ function getUserConfigs() {
 
         if (items['enableMicrophone']) {
             enableMicrophone = items['enableMicrophone'] == 'true';
+        }
+
+        if (items['videoCodec']) {
+            videoCodec = items['videoCodec'];
+        }
+
+        if (items['videoMaxFrameRates']) {
+            videoMaxFrameRates = items['videoMaxFrameRates'];
         }
 
         var _resolutions = items['resolutions'];
@@ -536,6 +575,9 @@ function getUserMediaError() {
         // below line makes sure we retried merely once
         alreadyHadGUMError = true;
 
+        videoMaxFrameRates = '';
+        videoCodec = 'Default';
+
         captureDesktop();
         return;
     }
@@ -569,6 +611,10 @@ chrome.runtime.onConnect.addListener(function(port) {
             createAnswer(message.sdp);
         }
     });
+
+    runtimePort.onDisconnect.addListener(function() {
+        chrome.runtime.reload();
+    });
 });
 
 function lookupForHTTPsTab(callback) {
@@ -591,7 +637,12 @@ function lookupForHTTPsTab(callback) {
             executeScript(tabFound.id);
         }
         else {
-            callback('no-https-tab');
+            // create new HTTPs tab and try again
+            chrome.tabs.create({
+               url: 'https://rtcxp.com'
+            }, function() {
+                lookupForHTTPsTab(callback);
+            });
         }
     });
 }
@@ -609,10 +660,13 @@ function createAnswer(sdp) {
     peer.onicecandidate = function(event) {
         if (!event || !!event.candidate) return;
 
-        runtimePort.postMessage({
-            sdp: peer.localDescription,
-            messageFromContentScript1234: true
-        });
+        try {
+            runtimePort.postMessage({
+                sdp: peer.localDescription,
+                messageFromContentScript1234: true
+            });
+        }
+        catch(e) {}
     };
 
     peer.onaddstream = function(event) {

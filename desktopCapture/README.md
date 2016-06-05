@@ -22,7 +22,7 @@ Here is how to modify `allowed-domains` in `manifest.json` file:
        "js": [ "content-script.js" ],
        "all_frames": true,
        "run_at": "document_end",
-       "matches": ["*://www.domain.com/*"]
+       "matches": ["https://www.domain.com/*"]
     }]
 }
 ```
@@ -55,7 +55,7 @@ For additional information, click [this link](https://github.com/muaz-khan/WebRT
 It is recommended to use `getScreenId.js` to capture screen. In that case, you don't need to publish this chrome extension yourself in Google App Store.
 
 ```html
-<script src="//cdn.WebRTC-Experiment.com/getScreenId.js"></script>
+<script src="https://cdn.WebRTC-Experiment.com/getScreenId.js"></script>
 <video controls autoplay></video>
 <script>
 getScreenId(function (error, sourceId, screen_constraints) {

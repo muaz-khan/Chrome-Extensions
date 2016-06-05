@@ -2,6 +2,20 @@
 
 [RecordRTC](https://github.com/muaz-khan/RecordRTC) is used to record entire screen or record any application screen.
 
+### Features
+
+1. Record Entire Screen
+2. Record Your Microphone along with Entire Screen
+3. Record all microphones on a tab, along with tab's screen (this feature allows you record entire WebRTC-conference, all videos, all audios, dashboard, etc.)
+
+10 minutes should be considered max-recording limit. However this chrome-extension supports more!
+
+| Extension Name        | Source Code           | Google App Store |
+| ------------- |-------------|-------------|
+| Screen Recording | [ github/screen-recording ](https://github.com/muaz-khan/Chrome-Extensions/tree/master/screen-recording) | [![Install Chrome Extension](https://raw.github.com/GoogleChrome/chrome-app-samples/master/tryitnowbutton_small.png)](https://chrome.google.com/webstore/detail/recordrtc/ndcljioonkecdnaaihodjgiliohngojp) |
+
+* https://chrome.google.com/webstore/detail/recordrtc/ndcljioonkecdnaaihodjgiliohngojp
+
 1.  Audio+Tab recording means voice or audio that is being played on selected tab. It can be a youtube page, an `<audio>` player or whatever. So it is NOT microphone audio; it is your tab's audio.
 2. "Enable Microphone" feature works for any screen. You can enable microphone and record your own voice along with full screen or screen of any application.
 
@@ -36,14 +50,6 @@ Currently this chrome extension supports following resolutions:
 | SVGA              | 800    x 600              | 1.3  (4:3)    |
 | 720p              | 1280   x 720              | 1.77 (16:9)   |
 | 360p              | 640    x 360              | 1.77 (16:9)   |
-
-10 minutes should be considered max-recording limit. However this app supports more!
-
-| Extension Name        | Source Code           | Google App Store |
-| ------------- |-------------|-------------|
-| Screen Recording | [ github/screen-recording ](https://github.com/muaz-khan/Chrome-Extensions/tree/master/screen-recording) | [![Install Chrome Extension](https://raw.github.com/GoogleChrome/chrome-app-samples/master/tryitnowbutton_small.png)](https://chrome.google.com/webstore/detail/recordrtc/ndcljioonkecdnaaihodjgiliohngojp) |
-
-* https://chrome.google.com/webstore/detail/recordrtc/ndcljioonkecdnaaihodjgiliohngojp
 
 ## License
 

@@ -1,10 +1,10 @@
 {
     "name" : "Screen Capturing",
     "author": "Muaz Khan",
-    "version" : "3.3",
+    "version" : "3.4",
     "manifest_version" : 2,
     "minimum_chrome_version": "34",
-    "description" : "Capture full-screen or specific application's screen on any HTTPs domain! Even audio+tab!",
+    "description" : "Capture full-screen or specific application's screen on any HTTPs domain!",
     "homepage_url": "https://www.webrtc-experiment.com/",
     "background": {
         "scripts": ["background-script.js"],
@@ -14,7 +14,7 @@
        "js": [ "content-script.js" ],
        "all_frames": true,
        "run_at": "document_end",
-       "matches": ["https://www.webrtc-experiment.com/*", "https://rtcmulticonnection.herokuapp.com/*"]
+       "matches": ["https://www.webrtc-experiment.com/*"]
     }],
     "icons" : {
         "48" : "icon.png"
