@@ -8,7 +8,7 @@ chrome.storage.sync.get(null, function(items) {
         document.getElementById('resolutions').value = items['resolutions'];
     } else {
         chrome.storage.sync.set({
-            resolutions: 'fit-screen'
+            resolutions: 'Default (29999x8640)'
         }, function() {
             document.getElementById('resolutions').value = 'Default (29999x8640)';
         });
@@ -18,7 +18,7 @@ chrome.storage.sync.get(null, function(items) {
         document.getElementById('videoCodec').value = items['videoCodec'];
     } else {
         chrome.storage.sync.set({
-            videoCodec: 'fit-screen'
+            videoCodec: ''
         }, function() {
             document.getElementById('videoCodec').value = 'Default';
         });
@@ -108,22 +108,34 @@ document.getElementById('videoMaxFrameRates').onblur = function() {
     });
 };
 
-document.getElementById('enableTabAudio').onchange = function() {
-    this.disabled = true;
+document.getElementById('enableTabAudio').onchange = function(event) {
+    if(!!event) {
+        // microphone along with tab+audio is NOT allowed
+        document.getElementById('enableMicrophone').checked = false;
+        document.getElementById('enableMicrophone').onchange();
+    }
+
+    document.getElementById('enableTabAudio').disabled = true;
     showSaving();
     chrome.storage.sync.set({
-        enableTabAudio: this.checked ? 'true' : 'false'
+        enableTabAudio: document.getElementById('enableTabAudio').checked ? 'true' : 'false'
     }, function() {
         document.getElementById('enableTabAudio').disabled = false;
         hideSaving();
     });
 };
 
-document.getElementById('enableMicrophone').onchange = function() {
-    this.disabled = true;
+document.getElementById('enableMicrophone').onchange = function(event) {
+    if(!!event) {
+        // microphone along with tab+audio is NOT allowed
+        document.getElementById('enableTabAudio').checked = false;
+        document.getElementById('enableTabAudio').onchange();
+    }
+
+    document.getElementById('enableMicrophone').disabled = true;
     showSaving();
     chrome.storage.sync.set({
-        enableMicrophone: this.checked ? 'true' : 'false'
+        enableMicrophone: document.getElementById('enableMicrophone').checked ? 'true' : 'false'
     }, function() {
         document.getElementById('enableMicrophone').disabled = false;
         hideSaving();
@@ -161,26 +173,3 @@ function hideSaving() {
         document.getElementById('applying-changes').style.display = 'none';
     }, 700);
 }
-
-document.getElementById('enableMicrophone-help').onclick = function() {
-    var html = '<br><br>You can record your own voice as well.';
-    html += '<br><br>';
-    html += '<span style="color:red;">This feature requires at least one HTTPs tab.</span>';
-    html += '<br><br>';
-    html += 'For example, you can open <a href="https://google.com">https://google.com</a> or <a href="https://rtcxp.com">https://rtcxp.com</a>';
-    html += '<br><br>';
-    html += 'HTTPs tab will be used to capture your microphone.';
-    html += '<br><br>';
-    html += 'Chrome does not allows microphone-capturing on any non-HTTPs page.';
-    html += '<br><br>';
-    html += '<span style="color:red;">Your voice will be recorded along with full screen or any app\'s selected screen.</span>';
-    html += '<br><br>';
-    html += 'This will help you make presentation videos!';
-
-    var parentNode = this.parentNode;
-    parentNode.style.fontSize = '20px';
-    parentNode.innerHTML = html;
-
-    parentNode.tabIndex = 0;
-    parentNode.focus();
-};
