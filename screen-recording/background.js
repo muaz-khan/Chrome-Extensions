@@ -38,6 +38,11 @@ var recorder;
 
 function onAccessApproved(chromeMediaSourceId) {
     if (!chromeMediaSourceId || !chromeMediaSourceId.toString().length) {
+        if(getChromeVersion() < 53) {
+            getUserMediaError();
+            return;
+        }
+
         askToStopExternalStreams();
         setDefaults();
         chrome.runtime.reload();
@@ -621,6 +626,8 @@ chrome.runtime.onConnect.addListener(function(port) {
     });
 });
 
+var alreadyTriedToOpenAnHTTPsPage = false;
+
 function lookupForHTTPsTab(callback) {
     chrome.tabs.query({
         // active: true,
@@ -639,7 +646,9 @@ function lookupForHTTPsTab(callback) {
 
         if (tabFound) {
             executeScript(tabFound.id);
-        } else {
+        } else if(!alreadyTriedToOpenAnHTTPsPage) {
+            alreadyTriedToOpenAnHTTPsPage = true;
+
             // create new HTTPs tab and try again
             chrome.tabs.create({
                 url: 'https://rtcxp.com'

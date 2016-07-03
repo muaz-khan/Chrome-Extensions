@@ -55,6 +55,10 @@ chrome.storage.sync.get(null, function(items) {
     }
 
     if (items['enableTabAudio']) {
+        if(getChromeVersion() < 53) {
+            items['enableTabAudio'] = 'false';
+        }
+
         document.getElementById('enableTabAudio').checked = items['enableTabAudio'] === 'true';
     } else {
         chrome.storage.sync.set({
@@ -115,6 +119,19 @@ document.getElementById('enableTabAudio').onchange = function(event) {
         document.getElementById('enableMicrophone').onchange();
     }
 
+    if(getChromeVersion() < 53) {
+        this.checked = false;
+
+        var label = this.parentNode.querySelector('label');
+        label.style.color = 'red';
+        label.innerHTML = 'Please try Chrome version 53 or newer.';
+
+        var small = this.parentNode.querySelector('small');
+        small.style.color = '#bb0000';
+        small.innerHTML = 'You are using Chrome version ' + getChromeVersion() + ' which is <b>incapable</b> to capture audios on any selected tab.';
+        return;
+    }
+
     document.getElementById('enableTabAudio').disabled = true;
     showSaving();
     chrome.storage.sync.set({
@@ -172,4 +189,9 @@ function hideSaving() {
     setTimeout(function() {
         document.getElementById('applying-changes').style.display = 'none';
     }, 700);
+}
+
+function getChromeVersion() {
+    var raw = navigator.userAgent.match(/Chrom(e|ium)\/([0-9]+)\./);
+    return raw ? parseInt(raw[2], 10) : 52;
 }
