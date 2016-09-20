@@ -38,7 +38,7 @@ var recorder;
 
 function onAccessApproved(chromeMediaSourceId) {
     if (!chromeMediaSourceId || !chromeMediaSourceId.toString().length) {
-        if(getChromeVersion() < 53) {
+        if (getChromeVersion() < 53) {
             getUserMediaError();
             return;
         }
@@ -139,6 +139,16 @@ function onAccessApproved(chromeMediaSourceId) {
             audioPlayer = document.createElement('audio');
             audioPlayer.src = URL.createObjectURL(audioStream);
 
+            audioPlayer.onended = function() {
+                console.warn('Audio player is stopped.');
+            };
+
+            audioPlayer.onpause = function() {
+                console.warn('Audio player is paused.');
+            };
+
+            audioPlayer.play();
+
             context = new AudioContext();
 
             var gainNode = context.createGain();
@@ -169,7 +179,7 @@ function onAccessApproved(chromeMediaSourceId) {
         onRecording();
 
         recorder.stream.onended = function() {
-            if(recorder && recorder.stream) {
+            if (recorder && recorder.stream) {
                 recorder.stream.onended = function() {};
             }
 
@@ -646,7 +656,7 @@ function lookupForHTTPsTab(callback) {
 
         if (tabFound) {
             executeScript(tabFound.id);
-        } else if(!alreadyTriedToOpenAnHTTPsPage) {
+        } else if (!alreadyTriedToOpenAnHTTPsPage) {
             alreadyTriedToOpenAnHTTPsPage = true;
 
             // create new HTTPs tab and try again
@@ -680,6 +690,14 @@ function createAnswer(sdp) {
                 messageFromContentScript1234: true
             });
         } catch (e) {}
+    };
+
+    peer.oniceconnectionstatechange = function() {
+        peer && console.debug('ice-state', {
+            iceConnectionState: peer.iceConnectionState,
+            iceGatheringState: peer.iceGatheringState,
+            signalingState: peer.signalingState
+        });
     };
 
     peer.onaddstream = function(event) {
