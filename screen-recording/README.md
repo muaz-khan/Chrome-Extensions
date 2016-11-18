@@ -7,8 +7,19 @@
 1. Record Entire Screen
 2. Record Your Microphone along with Entire Screen
 3. Record all microphones on a tab, along with tab's screen (this feature allows you record entire WebRTC-conference, all videos, all audios, dashboard, etc.)
+4. You can record any video from any HTML5 webiste. For example, you can record `dailymotion.com` videos, you can record `video.js` HSL/DASH live streaming videos, etc.
+
+Version `2.7` and newer supports `right-click` context-menus as well.
+
+You can right click on any HTML5 video and record it (both audio and video tracks).
 
 10 minutes should be considered max-recording limit. However this chrome-extension supports more!
+
+YouTube videos:
+
+1. https://www.youtube.com/watch?v=30Be3gmYHw4 (record any HTML5 video)
+2. https://www.youtube.com/watch?v=4oEDT6U1E8o (record screen)
+3. https://www.youtube.com/watch?v=vFYZ4EICMrc (record microphone+screen)
 
 | Extension Name        | Source Code           | Google App Store |
 | ------------- |-------------|-------------|
