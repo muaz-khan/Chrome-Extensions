@@ -640,7 +640,7 @@ function msToTime(s) {
     return addZ(hrs) + ':' + addZ(mins) + ':' + addZ(secs) + '.' + ms;
 }
 
-function setBadgeText(text, title) {
+function setVODRecordingBadgeText(text, title) {
     chrome.browserAction.setBadgeBackgroundColor({
         color: [203, 0, 15, 255]
     });
@@ -670,6 +670,7 @@ chrome.runtime.onConnect.addListener(function(port) {
         }
 
         if (message.unableToRecordVideoFromSrc) {
+            // alert('Unable to record this video.');
             return;
         }
 
@@ -681,7 +682,7 @@ chrome.runtime.onConnect.addListener(function(port) {
                     chrome.contextMenus.update(contextMenuID, {
                         title: 'Record this video'
                     });
-                    setBadgeText('');
+                    setVODRecordingBadgeText('');
                     return;
                 }
 
@@ -690,7 +691,7 @@ chrome.runtime.onConnect.addListener(function(port) {
                 chrome.contextMenus.update(contextMenuID, {
                     title: 'Stop recording this video (duration: ' + text + ')'
                 });
-                setBadgeText((currentTime - startedVODRecordedAt).toString(), text);
+                setVODRecordingBadgeText((currentTime - startedVODRecordedAt).toString(), text);
 
                 setTimeout(looper, 1000);
             })();
