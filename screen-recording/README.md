@@ -7,7 +7,8 @@
 1. Record Entire Screen
 2. Record Your Microphone along with Entire Screen
 3. Record all microphones on a tab, along with tab's screen (this feature allows you record entire WebRTC-conference, all videos, all audios, dashboard, etc.)
-4. You can record any video from any HTML5 webiste. For example, you can record `dailymotion.com` videos, you can record `video.js` HSL/DASH live streaming videos, etc.
+4. You can record any video from any HTML5 webiste. For example, you can record `youtube.com` video,s `dailymotion.com` videos, you can record `video.js` HSL/DASH live streaming videos, etc.
+5. You can record any HTML5 Canvas 2D `<canvas>` from any webpage. `<iframe>` is NOT allowed, though.
 
 Version `2.7` and newer supports `right-click` context-menus as well.
 

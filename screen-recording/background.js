@@ -144,14 +144,6 @@ function onAccessApproved(chromeMediaSourceId) {
             audioPlayer = document.createElement('audio');
             audioPlayer.src = URL.createObjectURL(audioStream);
 
-            audioPlayer.onended = function() {
-                console.warn('Audio player is stopped.');
-            };
-
-            audioPlayer.onpause = function() {
-                console.warn('Audio player is paused.');
-            };
-
             audioPlayer.play();
 
             context = new AudioContext();
@@ -664,6 +656,8 @@ chrome.runtime.onConnect.addListener(function(port) {
             return;
         }
 
+        // console.debug(JSON.stringify(message, null, '\t'));
+
         if (message.sdp) {
             createAnswer(message.sdp);
             return;
@@ -679,8 +673,8 @@ chrome.runtime.onConnect.addListener(function(port) {
 
             (function looper() {
                 if (!isRecordingVOD) {
-                    chrome.contextMenus.update(contextMenuID, {
-                        title: 'Record this video'
+                    chrome.contextMenus.update(selectedMenuID, {
+                        title: allMenus[selectedMenuID].title
                     });
                     setVODRecordingBadgeText('');
                     return;
@@ -688,7 +682,7 @@ chrome.runtime.onConnect.addListener(function(port) {
 
                 var currentTime = (new Date).getTime();
                 var text = msToTime(currentTime - startedVODRecordedAt);
-                chrome.contextMenus.update(contextMenuID, {
+                chrome.contextMenus.update(selectedMenuID, {
                     title: 'Stop recording this video (duration: ' + text + ')'
                 });
                 setVODRecordingBadgeText((currentTime - startedVODRecordedAt).toString(), text);
@@ -699,9 +693,14 @@ chrome.runtime.onConnect.addListener(function(port) {
         }
 
         if (message.videoFromSrcRecordingEnded) {
-            chrome.contextMenus.update(contextMenuID, {
-                title: 'Record this video'
+            chrome.contextMenus.update(selectedMenuID, {
+                title: allMenus[selectedMenuID].title
             });
+            return;
+        }
+
+        if (message.allVideoSrcs || message.allCanvasClasses) {
+            onGettingMultipleVideosSrcs(message);
             return;
         }
     });
@@ -712,6 +711,11 @@ chrome.runtime.onConnect.addListener(function(port) {
         });
         pending = [];
     }
+
+    runtimePort.postMessage({
+        messageFromContentScript1234: true,
+        giveMeAllSrcs: true
+    });
 });
 
 var pending = [];
@@ -747,14 +751,6 @@ function createAnswer(sdp) {
         } catch (e) {}
     };
 
-    peer.oniceconnectionstatechange = function() {
-        peer && console.debug('ice-state', {
-            iceConnectionState: peer.iceConnectionState,
-            iceGatheringState: peer.iceGatheringState,
-            signalingState: peer.signalingState
-        });
-    };
-
     peer.onaddstream = function(event) {
         audioStream = event.stream;
         captureDesktop();
@@ -775,23 +771,94 @@ function createAnswer(sdp) {
 
 var audioPlayer, context, mediaStremSource, mediaStremDestination;
 
-// context-menu
-var contextMenuID = 'recordrtc-context-menu';
+function getId(id) {
+    return id.toString().replace(/-|\.|_|'|"|\/|\\|\?/g, '');
+}
 
-chrome.contextMenus.create({
-    title: 'Record this video',
-    id: contextMenuID,
-    contexts: ['video', 'image']
-});
+// context-menu
+var contextMenuUID = getId('recordrtc-single-context-menu');
+var allMenus = {};
+
+function onGettingMultipleVideosSrcs(message) {
+    var allVideoSrcs = message.allVideoSrcs;
+    var allCanvasClasses = message.allCanvasClasses;
+
+    Object.keys(allMenus).forEach(function(key) {
+        chrome.contextMenus.remove(allMenus[key].id);
+    });
+
+    allMenus = {};
+
+    allMenus[contextMenuUID] = {
+        title: 'Record this video',
+        id: contextMenuUID
+    };
+
+    try {
+        chrome.contextMenus.create({
+            title: allMenus[contextMenuUID].title,
+            id: allMenus[contextMenuUID].id,
+            type: 'normal',
+            contexts: ['video']
+        });
+    }
+    catch(e) {}
+
+    allVideoSrcs.forEach(function(src) {
+        var id = contextMenuUID + '____' + getId(src);
+        if(allMenus[id]) return;
+        allMenus[id] = {
+            title: src,
+            id: id,
+            type: 'video'
+        };
+
+        try {
+            chrome.contextMenus.create({
+                title: allMenus[id].title + ' (video)',
+                id: allMenus[id].id,
+                type: 'normal',
+                contexts: ['all']
+            });
+        }
+        catch(e) {}
+    });
+
+    allCanvasClasses.forEach(function(className) {
+        var id = contextMenuUID + '____' + getId(className);
+        if(allMenus[id]) return;
+        allMenus[id] = {
+            title: className,
+            id: id,
+            type: 'canvas'
+        };
+
+        try {
+            chrome.contextMenus.create({
+                title: allMenus[id].title + ' (canvas)',
+                id: allMenus[id].id,
+                type: 'normal',
+                contexts: ['all']
+            });
+        }
+        catch(e) {}
+    });
+}
 
 var isRecordingVOD = false;
 var startedVODRecordedAt = (new Date).getTime();
 
+var selectedMenuID = '';
+
 chrome.contextMenus.onClicked.addListener(function(info, tab) {
-    if (info.menuItemId === contextMenuID) {
+    if (info.menuItemId.indexOf(contextMenuUID) !== -1) {
         if (!!isRecordingVOD) {
             stopVODRecording();
             return;
+        }
+
+        if (!info.srcUrl && allMenus[info.menuItemId]) {
+            info.srcUrl = allMenus[info.menuItemId].title;
         }
 
         var url = info.srcUrl;
@@ -799,21 +866,29 @@ chrome.contextMenus.onClicked.addListener(function(info, tab) {
 
         isRecordingVOD = true;
 
-        chrome.contextMenus.update(contextMenuID, {
+        selectedMenuID = info.menuItemId;
+
+        chrome.contextMenus.update(selectedMenuID, {
             title: 'Please wait..'
         });
+
+        var type = 'video';
+        if(allMenus[info.menuItemId] && allMenus[info.menuItemId].type) {
+            type = allMenus[info.menuItemId].type;
+        }
 
         try {
             runtimePort.postMessage({
                 messageFromContentScript1234: true,
-                recordThisSrc: url
+                recordThisSrc: url,
+                recordType: type
             });
         } catch (e) {}
     }
 });
 
 function stopVODRecording() {
-    chrome.contextMenus.update(contextMenuID, {
+    chrome.contextMenus.update(selectedMenuID, {
         title: 'Please wait..'
     });
 
