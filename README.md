@@ -21,8 +21,6 @@ Firefox addon:
 
 # Third Party Extensions
 
-* [WebRTC Network Limiter in Chrome](https://github.com/webrtc/samples/tree/master/src/content/extensions/multipleroutes/src)
-* [Etc.](https://github.com/webrtc/samples/tree/master/src/content/extensions)
 * WebRTC Block & [WebRTC Leak Prevent](https://chrome.google.com/webstore/detail/webrtc-network-limiter/npeicpdbkakmehahjeeohfdhnlpdklia?hl=en)
 
 ----
