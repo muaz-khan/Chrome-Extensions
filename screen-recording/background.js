@@ -164,20 +164,10 @@ function gotStream(stream) {
         audioPlayer.src = URL.createObjectURL(audioStream);
 
         audioPlayer.play();
-
-        context = new AudioContext();
-
-        var gainNode = context.createGain();
-        gainNode.connect(context.destination);
-        gainNode.gain.value = 0; // don't play for self
-
-        mediaStremSource = context.createMediaStreamSource(audioStream);
-        mediaStremSource.connect(gainNode);
-
-        mediaStremDestination = context.createMediaStreamDestination();
-        mediaStremSource.connect(mediaStremDestination)
-
-        stream.addTrack(mediaStremDestination.stream.getAudioTracks()[0]);
+		
+		var singleAudioStream = getMixedAudioStream([stream, audioStream]);
+		singleAudioStream.addTrack(stream.getVideoTracks()[0]);
+		stream = singleAudioStream;
     }
 
     recorder = RecordRTC(stream, options);
@@ -210,6 +200,39 @@ function gotStream(stream) {
 
     initialTime = Date.now()
     timer = setInterval(checkTime, 100);
+}
+
+function getMixedAudioStream(arrayOfMediaStreams) {
+    // via: @pehrsons
+    var audioContext = new AudioContext();
+    var audioSources = [];
+
+    var gainNode = audioContext.createGain();
+    gainNode.connect(audioContext.destination);
+    gainNode.gain.value = 0; // don't hear self
+
+    var audioTracksLength = 0;
+    arrayOfMediaStreams.forEach(function(stream) {
+        if (!stream.getAudioTracks().length) {
+            return;
+        }
+
+        audioTracksLength++;
+
+        var audioSource = audioContext.createMediaStreamSource(stream);
+        audioSource.connect(gainNode);
+        audioSources.push(audioSource);
+    });
+
+    if (!audioTracksLength) {
+        return;
+    }
+
+    audioDestination = audioContext.createMediaStreamDestination();
+    audioSources.forEach(function(audioSource) {
+        audioSource.connect(audioDestination);
+    });
+    return audioDestination.stream;
 }
 
 function askToStopExternalStreams() {

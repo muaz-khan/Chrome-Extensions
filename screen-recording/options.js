@@ -127,12 +127,6 @@ document.getElementById('videoMaxFrameRates').onblur = function() {
 };
 
 document.getElementById('enableTabAudio').onchange = function(event) {
-    if(!!event) {
-        // microphone along with tab+audio is NOT allowed
-        document.getElementById('enableMicrophone').checked = false;
-        document.getElementById('enableMicrophone').onchange();
-    }
-
     if(getChromeVersion() < 53) {
         this.checked = false;
 
@@ -157,12 +151,6 @@ document.getElementById('enableTabAudio').onchange = function(event) {
 };
 
 document.getElementById('enableMicrophone').onchange = function(event) {
-    if(!!event) {
-        // microphone along with tab+audio is NOT allowed
-        document.getElementById('enableTabAudio').checked = false;
-        document.getElementById('enableTabAudio').onchange();
-    }
-
     document.getElementById('enableMicrophone').disabled = true;
     showSaving();
     chrome.storage.sync.set({
@@ -211,16 +199,6 @@ function getChromeVersion() {
 }
 
 document.getElementById('enableTabCaptureAPI').onchange = function(event) {
-    if(!!event) {
-        // microphone along with tabCapture is temporarily disabled.
-        document.getElementById('enableMicrophone').checked = false;
-        document.getElementById('enableMicrophone').onchange();
-
-        // tab+audio is not allowed.
-        document.getElementById('enableTabAudio').checked = false;
-        document.getElementById('enableTabAudio').onchange();
-    }
-
     document.getElementById('enableTabCaptureAPI').disabled = true;
     showSaving();
     chrome.storage.sync.set({
