@@ -301,17 +301,7 @@ function setupRTCMultiConnection(stream) {
     connection.autoReDialOnFailure = true;
     connection.getExternalIceServers = false;
 
-    connection.iceServers.push({
-        urls: 'turn:webrtcweb.com:443',
-        username: 'muazkh',
-        credential: 'muazkh'
-    });
-
-    connection.iceServers.push({
-        urls: 'turn:webrtcweb.com:80',
-        username: 'muazkh',
-        credential: 'muazkh'
-    });
+    connection.iceServers = IceServersHandler.getIceServers();
 
     setBandwidth(connection);
 
