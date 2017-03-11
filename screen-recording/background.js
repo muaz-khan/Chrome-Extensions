@@ -161,6 +161,8 @@ function gotStream(stream) {
 
     if (audioStream && audioStream.getAudioTracks && audioStream.getAudioTracks().length) {
         audioPlayer = document.createElement('audio');
+		audioPlayer.muted = true;
+		audioPlayer.volume = 0;
         audioPlayer.src = URL.createObjectURL(audioStream);
 
         audioPlayer.play();
@@ -204,11 +206,11 @@ function gotStream(stream) {
 
 function getMixedAudioStream(arrayOfMediaStreams) {
     // via: @pehrsons
-    var audioContext = new AudioContext();
+    context = new AudioContext();
     var audioSources = [];
 
-    var gainNode = audioContext.createGain();
-    gainNode.connect(audioContext.destination);
+    var gainNode = context.createGain();
+    gainNode.connect(context.destination);
     gainNode.gain.value = 0; // don't hear self
 
     var audioTracksLength = 0;
@@ -219,7 +221,7 @@ function getMixedAudioStream(arrayOfMediaStreams) {
 
         audioTracksLength++;
 
-        var audioSource = audioContext.createMediaStreamSource(stream);
+        var audioSource = context.createMediaStreamSource(stream);
         audioSource.connect(gainNode);
         audioSources.push(audioSource);
     });
@@ -228,11 +230,11 @@ function getMixedAudioStream(arrayOfMediaStreams) {
         return;
     }
 
-    audioDestination = audioContext.createMediaStreamDestination();
+    mediaStremDestination = context.createMediaStreamDestination();
     audioSources.forEach(function(audioSource) {
-        audioSource.connect(audioDestination);
+        audioSource.connect(mediaStremDestination);
     });
-    return audioDestination.stream;
+    return mediaStremDestination.stream;
 }
 
 function askToStopExternalStreams() {
