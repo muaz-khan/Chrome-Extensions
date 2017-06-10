@@ -10,6 +10,16 @@
 
 **Firefox addon:** [Screen Capturing in Firefox](https://github.com/muaz-khan/Firefox-Extensions/tree/master/enable-screen-capturing)
 
+----
+
+# Issues/Bugs/Reports?
+
+* https://github.com/muaz-khan/Chrome-Extensions/issues
+
+----
+
+# Features:
+
 1. Share full screen or any app's screen in 1080p or 720p format
 2. Record full screen (1920p, 1080p, 720p) or any app's screen
 3. Share youtube video (+ audio) along with tab activity
@@ -17,6 +27,8 @@
 5. Record your microphone along with full screen
 6. Record your microphone along with youtube video (+audio) as well as youtube tab activity (all-in-one)
 7. Share files (peer-to-peer) on windows, mac, linux, Android and iOS
+
+----
 
 ### Third Party Extensions
 

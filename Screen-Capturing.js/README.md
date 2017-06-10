@@ -91,6 +91,8 @@ Then you can use <a href="https://cdn.webrtc-experiment.com/Screen-Capturing.js"
 2. <a href="https://github.com/muaz-khan/Chrome-Extensions/tree/master/desktopCapture">Source code of the extension</a>
 3. <a href="https://github.com/muaz-khan/Chrome-Extensions/tree/master/Screen-Capturing.js">Source code of Screen-Capturing.js</a>
 
+----
+
 # Do NOT Deploy Chrome Extension YourSelf!!!!
 
 * https://github.com/muaz-khan/getScreenId

@@ -84,6 +84,8 @@ For more `Screen-Capturing.js` snippets/help:
 4. [Screen.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/screen-sharing) - a screen capturing library along with multi-user p2p screen streaming.
 5. [Pluginfree Screen Sharing](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/Pluginfree-Screen-Sharing) - a standalone application, providing multi-user p2p screen streaming in HD format.
 
+----
+
 # Do NOT Deploy Chrome Extension YourSelf!!!!
 
 * https://github.com/muaz-khan/getScreenId
