@@ -660,7 +660,7 @@ function getUserConfigs() {
         if (enableMicrophone) {
             if (!runtimePort || runtimePort.sender.url.indexOf('https:') == -1) {
                 chrome.tabs.create({
-                    url: 'https://webrtcweb.com'
+                    url: 'https://webrtcweb.com/capture-microphone/'
                 }, function(tab) {
                     askContentScriptToSendMicrophone(tab.id);
                 });
