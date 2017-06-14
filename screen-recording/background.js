@@ -114,6 +114,14 @@ function onAccessApproved(chromeMediaSourceId) {
     navigator.webkitGetUserMedia(constraints, gotStream, getUserMediaError);
 }
 
+function isMimeTypeSupported(mimeType) {
+    if (typeof MediaRecorder.isTypeSupported !== 'function') {
+        return true;
+    }
+
+    return MediaRecorder.isTypeSupported(mimeType);
+}
+
 function gotStream(stream) {
     var options = {
         type: 'video',
@@ -121,12 +129,30 @@ function gotStream(stream) {
         recorderType: MediaStreamRecorder // StereoAudioRecorder
     };
 
-    if (videoCodec && videoCodec !== 'Default') {
-        // chrome 49+= supports vp8+vp9 (30 fps) and opus 48khz
-        // firefox 30+ VP8 + vorbis 44.1 khz
+    if (videoCodec) {
+        if(videoCodec === 'Default') {
+            options.mimeType = 'video/webm';
+        }
 
-        // video/webm,codecs=vp9
-        options.mimeType = 'video/webm; codecs=' + videoCodec.toLowerCase();
+        if(videoCodec === 'VP8') {
+            options.mimeType = 'video/webm\;codecs=vp8';
+        }
+
+        if(videoCodec === 'VP9') {
+            options.mimeType = 'video/webm\;codecs=vp9';
+        }
+
+        if(videoCodec === 'H264') {
+            if(isMimeTypeSupported('video/webm\;codecs=h264')) {
+                options.mimeType = 'video/webm\;codecs=h264';
+            }
+        }
+
+        if(videoCodec === 'MKV') {
+            if(isMimeTypeSupported('video/x-matroska;codecs=avc1')) {
+                options.mimeType = 'video/x-matroska;codecs=avc1';
+            }
+        }
     }
 
     if (getChromeVersion() >= 52) {
@@ -250,8 +276,25 @@ function stopScreenRecording() {
     isRecording = false;
 
     recorder.stopRecording(function() {
-        var file = new File([recorder.getBlob()], 'RecordRTC-' + (new Date).toISOString().replace(/:|\./g, '-') + '.webm', {
-            type: 'video/webm'
+        var mimeType = 'video/webm';
+        var fileExtension = 'webm';
+
+        if(videoCodec === 'H264') {
+            if(isMimeTypeSupported('video/webm\;codecs=h264')) {
+                mimeType = 'video/mp4';
+                fileExtension = 'mp4';
+            }
+        }
+
+        if(videoCodec === 'MKV') {
+            if(isMimeTypeSupported('video/x-matroska;codecs=avc1')) {
+                mimeType = 'video/mkv';
+                fileExtension = 'mkv';
+            }
+        }
+
+        var file = new File([recorder.getBlob()], 'RecordRTC-' + (new Date).toISOString().replace(/:|\./g, '-') + '.' + fileExtension, {
+            type: mimeType
         });
 
         invokeSaveAsDialog(file, file.name);
@@ -915,7 +958,7 @@ chrome.contextMenus.onClicked.addListener(function(info, tab) {
 
     if (info.menuItemId == contextMenuUID + 'send_error_report') {
         chrome.tabs.create({
-            url: 'https://github.com/muaz-khan/Chrome-Extensions/issues/new',
+            url: 'https://github.com/muaz-khan/RecordRTC/issues/new',
             active: true
         });
         return;
@@ -973,20 +1016,29 @@ function captureTabUsingTabCapture(isNoAudio) {
         videoConstraints: {
             mandatory: {
                 chromeMediaSource: 'tab',
-                maxWidth: screen.width,
-                maxHeight: screen.height,
+                minWidth: 1920,
+                minHeight: 1080,
+                maxWidth: 1920,
+                maxHeight: 1080,
                 minFrameRate: 30,
                 maxFrameRate: 64,
                 minAspectRatio: 1.77,
-                googLeakyBucket: true,
-                googTemporalLayeredScreencast: true
+                // googLeakyBucket: true,
+                // googTemporalLayeredScreencast: true
             }
         }
     };
 
-    chrome.tabCapture.capture(constraints, function(stream) {
-        gotTabCaptureStream(stream, constraints);
-    });
+    // chrome.tabCapture.onStatusChanged.addListener(function(event) { /* event.status */ });
+
+    try {
+        chrome.tabCapture.capture(constraints, function(stream) {
+            gotTabCaptureStream(stream, constraints);
+        });
+    }
+    catch(e) {
+        alert('Unable to capture the selected tab.' + e.toString());
+    }
 }
 
 function gotTabCaptureStream(stream, constraints) {
@@ -999,5 +1051,11 @@ function gotTabCaptureStream(stream, constraints) {
         return;
     }
 
-    gotStream(stream);
+    var newStream = new MediaStream();
+
+    stream.getAudioTracks().concat(stream.getVideoTracks()).forEach(function(track) {
+        newStream.addTrack(track);
+    });
+
+    gotStream(newStream);
 }

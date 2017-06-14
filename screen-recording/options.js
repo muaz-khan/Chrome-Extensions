@@ -127,14 +127,20 @@ document.getElementById('videoMaxFrameRates').onblur = function() {
 };
 
 document.getElementById('enableTabAudio').onchange = function(event) {
-    if(getChromeVersion() < 53) {
-        this.checked = false;
+    if(document.getElementById('enableTabCaptureAPI').checked === true) {
+        document.getElementById('enableTabAudio').checked = false;
+    }
 
-        var label = this.parentNode.querySelector('label');
+    var that = document.getElementById('enableTabAudio');
+
+    if(getChromeVersion() < 53) {
+        that.checked = false;
+
+        var label = that.parentNode.querySelector('label');
         label.style.color = 'red';
         label.innerHTML = 'Please try Chrome version 53 or newer.';
 
-        var small = this.parentNode.querySelector('small');
+        var small = that.parentNode.querySelector('small');
         small.style.color = '#bb0000';
         small.innerHTML = 'You are using Chrome version ' + getChromeVersion() + ' which is <b>incapable</b> to capture audios on any selected tab.';
         return;
@@ -151,8 +157,13 @@ document.getElementById('enableTabAudio').onchange = function(event) {
 };
 
 document.getElementById('enableMicrophone').onchange = function(event) {
+    if(document.getElementById('enableTabCaptureAPI').checked === true) {
+        document.getElementById('enableMicrophone').checked = false;
+    }
+
     document.getElementById('enableMicrophone').disabled = true;
     showSaving();
+
     chrome.storage.sync.set({
         enableMicrophone: document.getElementById('enableMicrophone').checked ? 'true' : 'false'
     }, function() {
@@ -199,8 +210,14 @@ function getChromeVersion() {
 }
 
 document.getElementById('enableTabCaptureAPI').onchange = function(event) {
+    if(document.getElementById('enableTabCaptureAPI').checked === true) {
+        document.getElementById('enableTabAudio').onchange();
+        document.getElementById('enableMicrophone').onchange();
+    }
+
     document.getElementById('enableTabCaptureAPI').disabled = true;
     showSaving();
+
     chrome.storage.sync.set({
         enableTabCaptureAPI: document.getElementById('enableTabCaptureAPI').checked ? 'true' : 'false'
     }, function() {

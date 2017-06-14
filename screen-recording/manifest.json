@@ -2,7 +2,7 @@
    "name":"RecordRTC",
    "short_name":"RecordRTC",
    "author":"Muaz Khan",
-   "version":"4.0",
+   "version":"4.1",
    "manifest_version":2,
    "minimum_chrome_version":"49",
    "description":"Record screen, audio+screen, all-audios+tab, entire conference, and more!",
