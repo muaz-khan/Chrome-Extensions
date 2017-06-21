@@ -15,42 +15,39 @@ chrome.storage.sync.get(null, function(items) {
     }
 
     if (items['videoCodec']) {
-        document.getElementById('videoCodec').value = items['videoCodec'];
+        querySelectorAll('#videoCodec input').forEach(function(input) {
+            var codec = input.parentNode.textContent;
+            if(codec !== items['videoCodec']) {
+                input.checked = false;
+                return;
+            }
+            input.checked = true;
+        });
     } else {
         chrome.storage.sync.set({
             videoCodec: ''
         }, function() {
-            document.getElementById('videoCodec').value = 'Default';
+            querySelectorAll('#videoCodec input')[0].checked = true;
         });
     }
 
-    if (items['videoMaxFrameRates']) {
+    if (items['videoMaxFrameRates'] && items['videoMaxFrameRates'] !== 'None' && items['videoMaxFrameRates'].length) {
         document.getElementById('videoMaxFrameRates').value = items['videoMaxFrameRates'];
     } else {
         chrome.storage.sync.set({
             videoMaxFrameRates: ''
         }, function() {
-            document.getElementById('videoMaxFrameRates').value = '';
+            document.getElementById('videoMaxFrameRates').value = 'None';
         });
     }
 
-    if (items['videoBitsPerSecond']) {
-        document.getElementById('videoBitsPerSecond').value = items['videoBitsPerSecond'];
+    if (items['bitsPerSecond']) {
+        document.getElementById('bitsPerSecond').value = items['bitsPerSecond'];
     } else {
         chrome.storage.sync.set({
-            videoBitsPerSecond: ''
+            bitsPerSecond: ''
         }, function() {
-            document.getElementById('videoBitsPerSecond').value = '';
-        });
-    }
-
-    if (items['audioBitsPerSecond']) {
-        document.getElementById('audioBitsPerSecond').value = items['audioBitsPerSecond'];
-    } else {
-        chrome.storage.sync.set({
-            audioBitsPerSecond: ''
-        }, function() {
-            document.getElementById('audioBitsPerSecond').value = '';
+            document.getElementById('bitsPerSecond').value = 'default';
         });
     }
 
@@ -91,6 +88,18 @@ chrome.storage.sync.get(null, function(items) {
             document.getElementById('enableMicrophone').removeAttribute('checked');
         });
     }
+
+    if (items['enableMp3']) {
+        document.getElementById('enableMp3').checked = items['enableMp3'] === 'true';
+        document.querySelector('input[type=file]').disabled = items['enableMp3'] === 'false';
+    } else {
+        chrome.storage.sync.set({
+            enableMp3: 'false'
+        }, function() {
+            document.getElementById('enableMp3').removeAttribute('checked');
+            document.querySelector('input[type=file]').disabled = true;
+        });
+    }
 });
 
 document.getElementById('resolutions').onchange = function() {
@@ -104,22 +113,35 @@ document.getElementById('resolutions').onchange = function() {
     });
 };
 
-document.getElementById('videoCodec').onchange = function() {
-    this.disabled = true;
-    showSaving();
-    chrome.storage.sync.set({
-        videoCodec: this.value
-    }, function() {
-        document.getElementById('videoCodec').disabled = false;
-        hideSaving();
-    });
-};
+function querySelectorAll(selector) {
+    return Array.prototype.slice.call(document.querySelectorAll(selector));
+}
 
-document.getElementById('videoMaxFrameRates').onblur = function() {
+querySelectorAll('#videoCodec input').forEach(function(input) {
+    input.onchange = function() {
+        querySelectorAll('#videoCodec input').forEach(function(input) {
+            input.checked = false;
+        });
+
+        this.checked = true;
+
+        var codec = this.parentNode.textContent;
+
+        showSaving();
+        chrome.storage.sync.set({
+            videoCodec: codec
+        }, function() {
+            hideSaving();
+        });
+    };
+});
+
+document.getElementById('videoMaxFrameRates').onchange = function() {
     this.disabled = true;
+
     showSaving();
     chrome.storage.sync.set({
-        videoMaxFrameRates: this.value
+        videoMaxFrameRates: this.value === 'None' ? '' : this.value
     }, function() {
         document.getElementById('videoMaxFrameRates').disabled = false;
         hideSaving();
@@ -127,10 +149,6 @@ document.getElementById('videoMaxFrameRates').onblur = function() {
 };
 
 document.getElementById('enableTabAudio').onchange = function(event) {
-    if(document.getElementById('enableTabCaptureAPI').checked === true) {
-        document.getElementById('enableTabAudio').checked = false;
-    }
-
     var that = document.getElementById('enableTabAudio');
 
     if(getChromeVersion() < 53) {
@@ -157,10 +175,6 @@ document.getElementById('enableTabAudio').onchange = function(event) {
 };
 
 document.getElementById('enableMicrophone').onchange = function(event) {
-    if(document.getElementById('enableTabCaptureAPI').checked === true) {
-        document.getElementById('enableMicrophone').checked = false;
-    }
-
     document.getElementById('enableMicrophone').disabled = true;
     showSaving();
 
@@ -172,24 +186,17 @@ document.getElementById('enableMicrophone').onchange = function(event) {
     });
 };
 
-document.getElementById('videoBitsPerSecond').onblur = function() {
-    this.disabled = true;
-    showSaving();
-    chrome.storage.sync.set({
-        videoBitsPerSecond: this.value
-    }, function() {
-        document.getElementById('videoBitsPerSecond').disabled = false;
-        hideSaving();
-    });
-};
+document.getElementById('bitsPerSecond').onchange = function() {
+    if(this.value === 'default') {
+        return;
+    }
 
-document.getElementById('audioBitsPerSecond').onblur = function() {
     this.disabled = true;
     showSaving();
     chrome.storage.sync.set({
-        audioBitsPerSecond: this.value
+        bitsPerSecond: this.value
     }, function() {
-        document.getElementById('audioBitsPerSecond').disabled = false;
+        document.getElementById('bitsPerSecond').disabled = false;
         hideSaving();
     });
 };
@@ -210,11 +217,6 @@ function getChromeVersion() {
 }
 
 document.getElementById('enableTabCaptureAPI').onchange = function(event) {
-    if(document.getElementById('enableTabCaptureAPI').checked === true) {
-        document.getElementById('enableTabAudio').onchange();
-        document.getElementById('enableMicrophone').onchange();
-    }
-
     document.getElementById('enableTabCaptureAPI').disabled = true;
     showSaving();
 
@@ -225,3 +227,90 @@ document.getElementById('enableTabCaptureAPI').onchange = function(event) {
         hideSaving();
     });
 };
+
+document.getElementById('enableMp3').onchange = function(event) {
+    document.getElementById('enableMp3').disabled = true;
+
+    if(!document.getElementById('mp3-file-name').innerHTML) {
+        document.getElementById('mp3-file-name').innerHTML = 'Please select an audio file.';
+    }
+
+    showSaving();
+
+    document.querySelector('input[type=file]').disabled = document.getElementById('enableMp3').checked === false;
+
+    chrome.storage.sync.set({
+        enableMp3: document.getElementById('enableMp3').checked ? 'true' : 'false'
+    }, function() {
+        document.getElementById('enableMp3').disabled = false;
+        hideSaving();
+    });
+};
+
+document.querySelector('input[type=file]').onchange = function() {
+    var mp3 = this.files[0];
+    this.value = '';
+    
+    if(!mp3) return;
+
+    if(!mp3.type || mp3.type.indexOf('audio/') === -1) {
+        document.getElementById('mp3-file-name').innerHTML = mp3.type + ' not allowed.';
+        return;
+    }
+
+    showSaving();
+
+    document.getElementById('mp3-file-name').innerHTML = mp3.name + ' (Size: ' + bytesToSize(mp3.size) + ')';
+    storeMp3IntoIndexedDB(mp3, function() {
+        hideSaving();
+    });
+};
+
+function dataURItoBlob(dataURI) {
+    dataURI = dataURI.split('----');
+    var name = dataURI[0];
+    dataURI = dataURI[1];
+
+    var byteString = atob(dataURI.split(',')[1]);
+    var mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0]
+    var ab = new ArrayBuffer(byteString.length);
+    var ia = new Uint8Array(ab);
+    for (var i = 0; i < byteString.length; i++) {
+        ia[i] = byteString.charCodeAt(i);
+    }
+    var blob = new File([ab], name, {
+        type: mimeString
+    });
+    return blob;
+
+}
+
+function getMp3FromIndexedDB(callback) {
+    DiskStorage.dbName = 'mp3_db';
+    DiskStorage.dataStoreName = 'mp3';
+    DiskStorage.init();
+
+    DiskStorage.Fetch(function(data, type) {
+        if(type !== 'audioBlob' || !data || !data.length) return;
+        callback(dataURItoBlob(data));
+    });
+}
+
+function storeMp3IntoIndexedDB(mp3, callback) {
+    DiskStorage.dbName = 'mp3_db';
+    DiskStorage.dataStoreName = 'mp3';
+    DiskStorage.init();
+
+    var reader = new FileReader();
+    reader.onload = function(e) {
+        DiskStorage.Store({
+            audioBlob: mp3.name + '----' + e.target.result
+        });
+        callback();
+    };
+    reader.readAsDataURL(mp3);
+}
+
+getMp3FromIndexedDB(function(mp3) {
+    document.getElementById('mp3-file-name').innerHTML = mp3.name + ' (Size: ' + bytesToSize(mp3.size) + ')';
+});

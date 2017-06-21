@@ -122,7 +122,78 @@ function isMimeTypeSupported(mimeType) {
     return MediaRecorder.isTypeSupported(mimeType);
 }
 
-function gotStream(stream) {
+function dataURItoBlob(dataURI) {
+    dataURI = dataURI.split('----');
+    var name = dataURI[0];
+    dataURI = dataURI[1];
+
+    var byteString = atob(dataURI.split(',')[1]);
+    var mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0]
+    var ab = new ArrayBuffer(byteString.length);
+    var ia = new Uint8Array(ab);
+    for (var i = 0; i < byteString.length; i++) {
+        ia[i] = byteString.charCodeAt(i);
+    }
+    var blob = new File([ab], name, {
+        type: mimeString
+    });
+    return blob;
+
+}
+
+function getMp3FromIndexedDB(callback) {
+    DiskStorage.dbName = 'mp3_db';
+    DiskStorage.dataStoreName = 'mp3';
+    DiskStorage.init();
+
+    DiskStorage.Fetch(function(data, type) {
+        if(type !== 'audioBlob') return;
+        callback(data);
+    });
+}
+
+function gotStream(stream, mp3) {
+    if(enableMp3 && !mp3) {
+        getMp3FromIndexedDB(function(mp3) {
+            if(!mp3 || !mp3.length) {
+                gotStream(stream, true);
+                return;
+            }
+            mp3 = dataURItoBlob(mp3);
+
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                window.AudioContext = window.AudioContext || window.webkitAudioContext;
+                var context = new AudioContext();
+                var gainNode = context.createGain();
+                gainNode.connect(context.destination);
+                gainNode.gain.value = 0; // don't play for self
+
+                // Import callback function
+                // provides PCM audio data decoded as an audio buffer
+                context.decodeAudioData(e.target.result, function(buffer) {
+                    var soundSource = context.createBufferSource();
+                    soundSource.buffer = buffer;
+                    soundSource.loop = true;
+                    soundSource.start(0, 0 / 1000);
+                    soundSource.connect(gainNode);
+                    var destination = context.createMediaStreamDestination();
+                    soundSource.connect(destination);
+                    // durtion=second*1000 (milliseconds)
+                    // buffer.duration * 1000
+                    
+                    var singleAudioStream = getMixedAudioStream([stream, destination.stream]);
+                    singleAudioStream.addTrack(stream.getVideoTracks()[0]);
+                    stream = singleAudioStream;
+
+                    gotStream(stream, true);
+                });
+            };
+            reader.readAsArrayBuffer(mp3);
+        });
+        return;
+    }
+
     var options = {
         type: 'video',
         disableLogs: false,
@@ -156,32 +227,15 @@ function gotStream(stream) {
     }
 
     if (getChromeVersion() >= 52) {
-        if (audioBitsPerSecond) {
-            audioBitsPerSecond = parseInt(audioBitsPerSecond);
-            if (!audioBitsPerSecond || audioBitsPerSecond > 128) { // 128000
-                audioBitsPerSecond = 128;
-            }
-            if (!audioBitsPerSecond || audioBitsPerSecond < 6) {
-                audioBitsPerSecond = 6; // opus (smallest 6kbps, maximum 128kbps)
+        if (bitsPerSecond) {
+            bitsPerSecond = parseInt(bitsPerSecond);
+            if (!bitsPerSecond || bitsPerSecond < 100) {
+                bitsPerSecond = 8000000000; // 1 GB /second
             }
         }
 
-        if (videoBitsPerSecond) {
-            videoBitsPerSecond = parseInt(videoBitsPerSecond);
-            if (!videoBitsPerSecond || videoBitsPerSecond < 100) {
-                videoBitsPerSecond = 100; // vp8 (smallest 100kbps)
-            }
-        }
-
-        if (enableTabAudio || enableMicrophone) {
-            if (audioBitsPerSecond) {
-                options.audioBitsPerSecond = audioBitsPerSecond * 1000;
-            }
-            if (videoBitsPerSecond) {
-                options.videoBitsPerSecond = videoBitsPerSecond * 1000;
-            }
-        } else if (videoBitsPerSecond) {
-            options.bitsPerSecond = videoBitsPerSecond * 1000;
+        if(bitsPerSecond) {
+            options.bitsPerSecond = bitsPerSecond;
         }
     }
 
@@ -197,6 +251,9 @@ function gotStream(stream) {
 		singleAudioStream.addTrack(stream.getVideoTracks()[0]);
 		stream = singleAudioStream;
     }
+
+    // fix https://github.com/muaz-khan/RecordRTC/issues/281
+    options.ignoreMutedMedia = false;
 
     recorder = RecordRTC(stream, options);
 
@@ -435,13 +492,13 @@ var resolutions = {
     maxHeight: 8640
 };
 var aspectRatio = 1.77;
-var audioBitsPerSecond = 0;
-var videoBitsPerSecond = 0;
+var bitsPerSecond = 0;
 
 var enableTabAudio = false;
 var enableTabCaptureAPI = false;
 
 var enableMicrophone = false;
+var enableMp3 = false;
 var audioStream = false;
 
 var videoCodec = 'Default';
@@ -449,12 +506,8 @@ var videoMaxFrameRates = '';
 
 function getUserConfigs() {
     chrome.storage.sync.get(null, function(items) {
-        if (items['audioBitsPerSecond'] && items['audioBitsPerSecond'].toString().length) {
-            audioBitsPerSecond = parseInt(items['audioBitsPerSecond']);
-        }
-
-        if (items['videoBitsPerSecond'] && items['videoBitsPerSecond'].toString().length) {
-            videoBitsPerSecond = parseInt(items['videoBitsPerSecond']);
+        if (items['bitsPerSecond'] && items['bitsPerSecond'].toString().length && items['bitsPerSecond'] !== 'default') {
+            bitsPerSecond = parseInt(items['bitsPerSecond']);
         }
 
         if (items['enableTabAudio']) {
@@ -467,6 +520,10 @@ function getUserConfigs() {
 
         if (items['enableMicrophone']) {
             enableMicrophone = items['enableMicrophone'] == 'true';
+        }
+
+        if (items['enableMp3']) {
+            enableMp3 = items['enableMp3'] == 'true';
         }
 
         if (items['videoCodec']) {
@@ -682,13 +739,13 @@ function getUserMediaError() {
         // retry with default values
         resolutions = {};
         aspectRatio = false;
-        audioBitsPerSecond = false;
-        videoBitsPerSecond = false;
+        bitsPerSecond = false;
 
         enableTabAudio = false;
         enableTabCaptureAPI = false;
 
         enableMicrophone = false;
+        enableMp3 = false;
         audioStream = false;
 
         // below line makes sure we retried merely once
