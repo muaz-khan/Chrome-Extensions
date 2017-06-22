@@ -25,7 +25,7 @@ chrome.storage.sync.get(null, function(items) {
         });
     } else {
         chrome.storage.sync.set({
-            videoCodec: ''
+            videoCodec: 'Default'
         }, function() {
             querySelectorAll('#videoCodec input')[0].checked = true;
         });
@@ -86,6 +86,16 @@ chrome.storage.sync.get(null, function(items) {
             enableMicrophone: 'false'
         }, function() {
             document.getElementById('enableMicrophone').removeAttribute('checked');
+        });
+    }
+
+    if (items['enableCamera']) {
+        document.getElementById('enableCamera').checked = items['enableCamera'] === 'true';
+    } else {
+        chrome.storage.sync.set({
+            enableCamera: 'false'
+        }, function() {
+            document.getElementById('enableCamera').removeAttribute('checked');
         });
     }
 
@@ -182,6 +192,18 @@ document.getElementById('enableMicrophone').onchange = function(event) {
         enableMicrophone: document.getElementById('enableMicrophone').checked ? 'true' : 'false'
     }, function() {
         document.getElementById('enableMicrophone').disabled = false;
+        hideSaving();
+    });
+};
+
+document.getElementById('enableCamera').onchange = function(event) {
+    document.getElementById('enableCamera').disabled = true;
+    showSaving();
+
+    chrome.storage.sync.set({
+        enableCamera: document.getElementById('enableCamera').checked ? 'true' : 'false'
+    }, function() {
+        document.getElementById('enableCamera').disabled = false;
         hideSaving();
     });
 };

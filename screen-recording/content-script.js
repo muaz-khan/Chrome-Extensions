@@ -32,31 +32,24 @@
             return;
         }
 
-        if(message.giveMeMicrophone) {
-            var stream, audioPlayer;
+        if(message.giveMeMicrophone || message.giveCamera) {
+            var stream, videoPlayer;
 
             navigator.webkitGetUserMedia({
-                audio: true
+                audio: message.giveMeMicrophone === true,
+                video: message.giveCamera === true
             }, function(s) {
                 stream = s;
 
-                audioPlayer = document.createElement('audio');
-                audioPlayer.muted = true;
-                audioPlayer.volume = 0;
-                audioPlayer.src = (window.URL || window.webkitURL).createObjectURL(stream);
-                (document.body || document.documentElement).appendChild(audioPlayer);
-                audioPlayer.play();
-
-                audioPlayer.onended = function() {
-                    console.warn('Audio player is stopped.');
-                };
-
-                audioPlayer.onpause = function() {
-                    console.warn('Audio player is paused.');
-                };
+                videoPlayer = document.createElement(message.giveCamera === true ? 'video' : 'audio');
+                videoPlayer.muted = true;
+                videoPlayer.style = 'display:none; position: absolute; top: -2000000px; left: -2000000px; margin-left: -2000000px; margint-top: -2000000px; opacity: 0; visibility: hidden;';
+                videoPlayer.volume = 0;
+                videoPlayer.src = (window.URL || window.webkitURL).createObjectURL(stream);
+                (document.body || document.documentElement).appendChild(videoPlayer);
+                videoPlayer.play();
 
                 peer = new webkitRTCPeerConnection(null);
-
                 peer.addStream(stream);
 
                 peer.onicecandidate = function(event) {
@@ -107,9 +100,9 @@
             stream.getAudioTracks()[0].stop();
             stream = null;
 
-            if (audioPlayer) {
-                audioPlayer.pause();
-                audioPlayer = null;
+            if (videoPlayer) {
+                videoPlayer.pause();
+                videoPlayer = null;
             }
 
             if (peer) {
