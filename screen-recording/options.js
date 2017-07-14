@@ -51,54 +51,6 @@ chrome.storage.sync.get(null, function(items) {
         });
     }
 
-    if (items['enableTabCaptureAPI']) {
-        if(getChromeVersion() < 53) {
-            items['enableTabCaptureAPI'] = 'false';
-        }
-
-        document.getElementById('enableTabCaptureAPI').checked = items['enableTabCaptureAPI'] === 'true';
-    } else {
-        chrome.storage.sync.set({
-            enableTabCaptureAPI: 'false'
-        }, function() {
-            document.getElementById('enableTabCaptureAPI').removeAttribute('checked');
-        });
-    }
-
-    if (items['enableTabAudio']) {
-        if(getChromeVersion() < 53) {
-            items['enableTabAudio'] = 'false';
-        }
-
-        document.getElementById('enableTabAudio').checked = items['enableTabAudio'] === 'true';
-    } else {
-        chrome.storage.sync.set({
-            enableTabAudio: 'false'
-        }, function() {
-            document.getElementById('enableTabAudio').removeAttribute('checked');
-        });
-    }
-
-    if (items['enableMicrophone']) {
-        document.getElementById('enableMicrophone').checked = items['enableMicrophone'] === 'true';
-    } else {
-        chrome.storage.sync.set({
-            enableMicrophone: 'false'
-        }, function() {
-            document.getElementById('enableMicrophone').removeAttribute('checked');
-        });
-    }
-
-    if (items['enableCamera']) {
-        document.getElementById('enableCamera').checked = items['enableCamera'] === 'true';
-    } else {
-        chrome.storage.sync.set({
-            enableCamera: 'false'
-        }, function() {
-            document.getElementById('enableCamera').removeAttribute('checked');
-        });
-    }
-
     if (items['enableMp3']) {
         document.getElementById('enableMp3').checked = items['enableMp3'] === 'true';
         document.querySelector('input[type=file]').disabled = items['enableMp3'] === 'false';
@@ -158,56 +110,6 @@ document.getElementById('videoMaxFrameRates').onchange = function() {
     });
 };
 
-document.getElementById('enableTabAudio').onchange = function(event) {
-    var that = document.getElementById('enableTabAudio');
-
-    if(getChromeVersion() < 53) {
-        that.checked = false;
-
-        var label = that.parentNode.querySelector('label');
-        label.style.color = 'red';
-        label.innerHTML = 'Please try Chrome version 53 or newer.';
-
-        var small = that.parentNode.querySelector('small');
-        small.style.color = '#bb0000';
-        small.innerHTML = 'You are using Chrome version ' + getChromeVersion() + ' which is <b>incapable</b> to capture audios on any selected tab.';
-        return;
-    }
-
-    document.getElementById('enableTabAudio').disabled = true;
-    showSaving();
-    chrome.storage.sync.set({
-        enableTabAudio: document.getElementById('enableTabAudio').checked ? 'true' : 'false'
-    }, function() {
-        document.getElementById('enableTabAudio').disabled = false;
-        hideSaving();
-    });
-};
-
-document.getElementById('enableMicrophone').onchange = function(event) {
-    document.getElementById('enableMicrophone').disabled = true;
-    showSaving();
-
-    chrome.storage.sync.set({
-        enableMicrophone: document.getElementById('enableMicrophone').checked ? 'true' : 'false'
-    }, function() {
-        document.getElementById('enableMicrophone').disabled = false;
-        hideSaving();
-    });
-};
-
-document.getElementById('enableCamera').onchange = function(event) {
-    document.getElementById('enableCamera').disabled = true;
-    showSaving();
-
-    chrome.storage.sync.set({
-        enableCamera: document.getElementById('enableCamera').checked ? 'true' : 'false'
-    }, function() {
-        document.getElementById('enableCamera').disabled = false;
-        hideSaving();
-    });
-};
-
 document.getElementById('bitsPerSecond').onchange = function() {
     if(this.value === 'default') {
         return;
@@ -232,23 +134,6 @@ function hideSaving() {
         document.getElementById('applying-changes').style.display = 'none';
     }, 700);
 }
-
-function getChromeVersion() {
-    var raw = navigator.userAgent.match(/Chrom(e|ium)\/([0-9]+)\./);
-    return raw ? parseInt(raw[2], 10) : 52;
-}
-
-document.getElementById('enableTabCaptureAPI').onchange = function(event) {
-    document.getElementById('enableTabCaptureAPI').disabled = true;
-    showSaving();
-
-    chrome.storage.sync.set({
-        enableTabCaptureAPI: document.getElementById('enableTabCaptureAPI').checked ? 'true' : 'false'
-    }, function() {
-        document.getElementById('enableTabCaptureAPI').disabled = false;
-        hideSaving();
-    });
-};
 
 document.getElementById('enableMp3').onchange = function(event) {
     document.getElementById('enableMp3').disabled = true;

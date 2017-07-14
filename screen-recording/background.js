@@ -5,17 +5,13 @@
 // this page is using desktopCapture API to capture and record screen
 // http://developer.chrome.com/extensions/desktopCapture.html
 
-chrome.browserAction.setIcon({
-    path: 'images/main-icon.png'
+// for dropdown.js
+chrome.storage.sync.set({
+    isRecording: 'false' // FALSE
 });
 
-chrome.browserAction.onClicked.addListener(function() {
-    if (!!isRecordingVOD) {
-        stopVODRecording();
-        return;
-    }
-
-    getUserConfigs();
+chrome.browserAction.setIcon({
+    path: 'images/main-icon.png'
 });
 
 chrome.contextMenus.createExternal = function(message) {
@@ -44,11 +40,7 @@ function captureDesktop() {
         return;
     }
 
-    var screenSources = ['window', 'screen'];
-
-    if (enableTabAudio) {
-        screenSources = ['tab', 'audio'];
-    }
+    var screenSources = ['window', 'screen', 'audio'];
 
     try {
         chrome.desktopCapture.chooseDesktopMedia(screenSources, onAccessApproved);
@@ -59,13 +51,8 @@ function captureDesktop() {
 
 var recorder;
 
-function onAccessApproved(chromeMediaSourceId) {
+function onAccessApproved(chromeMediaSourceId, opts) {
     if (!chromeMediaSourceId || !chromeMediaSourceId.toString().length) {
-        if (getChromeVersion() < 53) {
-            getUserMediaError();
-            return;
-        }
-
         askToStopExternalStreams();
         setDefaults();
         chrome.runtime.reload();
@@ -101,7 +88,7 @@ function onAccessApproved(chromeMediaSourceId) {
         constraints.video.mandatory.maxHeight = resolutions.maxHeight;
     }
 
-    if (enableTabAudio) {
+    if (opts.canRequestAudioTrack === true) {
         constraints.audio = {
             mandatory: {
                 chromeMediaSource: 'desktop',
@@ -147,15 +134,15 @@ function getMp3FromIndexedDB(callback) {
     DiskStorage.init();
 
     DiskStorage.Fetch(function(data, type) {
-        if(type !== 'audioBlob') return;
+        if (type !== 'audioBlob') return;
         callback(data);
     });
 }
 
 function gotStream(stream, mp3) {
-    if(enableMp3 && !mp3) {
+    if (enableMp3 && !mp3) {
         getMp3FromIndexedDB(function(mp3) {
-            if(!mp3 || !mp3.length) {
+            if (!mp3 || !mp3.length) {
                 gotStream(stream, true);
                 return;
             }
@@ -181,7 +168,7 @@ function gotStream(stream, mp3) {
                     soundSource.connect(destination);
                     // durtion=second*1000 (milliseconds)
                     // buffer.duration * 1000
-                    
+
                     var singleAudioStream = getMixedAudioStream([stream, destination.stream]);
                     singleAudioStream.addTrack(stream.getVideoTracks()[0]);
                     stream = singleAudioStream;
@@ -201,61 +188,59 @@ function gotStream(stream, mp3) {
     };
 
     if (videoCodec) {
-        if(videoCodec === 'Default') {
+        if (videoCodec === 'Default') {
             options.mimeType = 'video/webm';
         }
 
-        if(videoCodec === 'VP8') {
+        if (videoCodec === 'VP8') {
             options.mimeType = 'video/webm\;codecs=vp8';
         }
 
-        if(videoCodec === 'VP9') {
+        if (videoCodec === 'VP9') {
             options.mimeType = 'video/webm\;codecs=vp9';
         }
 
-        if(videoCodec === 'H264') {
-            if(isMimeTypeSupported('video/webm\;codecs=h264')) {
+        if (videoCodec === 'H264') {
+            if (isMimeTypeSupported('video/webm\;codecs=h264')) {
                 options.mimeType = 'video/webm\;codecs=h264';
             }
         }
 
-        if(videoCodec === 'MKV') {
-            if(isMimeTypeSupported('video/x-matroska;codecs=avc1')) {
+        if (videoCodec === 'MKV') {
+            if (isMimeTypeSupported('video/x-matroska;codecs=avc1')) {
                 options.mimeType = 'video/x-matroska;codecs=avc1';
             }
         }
     }
 
-    if (getChromeVersion() >= 52) {
-        if (bitsPerSecond) {
-            bitsPerSecond = parseInt(bitsPerSecond);
-            if (!bitsPerSecond || bitsPerSecond < 100) {
-                bitsPerSecond = 8000000000; // 1 GB /second
-            }
+    if (bitsPerSecond) {
+        bitsPerSecond = parseInt(bitsPerSecond);
+        if (!bitsPerSecond || bitsPerSecond < 100) {
+            bitsPerSecond = 8000000000; // 1 GB /second
         }
+    }
 
-        if(bitsPerSecond) {
-            options.bitsPerSecond = bitsPerSecond;
-        }
+    if (bitsPerSecond) {
+        options.bitsPerSecond = bitsPerSecond;
     }
 
     if (audioStream && audioStream.getAudioTracks && audioStream.getAudioTracks().length) {
         audioPlayer = document.createElement('audio');
-		audioPlayer.muted = true;
-		audioPlayer.volume = 0;
+        audioPlayer.muted = true;
+        audioPlayer.volume = 0;
         audioPlayer.src = URL.createObjectURL(audioStream);
 
         audioPlayer.play();
-		
-		var singleAudioStream = getMixedAudioStream([stream, audioStream]);
-		singleAudioStream.addTrack(stream.getVideoTracks()[0]);
-		stream = singleAudioStream;
+
+        var singleAudioStream = getMixedAudioStream([stream, audioStream]);
+        singleAudioStream.addTrack(stream.getVideoTracks()[0]);
+        stream = singleAudioStream;
     }
 
     // fix https://github.com/muaz-khan/RecordRTC/issues/281
     options.ignoreMutedMedia = false;
 
-    if(enableCamera && audioStream && audioStream.getVideoTracks().length) {
+    if (enableCamera && audioStream && audioStream.getVideoTracks().length) {
         var cameraStream = new MediaStream();
         audioStream.getVideoTracks().forEach(function(track) {
             cameraStream.addTrack(track);
@@ -268,8 +253,8 @@ function gotStream(stream, mp3) {
         stream.fullcanvas = true; // screen should be full-width (wider/full-screen)
 
         // camera positioning + width/height
-        cameraStream.width = 320;
-        cameraStream.height = 240;
+        cameraStream.width = 210;
+        cameraStream.height = 120;
         cameraStream.top = stream.height - cameraStream.height;
         cameraStream.left = stream.width - cameraStream.width;
 
@@ -277,8 +262,16 @@ function gotStream(stream, mp3) {
         options.frameInterval = 1;
 
         recorder = RecordRTC([stream, cameraStream], options);
-    }
-    else {
+    } else {
+        if(enableCamera) {
+            audioPlayer = document.createElement('audio');
+            audioPlayer.muted = true;
+            audioPlayer.volume = 0;
+            audioPlayer.src = URL.createObjectURL(stream);
+
+            audioPlayer.play();
+        }
+
         recorder = RecordRTC(stream, options);
     }
 
@@ -361,21 +354,21 @@ function stopScreenRecording() {
         var mimeType = 'video/webm';
         var fileExtension = 'webm';
 
-        if(videoCodec === 'H264') {
-            if(isMimeTypeSupported('video/webm\;codecs=h264')) {
+        if (videoCodec === 'H264') {
+            if (isMimeTypeSupported('video/webm\;codecs=h264')) {
                 mimeType = 'video/mp4';
                 fileExtension = 'mp4';
             }
         }
 
-        if(videoCodec === 'MKV') {
-            if(isMimeTypeSupported('video/x-matroska;codecs=avc1')) {
+        if (videoCodec === 'MKV') {
+            if (isMimeTypeSupported('video/x-matroska;codecs=avc1')) {
                 mimeType = 'video/mkv';
                 fileExtension = 'mkv';
             }
         }
 
-        var file = new File([recorder.getBlob()], 'RecordRTC-' + (new Date).toISOString().replace(/:|\./g, '-') + '.' + fileExtension, {
+        var file = new File([recorder ? recorder.getBlob() : ''], 'RecordRTC-' + (new Date).toISOString().replace(/:|\./g, '-') + '.' + fileExtension, {
             type: mimeType
         });
 
@@ -400,6 +393,11 @@ function stopScreenRecording() {
             context.disconnect();
             context = null;
         } catch (e) {}
+
+        // for dropdown.js
+        chrome.storage.sync.set({
+            isRecording: 'false' // FALSE
+        });
     });
 
     if (timer) {
@@ -427,6 +425,11 @@ function setDefaults() {
     recorder = null;
     isRecording = false;
     imgIndex = 0;
+
+    // for dropdown.js
+    chrome.storage.sync.set({
+        isRecording: 'false' // FALSE
+    });
 }
 
 var isRecording = false;
@@ -507,11 +510,6 @@ function convertTime(miliseconds) {
     return minutes + ':' + seconds;
 }
 
-function getChromeVersion() {
-    var raw = navigator.userAgent.match(/Chrom(e|ium)\/([0-9]+)\./);
-    return raw ? parseInt(raw[2], 10) : 52;
-}
-
 var resolutions = {
     maxWidth: 29999,
     maxHeight: 8640
@@ -519,9 +517,9 @@ var resolutions = {
 var aspectRatio = 1.77;
 var bitsPerSecond = 0;
 
-var enableTabAudio = false;
 var enableTabCaptureAPI = false;
 
+var enableScreen = true;
 var enableMicrophone = false;
 var enableCamera = false;
 var enableMp3 = false;
@@ -536,16 +534,16 @@ function getUserConfigs() {
             bitsPerSecond = parseInt(items['bitsPerSecond']);
         }
 
-        if (items['enableTabAudio']) {
-            enableTabAudio = items['enableTabAudio'] == 'true';
-        }
-
         if (items['enableTabCaptureAPI']) {
             enableTabCaptureAPI = items['enableTabCaptureAPI'] == 'true';
         }
 
         if (items['enableCamera']) {
             enableCamera = items['enableCamera'] == 'true';
+        }
+
+        if (items['enableScreen']) {
+            enableScreen = items['enableScreen'] == 'true';
         }
 
         if (items['enableMicrophone']) {
@@ -771,9 +769,9 @@ function getUserMediaError() {
         aspectRatio = false;
         bitsPerSecond = false;
 
-        enableTabAudio = false;
         enableTabCaptureAPI = false;
 
+        enableScreen = true;
         enableMicrophone = false;
         enableCamera = false;
         enableMp3 = false;
@@ -793,17 +791,6 @@ function getUserMediaError() {
     setDefaults();
     chrome.runtime.reload();
 }
-
-// Check whether new version is installed
-chrome.runtime.onInstalled.addListener(function(details) {
-    if (details.reason.search(/install/g) === -1) return;
-    chrome.runtime.openOptionsPage();
-});
-
-// Check for updates
-chrome.runtime.onUpdateAvailable.addListener(function(details) {
-    // alert('RecordRTC chrome-extension has new updates. Please update the extension.');
-});
 
 function msToTime(s) {
 
@@ -870,7 +857,22 @@ chrome.runtime.onConnect.addListener(function(port) {
             return;
         }
 
-        // console.log(JSON.stringify(message, null, '\t'));
+        if (message.startRecording) {
+            if (!!isRecordingVOD) {
+                stopVODRecording();
+                return;
+            }
+
+            getUserConfigs();
+            return;
+        }
+
+        if(message.stopRecording) {
+            if(recorder && recorder.stream) {
+                recorder.stream.stop();
+            }
+            return;
+        }
 
         if (message.sdp) {
             createAnswer(message.sdp);
@@ -925,7 +927,7 @@ chrome.runtime.onConnect.addListener(function(port) {
 var pending = [];
 
 function askContentScriptToSendMicrophoneOrCamera(tabId) {
-    if(!enableMicrophone && !enableCamera) {
+    if (!enableMicrophone && !enableCamera) {
         return;
     }
 
@@ -935,6 +937,7 @@ function askContentScriptToSendMicrophoneOrCamera(tabId) {
         var message = {
             giveMeMicrophone: enableMicrophone === true,
             giveCamera: enableCamera === true,
+            showVideo: enableScreen === false,
             messageFromContentScript1234: true
         };
 
@@ -955,7 +958,13 @@ function createAnswer(sdp) {
     };
 
     peer.onaddstream = function(event) {
+        if (enableScreen === false) {
+            gotStream(event.stream);
+            return;
+        }
+
         audioStream = event.stream;
+
         captureDesktop();
     };
 
@@ -969,6 +978,11 @@ function createAnswer(sdp) {
             OfferToReceiveAudio: enableMicrophone === true,
             OfferToReceiveVideo: enableCamera === true
         }
+    });
+
+    console.error('OfferToReceive', {
+        OfferToReceiveAudio: enableMicrophone === true,
+        OfferToReceiveVideo: enableCamera === true
     });
 }
 
@@ -1140,8 +1154,7 @@ function captureTabUsingTabCapture(isNoAudio) {
                     code: executeScriptForTabCapture.toString() + ';executeScriptForTabCapture();'
                 });
             });
-        }
-        catch(e) {
+        } catch (e) {
             alert('Unable to capture the selected tab.' + e.toString());
         }
     });
