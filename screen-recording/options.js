@@ -117,3 +117,74 @@ function hideSaving() {
         document.getElementById('applying-changes').style.display = 'none';
     }, 700);
 }
+
+// camera & mic
+// microphone-devices
+function onGettingDevices(result, stream) {
+    chrome.storage.sync.get('microphone', function(storage) {
+        result.audioInputDevices.forEach(function(device, idx) {
+            var option = document.createElement('option');
+            option.innerHTML = device.label || device.id;
+            option.value = device.id;
+
+            if (!storage.microphone && idx === 0) {
+                option.selected = true;
+            }
+
+            if (storage.microphone && storage.microphone === device.id) {
+                option.selected = true;
+            }
+
+            document.getElementById('microphone-devices').appendChild(option);
+        });
+    });
+
+    chrome.storage.sync.get('camera', function(storage) {
+        result.videoInputDevices.forEach(function(device, idx) {
+            var option = document.createElement('option');
+            option.innerHTML = device.label || device.id;
+            option.value = device.id;
+
+            if (!storage.camera && idx === 0) {
+                option.selected = true;
+            }
+
+            if (storage.camera && storage.camera === device.id) {
+                option.selected = true;
+            }
+
+            document.getElementById('camera-devices').appendChild(option);
+        });
+    });
+
+    stream && stream.getTracks().forEach(function(track) {
+        track.stop();
+    });
+}
+
+getAllAudioVideoDevices(function(result) {
+    if (result.audioInputDevices.length && !result.audioInputDevices[0].label) {
+        navigator.mediaDevices.getUserMedia(constraints).then(function(stream) {
+            onGettingDevices(result, stream);
+        }).catch(function() {
+            onGettingDevices(result);
+        });
+        return;
+    }
+
+    onGettingDevices(result);
+});
+
+document.getElementById('microphone-devices').onchange = function() {
+    showSaving();
+    chrome.storage.sync.set({
+        microphone: this.value
+    }, hideSaving);
+};
+
+document.getElementById('camera-devices').onchange = function() {
+    showSaving();
+    chrome.storage.sync.set({
+        camera: this.value
+    }, hideSaving);
+};

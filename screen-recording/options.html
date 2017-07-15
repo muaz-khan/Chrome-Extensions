@@ -2,19 +2,39 @@
 
 <style>
 * {
-    font-family: 'Cutive Mono'!important;
-    font-size: 20px;
-    -webkit-user-select:none;
-    -webkit-user-drag:none;
+  -webkit-user-select: none;
+  -user-select: none;
+  -webkit-user-drag: none;
+  -user-drag: none;
+}
+
+@font-face {
+  font-family: 'Custom_Font';
+  src: local('.SFNSText-Light'), 
+       local('.HelveticaNeueDeskInterface-Light'), 
+       local('.LucidaGrandeUI'), 
+       local('Ubuntu Light'), 
+       local('Segoe UI Light'),
+       local('Roboto-Light'), 
+       local('DroidSans'), 
+       local('Tahoma');
 }
 
 input {
     -webkit-user-select:initial;
 }
 
-body, html { 
-    padding: 0;
-    overflow-x: hidden;
+* {
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  background-color: #F3F3F3;
+  font-family: Custom_Font!important;
+  font-size: 1em;
+  overflow: hidden;
+  overflow-x: hidden;
 }
 
 hr {
@@ -93,7 +113,7 @@ select {
 #applying-changes {
     background: yellow;
     position: fixed;
-    top: -24px;
+    top: 0;
     left: 0px;
     right: 0px;
     width: 100%;
@@ -112,6 +132,18 @@ label:hover {
 </style>
 
 <p id="applying-changes">Applying Changes...</p>
+
+<h2>Select Camera Device</h2>
+<select id="camera-devices" size=5></select>
+
+<hr>
+<br>
+
+<h2>Select Microphone Device</h2>
+<select id="microphone-devices" size=5></select>
+
+<hr>
+<br>
 
 <h2>Video Codecs:</h2>
 <div id="videoCodec" style="display: inline-block;">
@@ -182,5 +214,5 @@ label:hover {
 
 <br><br>
 
-<script src="RecordRTC.min.js"></script>
+<script src="getAllAudioVideoDevices.js"></script>
 <script src="options.js"></script>

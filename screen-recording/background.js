@@ -235,6 +235,14 @@ function getUserConfigs() {
             videoMaxFrameRates = parseInt(items['videoMaxFrameRates']);
         }
 
+        if (items['microphone']) {
+            microphoneDevice = items['microphone'];
+        }
+
+        if (items['camera']) {
+            cameraDevice = items['camera'];
+        }
+
         var _resolutions = items['resolutions'];
         if (!_resolutions || _resolutions == 'Default (29999x8640)') {
             resolutions = {
@@ -453,6 +461,9 @@ function getUserMediaError() {
     enableCamera = false;
     cameraStream = false;
     enableSpeakers = false;
+
+    microphoneDevice = false;
+    cameraDevice = false;
 
     // below line makes sure we retried merely once
     alreadyHadGUMError = true;
