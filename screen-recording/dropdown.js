@@ -2,15 +2,21 @@
     name: location.href.replace(/\/|:|#|\?|\$|\^|%|\.|`|~|!|\+|@|\[|\||]|\|*. /g, '').split('\n').join('').split('\r').join('')
 });
 
+runtimePort.onMessage.addListener(function(message) {
+    if (!message || !message.messageFromContentScript1234) {
+        return;
+    }
+});
+
 var isRecording = false;
 chrome.storage.sync.get('isRecording', function(obj) {
     document.getElementById('default-section').style.display = obj.isRecording === 'true' ? 'none' : 'block';
     document.getElementById('stop-section').style.display = obj.isRecording === 'true' ? 'block' : 'none';
-    
+
     isRecording = obj.isRecording === 'true';
 
     // auto-stop-recording
-    if(isRecording === true) {
+    if (isRecording === true) {
         // document.getElementById('stop-recording').click();
     }
 });
@@ -32,8 +38,9 @@ document.getElementById('full-screen').onclick = function() {
         enableTabCaptureAPI: 'false',
         enableMicrophone: 'false',
         enableCamera: 'false',
-        enableScreen: 'true',      // TRUE
-        isRecording: 'true'        // TRUE
+        enableScreen: 'true', // TRUE
+        isRecording: 'true', // TRUE
+        enableSpeakers: 'true' // TRUE
     }, function() {
         runtimePort.postMessage({
             messageFromContentScript1234: true,
@@ -49,7 +56,8 @@ document.getElementById('selected-tab').onclick = function() {
         enableMicrophone: 'false',
         enableCamera: 'false',
         enableScreen: 'false',
-        isRecording: 'true'         // TRUE
+        isRecording: 'true', // TRUE
+        enableSpeakers: 'false'
     }, function() {
         runtimePort.postMessage({
             messageFromContentScript1234: true,
@@ -62,10 +70,11 @@ document.getElementById('selected-tab').onclick = function() {
 document.getElementById('microphone-screen').onclick = function() {
     chrome.storage.sync.set({
         enableTabCaptureAPI: 'false',
-        enableMicrophone: 'true',  // TRUE
+        enableMicrophone: 'true', // TRUE
         enableCamera: 'false',
-        enableScreen: 'true',      // TRUE
-        isRecording: 'true'        // TRUE
+        enableScreen: 'true', // TRUE
+        isRecording: 'true', // TRUE
+        enableSpeakers: 'false'
     }, function() {
         runtimePort.postMessage({
             messageFromContentScript1234: true,
@@ -78,10 +87,11 @@ document.getElementById('microphone-screen').onclick = function() {
 document.getElementById('microphone-screen-camera').onclick = function() {
     chrome.storage.sync.set({
         enableTabCaptureAPI: 'false',
-        enableMicrophone: 'true',  // TRUE
-        enableCamera: 'true',      // TRUE
-        enableScreen: 'true',      // TRUE
-        isRecording: 'true'        // TRUE
+        enableMicrophone: 'true', // TRUE
+        enableCamera: 'true', // TRUE
+        enableScreen: 'true', // TRUE
+        isRecording: 'true', // TRUE
+        enableSpeakers: 'false'
     }, function() {
         runtimePort.postMessage({
             messageFromContentScript1234: true,
@@ -95,9 +105,10 @@ document.getElementById('microphone-webcam').onclick = function() {
     chrome.storage.sync.set({
         enableTabCaptureAPI: 'false',
         enableMicrophone: 'true', // TRUE
-        enableCamera: 'true',     // TRUE
-        enableScreen: 'false',    // FALSE
-        isRecording: 'true'       // TRUE
+        enableCamera: 'true', // TRUE
+        enableScreen: 'false', // FALSE
+        isRecording: 'true', // TRUE
+        enableSpeakers: 'false'
     }, function() {
         runtimePort.postMessage({
             messageFromContentScript1234: true,
