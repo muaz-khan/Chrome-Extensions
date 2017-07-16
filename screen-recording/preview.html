@@ -1,0 +1,75 @@
+﻿<style>
+* {
+  -webkit-user-select: none;
+  -user-select: none;
+  -webkit-user-drag: none;
+  -user-drag: none;
+}
+
+@font-face {
+  font-family: 'Custom_Font';
+  src: local('.SFNSText-Light'), 
+       local('.HelveticaNeueDeskInterface-Light'), 
+       local('.LucidaGrandeUI'), 
+       local('Ubuntu Light'), 
+       local('Segoe UI Light'),
+       local('Roboto-Light'), 
+       local('DroidSans'), 
+       local('Tahoma');
+}
+
+input {
+    -webkit-user-select:initial;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  background-color: #F3F3F3;
+  font-family: Custom_Font!important;
+  font-size: 1em;
+  overflow: hidden;
+  overflow-x: hidden;
+}
+video {
+    position: absolute;
+    height: 78%;
+    left: 15%;
+    right: 15%;
+    bottom: 0;
+    border-left: 1px dotted red;
+    border-right: 1px dotted red;
+}
+header {
+    position: absolute;
+    background: white;
+    height: 60px;
+    font-size: 30px;
+    text-align: center;
+    padding: 10px 20px;
+    z-index: 99;
+    left: 0;
+    right: 0;
+    top: 0;
+    border-bottom: 1px dotted red;
+}
+</style>
+
+<header>
+    <p>
+        <a id="file-name" title="Download on your Disk!"></a>
+        (Size: <span id="file-size"></span>)
+        <!--
+        Duration: <span id="file-duration">00:00</span>
+        -->
+    </p>
+    <span style="font-size: 17px">This file is in your <b>browser cache</b>. Click above link to <b>download</b>.</span>
+</header>
+
+<video controls disable-contextmenu cf-video-load="file"></video>
+
+<script src="DiskStorage.js"></script>
+<script src="preview.js"></script>

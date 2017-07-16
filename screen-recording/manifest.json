@@ -2,7 +2,7 @@
    "name":"RecordRTC",
    "short_name":"RecordRTC",
    "author":"Muaz Khan",
-   "version":"4.9",
+   "version":"5.1",
    "manifest_version":2,
    "minimum_chrome_version":"49",
    "description":"Record screen, audio+screen, all-audios+tab, entire conference, and more!",
@@ -18,20 +18,11 @@
          "background.messaging.js",
          "background.players.js",
          "background.webaudio.js",
-         "RecordRTC.min.js"
+         "RecordRTC.min.js",
+         "DiskStorage.js"
       ],
       "persistent":false
    },
-   "content_scripts":[  
-      {  
-         "matches":[  
-            "<all_urls>"
-         ],
-         "js":[  
-            "content-script.js"
-         ]
-      }
-   ],
    "browser_action":{  
       "default_icon":"images/main-icon.png",
       "default_title":"Record Screen",
@@ -49,7 +40,6 @@
       "storage",
       "contextMenus",
       "tabs",
-      "<all_urls>",
       "tabCapture",
       "activeTab"
    ],

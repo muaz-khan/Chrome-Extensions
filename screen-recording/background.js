@@ -144,11 +144,27 @@ function stopScreenRecording() {
             type: mimeType
         });
 
-        invokeSaveAsDialog(file, file.name);
+        // initialTime = initialTime || Date.now();
+        // var timeDifference = Date.now() - initialTime;
+        // var formatted = convertTime(timeDifference);
+        // file.duration = formatted;
+
+        DiskStorage.Store({
+            key: 'latest-file',
+            value: file
+        }, function(success) {
+            if(success) {
+                chrome.tabs.create({
+                    url: 'preview.html'
+                });
+            }
+        });
+
+        // invokeSaveAsDialog(file, file.name);
 
         setTimeout(function() {
             setDefaults();
-            chrome.runtime.reload();
+            // chrome.runtime.reload();            
         }, 1000);
 
         try {

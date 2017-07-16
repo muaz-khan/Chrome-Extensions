@@ -164,6 +164,7 @@ function onGettingDevices(result, stream) {
 
 getAllAudioVideoDevices(function(result) {
     if (result.audioInputDevices.length && !result.audioInputDevices[0].label) {
+        var constraints = { audio: true, video: true };
         navigator.mediaDevices.getUserMedia(constraints).then(function(stream) {
             onGettingDevices(result, stream);
         }).catch(function() {
