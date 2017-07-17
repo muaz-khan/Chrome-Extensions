@@ -2,30 +2,30 @@
    "name":"RecordRTC",
    "short_name":"RecordRTC",
    "author":"Muaz Khan",
-   "version":"5.1",
+   "version":"5.2",
    "manifest_version":2,
    "minimum_chrome_version":"49",
    "description":"Record screen, audio+screen, all-audios+tab, entire conference, and more!",
    "homepage_url":"https://www.WebRTC-Experiment.com/RecordRTC/",
    "background":{  
       "scripts":[  
-         "background.common.js",
-         "background.js",
-         "background.desktopCapture.js",
-         "background.tabCapture.js",
-         "background.badgeText.js",
-         "background.getUserMedia.js",
-         "background.messaging.js",
-         "background.players.js",
-         "background.webaudio.js",
-         "RecordRTC.min.js",
-         "DiskStorage.js"
+         "background/background.common.js",
+         "background/background.js",
+         "background/background.desktopCapture.js",
+         "background/background.tabCapture.js",
+         "background/background.badgeText.js",
+         "background/background.getUserMedia.js",
+         "background/background.messaging.js",
+         "background/background.players.js",
+         "RecordRTC/MediaStreamRecorder.js",
+         "RecordRTC/MultiStreamRecorder.js",
+         "RecordRTC/DiskStorage.js"
       ],
       "persistent":false
    },
    "browser_action":{  
       "default_icon":"images/main-icon.png",
-      "default_title":"Record Screen",
+      "default_title":"Record Your Screen, Tab or Camera",
       "default_popup": "dropdown.html"
    },
    "icons":{  
@@ -38,7 +38,6 @@
    "permissions":[  
       "desktopCapture",
       "storage",
-      "contextMenus",
       "tabs",
       "tabCapture",
       "activeTab"

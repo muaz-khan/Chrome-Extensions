@@ -1,14 +1,4 @@
 ﻿chrome.storage.sync.get(null, function(items) {
-    if (items['resolutions']) {
-        document.getElementById('resolutions').value = items['resolutions'];
-    } else {
-        chrome.storage.sync.set({
-            resolutions: 'Default (29999x8640)'
-        }, function() {
-            document.getElementById('resolutions').value = 'Default (29999x8640)';
-        });
-    }
-
     if (items['videoCodec']) {
         querySelectorAll('#videoCodec input').forEach(function(input) {
             var codec = input.parentNode.textContent;
@@ -46,17 +36,6 @@
         });
     }
 });
-
-document.getElementById('resolutions').onchange = function() {
-    this.disabled = true;
-    showSaving();
-    chrome.storage.sync.set({
-        resolutions: this.value
-    }, function() {
-        document.getElementById('resolutions').disabled = false;
-        hideSaving();
-    });
-};
 
 function querySelectorAll(selector) {
     return Array.prototype.slice.call(document.querySelectorAll(selector));

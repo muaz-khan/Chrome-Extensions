@@ -2,7 +2,7 @@ var microphoneDevice = false;
 var cameraDevice = false;
 
 function captureCamera(callback) {
-    var supported = navigator.mediaDevices.getSupportedConstraints()
+    var supported = navigator.mediaDevices.getSupportedConstraints();
     var constraints = {};
 
     if (enableCamera) {

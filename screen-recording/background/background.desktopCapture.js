@@ -4,8 +4,17 @@ function captureDesktop() {
         return;
     }
 
-    if (recorder && recorder.stream && recorder.stream.onended) {
-        recorder.stream.onended();
+    if (recorder && recorder.streams) {
+        recorder.streams.forEach(function(stream, idx) {
+            stream.getTracks().forEach(function(track) {
+                track.stop();
+            });
+
+            if (idx == 0 && typeof stream.onended === 'function') {
+                stream.onended();
+            }
+        });
+        recorder.streams = null;
         return;
     }
 
@@ -24,11 +33,7 @@ function captureDesktop() {
         screenSources = ['window', 'screen'];
     }
 
-    try {
-        chrome.desktopCapture.chooseDesktopMedia(screenSources, onAccessApproved);
-    } catch (e) {
-        getUserMediaError();
-    }
+    chrome.desktopCapture.chooseDesktopMedia(screenSources, onAccessApproved);
 }
 
 function onAccessApproved(chromeMediaSourceId, opts) {
@@ -49,10 +54,6 @@ function onAccessApproved(chromeMediaSourceId, opts) {
         }
     };
 
-    if (aspectRatio) {
-        constraints.video.mandatory.minAspectRatio = aspectRatio;
-    }
-
     if (videoMaxFrameRates && videoMaxFrameRates.toString().length) {
         videoMaxFrameRates = parseInt(videoMaxFrameRates);
 
@@ -62,16 +63,18 @@ function onAccessApproved(chromeMediaSourceId, opts) {
         }
     }
 
-    if (resolutions.maxWidth && resolutions.maxHeight) {
-        constraints.video.mandatory.maxWidth = resolutions.maxWidth;
-        constraints.video.mandatory.maxHeight = resolutions.maxHeight;
-    }
+    constraints.video.mandatory.maxWidth = 3840;
+    constraints.video.mandatory.maxHeight = 2160;
+
+    constraints.video.mandatory.minWidth = 3840;
+    constraints.video.mandatory.minHeight = 2160;
 
     if (opts.canRequestAudioTrack === true) {
         constraints.audio = {
             mandatory: {
                 chromeMediaSource: 'desktop',
-                chromeMediaSourceId: chromeMediaSourceId
+                chromeMediaSourceId: chromeMediaSourceId,
+                echoCancellation: true
             },
             optional: []
         };
@@ -80,5 +83,5 @@ function onAccessApproved(chromeMediaSourceId, opts) {
     navigator.webkitGetUserMedia(constraints, function(stream) {
         initVideoPlayer(stream);
         gotStream(stream);
-    }, getUserMediaError);
+    }, function() {});
 }

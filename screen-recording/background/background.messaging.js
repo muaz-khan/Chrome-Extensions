@@ -19,8 +19,18 @@ chrome.runtime.onConnect.addListener(function(port) {
         }
 
         if (message.stopRecording) {
-            if (recorder && recorder.stream) {
-                recorder.stream.stop();
+            if (recorder && recorder.streams) {
+                recorder.streams.forEach(function(stream, idx) {
+                    stream.getTracks().forEach(function(track) {
+                        track.stop();
+                    });
+
+                    if (idx == 0 && typeof stream.onended === 'function') {
+                        stream.onended();
+                    }
+                });
+
+                recorder.streams = null;
             }
             return;
         }
