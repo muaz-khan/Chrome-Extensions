@@ -2,10 +2,10 @@
    "name":"RecordRTC",
    "short_name":"RecordRTC",
    "author":"Muaz Khan",
-   "version":"5.2",
+   "version":"5.6",
    "manifest_version":2,
    "minimum_chrome_version":"49",
-   "description":"Record screen, audio+screen, all-audios+tab, entire conference, and more!",
+   "description":"Record screen activity, camera, tab, speakers in 4K HD video format",
    "homepage_url":"https://www.WebRTC-Experiment.com/RecordRTC/",
    "background":{  
       "scripts":[  
@@ -40,8 +40,18 @@
       "storage",
       "tabs",
       "tabCapture",
-      "activeTab"
+      "activeTab",
+      "identity",
+      "https://www.googleapis.com/*"
    ],
+   "oauth2": {
+       "client_id": "41556190767-44cbqasurg3dhfr9hmj1v90q5v8r9v46.apps.googleusercontent.com",
+       "scopes": [
+         "https://www.googleapis.com/auth/youtube.upload",
+         "https://www.googleapis.com/auth/youtube"
+       ]
+   },
+   "content_security_policy": "script-src 'self' https://apis.google.com; object-src 'self'",
    "web_accessible_resources":[  
       "images/main-icon.png"
    ],

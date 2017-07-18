@@ -75,8 +75,8 @@ function gotStream(stream) {
         stream.fullcanvas = true; // screen should be full-width (wider/full-screen)
 
         // camera positioning + width/height
-        cameraStream.width = parseInt((10 / 100) * 3840);
-        cameraStream.height = cameraStream.width - 100;
+        cameraStream.width = parseInt((20 / 100) * stream.width);
+        cameraStream.height = parseInt((20 / 100) * stream.height);
         cameraStream.top = stream.height - cameraStream.height;
         cameraStream.left = stream.width - cameraStream.width;
 
@@ -186,7 +186,7 @@ function stopScreenRecording() {
     setBadgeText('');
 
     chrome.browserAction.setTitle({
-        title: 'Record Screen'
+        title: 'Record Your Screen, Tab or Camera'
     });
 }
 
