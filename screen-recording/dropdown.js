@@ -17,7 +17,7 @@ chrome.storage.sync.get('isRecording', function(obj) {
 
     // auto-stop-recording
     if (isRecording === true) {
-        // document.getElementById('stop-recording').click();
+        document.getElementById('stop-recording').click();
     }
 });
 

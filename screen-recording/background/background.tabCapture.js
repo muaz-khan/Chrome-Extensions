@@ -13,8 +13,12 @@ function captureTabUsingTabCapture(isNoAudio) {
                 mandatory: {
                     chromeMediaSource: 'tab',
                     maxWidth: 3840,
-                    maxHeight: 2160,
-                    minAspectRatio: 1.77
+                    maxHeight: 2160
+                }
+            },
+            audioConstraints: isNoAudio === true ? false : {
+                mandatory: {
+                    echoCancellation: true
                 }
             }
         };

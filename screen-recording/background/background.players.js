@@ -2,8 +2,8 @@ var videoPlayers = [];
 
 function initVideoPlayer(stream) {
     var videoPlayer = document.createElement('video');
-    videoPlayer.muted = true;
-    videoPlayer.volume = 0;
+    videoPlayer.muted = !enableTabCaptureAPI;
+    videoPlayer.volume = !!enableTabCaptureAPI;
     videoPlayer.src = URL.createObjectURL(stream);
 
     videoPlayer.play();

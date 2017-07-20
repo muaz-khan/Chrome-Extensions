@@ -32,6 +32,12 @@ chrome.runtime.onConnect.addListener(function(port) {
 
                 recorder.streams = null;
             }
+
+            isRecording = false;
+            setBadgeText('');
+            chrome.browserAction.setIcon({
+                path: 'images/main-icon.png'
+            });
             return;
         }
     });
