@@ -140,7 +140,7 @@ function stopScreenRecording() {
             }
         }
 
-        var file = new File([recorder ? recorder.blob : ''], 'RecordRTC-' + (new Date).toISOString().replace(/:|\./g, '-') + '.' + fileExtension, {
+        var file = new File([recorder ? recorder.blob : ''], getFileName(fileExtension), {
             type: mimeType
         });
 
