@@ -33,23 +33,14 @@ function captureDesktop() {
     });
 
     chrome.storage.sync.get(null, function(items) {
-        if (items['is_audio'] && items['is_audio'] === 'true') {
-            isAudio = true;
-            captureTabUsingTabCapture();
-            return;
-        }
-
         var sources = ['window', 'screen'];
         var desktop_id = chrome.desktopCapture.chooseDesktopMedia(sources, onAccessApproved);
     });
 }
 
 var constraints;
-var min_bandwidth = 512;
-var max_bandwidth = 1048;
 var room_password = '';
 var room_id = '';
-var isAudio = false;
 
 function onAccessApproved(chromeMediaSourceId) {
     if (!chromeMediaSourceId) {
@@ -66,14 +57,6 @@ function onAccessApproved(chromeMediaSourceId) {
     chrome.storage.sync.get(null, function(items) {
         var resolutions = {};
 
-        if (items['min_bandwidth']) {
-            min_bandwidth = parseInt(items['min_bandwidth']);
-        }
-
-        if (items['max_bandwidth']) {
-            max_bandwidth = parseInt(items['max_bandwidth']);
-        }
-
         if (items['room_password']) {
             room_password = items['room_password'];
         }
@@ -85,12 +68,12 @@ function onAccessApproved(chromeMediaSourceId) {
         var _resolutions = items['resolutions'];
         if (!_resolutions) {
             resolutions = {
-                maxWidth: screen.width > 1920 ? screen.width : 1920,
-                maxHeight: screen.height > 1080 ? screen.height : 1080
+                maxWidth: screen.width,
+                maxHeight: screen.height
             }
 
             chrome.storage.sync.set({
-                resolutions: '1080p'
+                resolutions: 'fit-screen'
             }, function() {});
         }
 
@@ -121,39 +104,13 @@ function onAccessApproved(chromeMediaSourceId) {
                     chromeMediaSource: 'desktop',
                     chromeMediaSourceId: chromeMediaSourceId,
                     maxWidth: resolutions.maxWidth,
-                    maxHeight: resolutions.maxHeight,
-                    minFrameRate: 30,
-                    maxFrameRate: 64,
-                    minAspectRatio: 1.77
+                    maxHeight: resolutions.maxHeight
                 },
-                optional: [{
-                    bandwidth: resolutions.maxWidth * 8 * 1024
-                }]
+                optional: []
             }
         };
 
         navigator.webkitGetUserMedia(constraints, gotStream, getUserMediaError);
-    });
-}
-
-function captureTabUsingTabCapture() {
-    constraints = {
-        audio: true,
-        video: true,
-        videoConstraints: {
-            mandatory: {
-                chromeMediaSource: 'tab',
-                maxWidth: screen.width,
-                maxHeight: screen.height,
-                minFrameRate: 30,
-                maxFrameRate: 64,
-                minAspectRatio: 1.77
-            }
-        }
-    };
-
-    chrome.tabCapture.capture(constraints, function(stream) {
-        gotStream(stream);
     });
 }
 
@@ -181,9 +138,6 @@ function gotStream(stream) {
     };
 
     stream.getVideoTracks()[0].onended = stream.onended;
-    if (stream.getAudioTracks().length) {
-        stream.getAudioTracks()[0].onended = stream.onended;
-    }
 
     function isMediaStreamActive() {
         if ('active' in stream) {
@@ -265,33 +219,11 @@ function setBadgeText(text) {
 }
 
 function setupRTCMultiConnection(stream) {
-    if (!stream.getAudioTracks().length) {
-        isAudio = false;
-    }
-
     // www.RTCMultiConnection.org/docs/
     connection = new RTCMultiConnection();
 
     connection.optionalArgument = {
-        optional: [{
-            DtlsSrtpKeyAgreement: true
-        }, {
-            googImprovedWifiBwe: true
-        }, {
-            googScreencastMinBitrate: 300 * 8 * 1024
-        }, {
-            googIPv6: true
-        }, {
-            googDscp: true
-        }, {
-            googCpuUnderuseThreshold: 55
-        }, {
-            googCpuOveruseThreshold: 85
-        }, {
-            googSuspendBelowMinBitrate: true
-        }, {
-            googCpuOveruseDetection: true
-        }],
+        optional: [],
         mandatory: {}
     };
 
@@ -306,19 +238,21 @@ function setupRTCMultiConnection(stream) {
 
     connection.iceServers = IceServersHandler.getIceServers();
 
-    setBandwidth(connection);
+    connection.processSdp = function(sdp) {
+        sdp = CodecsHandler.preferVP9(sdp);
+        return sdp;
+    };
 
     // www.RTCMultiConnection.org/docs/session/
     connection.session = {
-        audio: !!isAudio,
         video: true,
         oneway: true
     };
 
     // www.rtcmulticonnection.org/docs/sdpConstraints/
     connection.sdpConstraints.mandatory = {
-        OfferToReceiveAudio: true,
-        OfferToReceiveVideo: true
+        OfferToReceiveAudio: false,
+        OfferToReceiveVideo: false
     };
 
     connection.onstream = connection.onstreamended = function(event) {
@@ -515,33 +449,6 @@ function setDefaults() {
     chrome.browserAction.setBadgeText({
         text: ''
     });
-}
-
-function setBandwidth(connection) {
-    // www.RTCMultiConnection.org/docs/bandwidth/
-    connection.bandwidth = {};
-    connection.bandwidth.video = connection.bandwidth.screen = max_bandwidth;
-    connection.bandwidth.audio = 128;
-
-    connection.processSdp = function(sdp) {
-        if (DetectRTC.isMobileDevice || DetectRTC.browser.name === 'Firefox') {
-            return sdp;
-        }
-
-        sdp = CodecsHandler.setApplicationSpecificBandwidth(sdp, connection.bandwidth, !!connection.session.screen);
-        sdp = CodecsHandler.setVideoBitrates(sdp, {
-            min: connection.bandwidth.video * 8 * 1024,
-            max: connection.bandwidth.video * 8 * 1024
-        });
-        sdp = CodecsHandler.setOpusAttributes(sdp, {
-            maxaveragebitrate: connection.bandwidth.audio * 8 * 1024,
-            maxplaybackrate: connection.bandwidth.audio * 8 * 1024,
-            stereo: 1,
-            maxptime: 3
-        });
-        sdp = CodecsHandler.preferVP9(sdp);
-        return sdp;
-    };
 }
 
 // Check whether new version is installed
