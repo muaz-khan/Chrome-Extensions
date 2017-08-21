@@ -3,9 +3,9 @@
         document.getElementById('resolutions').value = items['resolutions'];
     } else {
         chrome.storage.sync.set({
-            resolutions: 'fit-screen'
+            resolutions: '4K'
         }, function() {
-            document.getElementById('resolutions').value = 'fit-screen'
+            document.getElementById('resolutions').value = '4K'
         });
     }
 

@@ -14,6 +14,7 @@
 <script src="RTCMultiConnection.js"> </script>
 <script src="CodecsHandler.js"></script>
 <script src="IceServersHandler.js"></script>
+<script src="getStats.js"></script>
 <script src="websocket.js"> </script>
 
 <style>
@@ -122,6 +123,38 @@ button[disabled] {
     border: 2px solid rgb(47, 102, 118);
     box-shadow: 0 0 6px white;
 }
+#stats-bar {
+    background-color: rgba(255, 255, 255, 0.92);
+    top: 20px;
+    left: 20px;
+    color: black;
+    font-size: 17px;
+    line-height: 1.5em;
+    position: absolute;
+    border: 2px solid rgba(0, 0, 0, 0.82);
+    border-radius: 7px;
+    font-family: Arial;
+    
+    text-align: left;
+    display: none;
+}
+
+#stats-bar-html {
+    padding: 5px 10px;
+}
+
+#hide-stats-bar {
+    float: right;
+    cursor: pointer;
+    color: red;
+    font-size: 20px;
+    font-weight: bold;
+    margin-right: 8px;
+}
+
+#hide-stats-bar:hover, #hide-stats-bar:active {
+    color: #6c1414;
+}
 </style>
 
 <div id="container" ondblclick="enterFullScreen()">
@@ -132,6 +165,10 @@ button[disabled] {
     </div>
 
     <div id="info-bar"></div>
+    <div id="stats-bar">
+        <div id="hide-stats-bar">x</div>
+        <div id="stats-bar-html"></div>
+    </div>
 </div>
 
 <script>
@@ -156,20 +193,41 @@ var connection = new RTCMultiConnection(params.s);
 // www.rtcmulticonnection.org/docs/sdpConstraints/
 connection.sdpConstraints.mandatory = {
     OfferToReceiveAudio: false,
-    OfferToReceiveVideo: true
+    OfferToReceiveVideo: true,
+    voiceActivityDetection: false,
+    iceRestart: false
 };
 
 connection.getExternalIceServers = false;
 connection.iceServers = IceServersHandler.getIceServers();
 
+function setBandwidth(sdp) {
+    sdp = sdp.replace(/b=AS([^\r\n]+\r\n)/g, '');
+    sdp = sdp.replace(/a=mid:video\r\n/g, 'a=mid:video\r\nb=AS:10000\r\n');
+    return sdp;
+}
+
 connection.processSdp = function(sdp) {
+    sdp = setBandwidth(sdp);
+    sdp = BandwidthHandler.setVideoBitrates(sdp, {
+        min: 300,
+        max: 10000
+    });
     sdp = CodecsHandler.preferVP9(sdp);
     return sdp;
 };
 
 connection.optionalArgument = {
-    optional: [],
-    mandatory: {}
+    optional: [{
+        googHighBitrate: true
+    }, {
+        googVeryHighBitrate: true
+    }, {
+        googScreencastMinBitrate: 300
+    }],
+    mandatory: {
+        DtlsSrtpKeyAgreement: true
+    }
 };
 </script>
 
@@ -230,6 +288,8 @@ connection.onstreamid = function(event) {
 
 connection.onstream = function(e) {
     if (e.type == 'remote') {
+        connection.remoteStream = e.stream;
+
         infoBar.style.display = 'none';
         remoteStream = e.stream;
         attachMediaStream(remoteVideo, e.stream);
@@ -248,6 +308,7 @@ connection.onleave = function(e) {
 connection.onSessionClosed = function() {
     infoBar.innerHTML = 'Screen sharing has been closed.';
     infoBar.style.display = 'block';
+    statsBar.style.display = 'none';
     connection.close();
     websocket.onopen();
 
@@ -391,6 +452,58 @@ websocket.onopen = function() {
         connection.join(sessionDescription);
     }
 };
+
+var dontDuplicate = {};
+connection.onconnected = function(event) {
+    if(dontDuplicate[event.userid]) return;
+    dontDuplicate[event.userid] = true;
+
+    var peer = connection.peers[event.userid].peer.connection;
+
+    if(DetectRTC.browser.name === 'Firefox') {
+        getStats(peer, (connection.remoteStream || peer.getRemoteStreams()[0]).getTracks()[0], function(stats) {
+            onGettingWebRCStats(stats, event.userid);
+        }, 1000);
+        return;
+    }
+
+    getStats(peer, function(stats) {
+        onGettingWebRCStats(stats, event.userid);
+    }, 1000);
+
+    statsBar.style.display = 'block';
+};
+
+var statsBar = document.getElementById('stats-bar');
+var statsBarHTML = document.getElementById('stats-bar-html');
+
+document.getElementById('hide-stats-bar').onclick = function() {
+    statsBar.style.display = 'none';
+};
+
+function onGettingWebRCStats(stats, userid) {
+    if(!connection.peers[userid]) {
+        stats.nomore();
+        return;
+    }
+
+    var html = 'Codecs: ' + stats.audio.recv.codecs.concat(stats.video.recv.codecs).join(', ');
+    html += '<br>';
+    html += 'Resolutions: ' + stats.resolutions.recv.width + 'x' + stats.resolutions.recv.height;
+    html += '<br>';
+    html += 'Data: ' + bytesToSize(stats.audio.bytesReceived + stats.video.bytesReceived);
+    statsBarHTML.innerHTML = html;
+}
+
+function bytesToSize(bytes) {
+    var k = 1000;
+    var sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+    if (bytes === 0) {
+        return '0 Bytes';
+    }
+    var i = parseInt(Math.floor(Math.log(bytes) / Math.log(k)), 10);
+    return (bytes / Math.pow(k, i)).toPrecision(3) + ' ' + sizes[i];
+}
 
 window.addEventListener('offline', function() {
     infoBar.innerHTML = 'You seems offLine.';

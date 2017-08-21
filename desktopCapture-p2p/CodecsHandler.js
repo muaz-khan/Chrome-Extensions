@@ -231,7 +231,7 @@ var CodecsHandler = (function() {
     }
 
     function preferVP9(sdp) {
-        if (sdp.indexOf('SAVPF 96 98') === -1 || sdp.indexOf('VP9/90000') === -1) {
+        if (sdp.indexOf('SAVPF 96 98') === -1 || sdp.indexOf('96 VP8/90000') === -1 || sdp.indexOf('98 VP9/9000') === -1) {
             return sdp;
         }
 

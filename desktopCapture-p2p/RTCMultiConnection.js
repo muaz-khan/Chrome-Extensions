@@ -4023,7 +4023,7 @@
 
                 function createDescription() {
                     self.connection[createType == 'offer' ? 'createOffer' : 'createAnswer'](function(sessionDescription) {
-                        sessionDescription.sdp = self.serializeSdp(sessionDescription.sdp, createType);
+                        sessionDescription.sdp = connection.processSdp(sessionDescription.sdp);
                         self.connection.setLocalDescription(sessionDescription);
 
                         if (self.trickleIce) {
@@ -4037,99 +4037,6 @@
                         self.prevCreateType = createType;
                     }, self.onSdpError, self.constraints);
                 }
-            },
-            serializeSdp: function(sdp, createType) {
-                // it is "connection.processSdp=function(sdp){return sdp;}"
-                sdp = this.processSdp(sdp);
-
-                if (isFirefox) return sdp;
-
-                if (this.session.inactive && !this.holdMLine) {
-                    this.hold = true;
-                    if ((this.session.screen || this.session.video) && this.session.audio) {
-                        this.holdMLine = 'both';
-                    } else if (this.session.screen || this.session.video) {
-                        this.holdMLine = 'video';
-                    } else if (this.session.audio) {
-                        this.holdMLine = 'audio';
-                    }
-                }
-
-                sdp = this.setBandwidth(sdp);
-                if (this.holdMLine == 'both') {
-                    if (this.hold) {
-                        this.prevSDP = sdp;
-                        sdp = sdp.replace(/a=sendonly|a=recvonly|a=sendrecv/g, 'a=inactive');
-                    } else if (this.prevSDP) {
-                        if (!this.session.inactive) {
-                            // it means that DTSL key exchange already happened for single or multiple media lines.
-                            // this block checks, key-exchange must be happened for all media lines.
-                            sdp = this.prevSDP;
-
-                            // todo: test it: makes sense?
-                            if (chromeVersion <= 35) {
-                                return sdp;
-                            }
-                        }
-                    }
-                } else if (this.holdMLine == 'audio' || this.holdMLine == 'video') {
-                    sdp = sdp.split('m=');
-
-                    var audio = '';
-                    var video = '';
-
-                    if (sdp[1] && sdp[1].indexOf('audio') == 0) {
-                        audio = 'm=' + sdp[1];
-                    }
-                    if (sdp[2] && sdp[2].indexOf('audio') == 0) {
-                        audio = 'm=' + sdp[2];
-                    }
-
-                    if (sdp[1] && sdp[1].indexOf('video') == 0) {
-                        video = 'm=' + sdp[1];
-                    }
-                    if (sdp[2] && sdp[2].indexOf('video') == 0) {
-                        video = 'm=' + sdp[2];
-                    }
-
-                    if (this.holdMLine == 'audio') {
-                        if (this.hold) {
-                            this.prevSDP = sdp[0] + audio + video;
-                            sdp = sdp[0] + audio.replace(/a=sendonly|a=recvonly|a=sendrecv/g, 'a=inactive') + video;
-                        } else if (this.prevSDP) {
-                            sdp = this.prevSDP;
-                        }
-                    }
-
-                    if (this.holdMLine == 'video') {
-                        if (this.hold) {
-                            this.prevSDP = sdp[0] + audio + video;
-                            sdp = sdp[0] + audio + video.replace(/a=sendonly|a=recvonly|a=sendrecv/g, 'a=inactive');
-                        } else if (this.prevSDP) {
-                            sdp = this.prevSDP;
-                        }
-                    }
-                }
-
-                if (!this.hold && this.session.inactive) {
-                    // transport.cc&l=852 - http://goo.gl/0FxxqG
-                    // dtlstransport.h&l=234 - http://goo.gl/7E4sYF
-                    // http://tools.ietf.org/html/rfc4340
-
-                    // From RFC 4145, SDP setup attribute values.
-                    // http://goo.gl/xETJEp && http://goo.gl/3Wgcau
-                    if (createType == 'offer') {
-                        sdp = sdp.replace(/a=setup:passive|a=setup:active|a=setup:holdconn/g, 'a=setup:actpass');
-                    } else {
-                        sdp = sdp.replace(/a=setup:actpass|a=setup:passive|a=setup:holdconn/g, 'a=setup:active');
-                    }
-
-                    // whilst doing handshake, either media lines were "inactive"
-                    // or no media lines were present
-                    sdp = sdp.replace(/a=inactive/g, 'a=sendrecv');
-                }
-                // this.session.inactive = false;
-                return sdp;
             },
             init: function() {
                 this.setConstraints();
@@ -4201,44 +4108,6 @@
 
                 var self = this;
             },
-            setBandwidth: function(sdp) {
-                if (isMobileDevice || isFirefox || !this.bandwidth) return sdp;
-
-                var bandwidth = this.bandwidth;
-
-                if (this.session.screen) {
-                    if (!bandwidth.screen) {
-                        warn('It seems that you are not using bandwidth for screen. Screen sharing is expected to fail.');
-                    } else if (bandwidth.screen < 300) {
-                        warn('It seems that you are using wrong bandwidth value for screen. Screen sharing is expected to fail.');
-                    }
-                }
-
-                // if screen; must use at least 300kbs
-                if (bandwidth.screen && this.session.screen) {
-                    sdp = sdp.replace(/b=AS([^\r\n]+\r\n)/g, '');
-                    sdp = sdp.replace(/a=mid:video\r\n/g, 'a=mid:video\r\nb=AS:' + bandwidth.screen + '\r\n');
-                }
-
-                // remove existing bandwidth lines
-                if (bandwidth.audio || bandwidth.video || bandwidth.data) {
-                    sdp = sdp.replace(/b=AS([^\r\n]+\r\n)/g, '');
-                }
-
-                if (bandwidth.audio) {
-                    sdp = sdp.replace(/a=mid:audio\r\n/g, 'a=mid:audio\r\nb=AS:' + bandwidth.audio + '\r\n');
-                }
-
-                if (bandwidth.video) {
-                    sdp = sdp.replace(/a=mid:video\r\n/g, 'a=mid:video\r\nb=AS:' + (this.session.screen ? bandwidth.screen : bandwidth.video) + '\r\n');
-                }
-
-                if (bandwidth.data && !this.preferSCTP) {
-                    sdp = sdp.replace(/a=mid:data\r\n/g, 'a=mid:data\r\nb=AS:' + bandwidth.data + '\r\n');
-                }
-
-                return sdp;
-            },
             setConstraints: function() {
                 var sdpConstraints = setSdpConstraints({
                     OfferToReceiveAudio: !!this.session.audio,
@@ -4286,7 +4155,9 @@
 
                     this.iceServers = {
                         iceServers: this.iceServers,
-                        iceTransports: this.rtcConfiguration.iceTransports
+                        // bundlePolicy: 'max-bundle', // or balanced or max-compat
+                        // rtcpMuxPolicy: 'negotiate', // or require
+                        iceTransportPolicy: 'all' // or relay or none
                     };
                 } else this.iceServers = null;
 
@@ -4310,6 +4181,8 @@
                 if (!sessionDescription) throw 'Remote session description should NOT be NULL.';
 
                 if (!this.connection) return;
+
+                sessionDescription.sdp = connection.processSdp(sessionDescription.sdp);
 
                 log('setting remote description', sessionDescription.type, sessionDescription.sdp);
 

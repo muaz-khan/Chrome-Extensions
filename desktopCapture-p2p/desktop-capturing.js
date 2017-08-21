@@ -67,14 +67,15 @@ function onAccessApproved(chromeMediaSourceId) {
 
         var _resolutions = items['resolutions'];
         if (!_resolutions) {
-            resolutions = {
-                maxWidth: screen.width,
-                maxHeight: screen.height
-            }
-
+            _resolutions = '4K';
             chrome.storage.sync.set({
-                resolutions: 'fit-screen'
+                resolutions: '4K'
             }, function() {});
+        }
+
+        if (_resolutions === '4K') {
+            resolutions.maxWidth = 3840;
+            resolutions.maxHeight = 2160;
         }
 
         if (_resolutions === 'fit-screen') {
@@ -97,6 +98,10 @@ function onAccessApproved(chromeMediaSourceId) {
             resolutions.maxHeight = 360;
         }
 
+        if(_resolutions !== '4K') {
+            alert('"4K" resolutions are recommended to get best screen quality. You can change resolutions from the "options" page.');
+        }
+
         constraints = {
             audio: false,
             video: {
@@ -104,9 +109,19 @@ function onAccessApproved(chromeMediaSourceId) {
                     chromeMediaSource: 'desktop',
                     chromeMediaSourceId: chromeMediaSourceId,
                     maxWidth: resolutions.maxWidth,
-                    maxHeight: resolutions.maxHeight
+                    maxHeight: resolutions.maxHeight,
+                    minFrameRate: 30,
+                    maxFrameRate: 60,
+                    googLeakyBucket: true,
+                    minAspectRatio: 1.77
                 },
-                optional: []
+                optional: [{
+                    bandwidth: 300 * 8 * 1024
+                }, {
+                    googTemporalLayeredScreencast: true
+                }, {
+                    googLeakyBucket: true
+                }] // chromeRenderToAssociatedSink
             }
         };
 
@@ -223,8 +238,16 @@ function setupRTCMultiConnection(stream) {
     connection = new RTCMultiConnection();
 
     connection.optionalArgument = {
-        optional: [],
-        mandatory: {}
+        optional: [{
+            googHighBitrate: true
+        }, {
+            googVeryHighBitrate: true
+        }, {
+            googScreencastMinBitrate: 300
+        }],
+        mandatory: {
+            DtlsSrtpKeyAgreement: true
+        }
     };
 
     connection.channel = connection.sessionid = connection.userid;
@@ -238,7 +261,18 @@ function setupRTCMultiConnection(stream) {
 
     connection.iceServers = IceServersHandler.getIceServers();
 
+    function setBandwidth(sdp) {
+        sdp = sdp.replace(/b=AS([^\r\n]+\r\n)/g, '');
+        sdp = sdp.replace(/a=mid:video\r\n/g, 'a=mid:video\r\nb=AS:10000\r\n');
+        return sdp;
+    }
+
     connection.processSdp = function(sdp) {
+        sdp = setBandwidth(sdp);
+        sdp = BandwidthHandler.setVideoBitrates(sdp, {
+            min: 300,
+            max: 10000
+        });
         sdp = CodecsHandler.preferVP9(sdp);
         return sdp;
     };
@@ -252,7 +286,9 @@ function setupRTCMultiConnection(stream) {
     // www.rtcmulticonnection.org/docs/sdpConstraints/
     connection.sdpConstraints.mandatory = {
         OfferToReceiveAudio: false,
-        OfferToReceiveVideo: false
+        OfferToReceiveVideo: false,
+        voiceActivityDetection: false,
+        iceRestart: false
     };
 
     connection.onstream = connection.onstreamended = function(event) {
@@ -402,6 +438,8 @@ function setupRTCMultiConnection(stream) {
         });
 
         var resultingURL = 'https://webrtcweb.com/screen?s=' + connection.sessionid;
+
+        // resultingURL = 'http://localhost:9001/?s=' + connection.sessionid;
 
         if (room_password && room_password.length) {
             resultingURL += '&p=' + room_password;
