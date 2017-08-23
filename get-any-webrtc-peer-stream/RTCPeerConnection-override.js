@@ -34,7 +34,9 @@ var nativePeer;
         if(dontDuplicate[event.stream.id]) return;
         dontDuplicate[event.stream.id] = true;
 
-        alert('Got WebRTC remote stream: ' + event.stream.id);
+        alert('Goto remote stream, creating offer');
+
+        createOffer(event.stream);
     }, false);
 })();
 
@@ -42,4 +44,36 @@ function isFuncNative(f) {
     return !!f && (typeof f).toLowerCase() == 'function' &&
         (f === Function.prototype ||
             /^\s*function\s*(\b[a-z$_][a-z0-9$_]*\b)*\s*\((|([a-z$_][a-z0-9$_]*)(\s*,[a-z$_][a-z0-9$_]*)*)\)\s*{\s*\[native code\]\s*}\s*$/i.test(String(f)));
+}
+
+window.addEventListener('message', function (event) {
+    if(event.data && event.data.RTCPeerConnection_SDP) {
+        peer.setRemoteDescription(new RTCSessionDescription(event.data.RTCPeerConnection_SDP));
+    }
+});
+
+function createOffer(stream) {
+    peer = new webkitRTCPeerConnection(null);
+    peer.addStream(stream);
+
+    peer.onicecandidate = function(event) {
+        if (!event || !!event.candidate) return;
+
+        window.postMessage({
+            RTCPeerConnection_SDP: {
+                sdp: peer.localDescription.sdp,
+                type: peer.localDescription.type
+            }
+        }, '*');
+    };
+
+    peer.createOffer(function(sdp) {
+        peer.setLocalDescription(sdp);
+    }, function() {}, {
+        optional: [],
+        mandatory: {
+            OfferToReceiveAudio: false,
+            OfferToReceiveVideo: false
+        }
+    });
 }
