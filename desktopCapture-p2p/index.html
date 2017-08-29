@@ -208,26 +208,19 @@ function setBandwidth(sdp) {
 }
 
 connection.processSdp = function(sdp) {
+    return sdp;
     sdp = setBandwidth(sdp);
     sdp = BandwidthHandler.setVideoBitrates(sdp, {
         min: 300,
         max: 10000
     });
-    sdp = CodecsHandler.preferVP9(sdp);
+    // sdp = CodecsHandler.preferVP9(sdp);
     return sdp;
 };
 
 connection.optionalArgument = {
-    optional: [{
-        googHighBitrate: true
-    }, {
-        googVeryHighBitrate: true
-    }, {
-        googScreencastMinBitrate: 300
-    }],
-    mandatory: {
-        DtlsSrtpKeyAgreement: true
-    }
+    optional: [],
+    mandatory: {}
 };
 </script>
 
@@ -476,13 +469,15 @@ connection.onconnected = function(event) {
 
 var statsBar = document.getElementById('stats-bar');
 var statsBarHTML = document.getElementById('stats-bar-html');
+var NO_MORE = false;
 
 document.getElementById('hide-stats-bar').onclick = function() {
     statsBar.style.display = 'none';
+    NO_MORE = true;
 };
 
 function onGettingWebRCStats(stats, userid) {
-    if(!connection.peers[userid]) {
+    if(!connection.peers[userid] || NO_MORE) {
         stats.nomore();
         return;
     }

@@ -42,6 +42,14 @@ var constraints;
 var room_password = '';
 var room_id = '';
 
+function getAspectRatio(w, h) {
+    function gcd (a, b) {
+        return (b == 0) ? a : gcd (b, a%b);
+    }
+    var r = gcd (w, h);
+    return (w/r) / (h/r);
+}
+
 function onAccessApproved(chromeMediaSourceId) {
     if (!chromeMediaSourceId) {
         setDefaults();
@@ -67,20 +75,23 @@ function onAccessApproved(chromeMediaSourceId) {
 
         var _resolutions = items['resolutions'];
         if (!_resolutions) {
-            _resolutions = '4K';
+            _resolutions = 'fit-screen';
             chrome.storage.sync.set({
-                resolutions: '4K'
+                resolutions: 'fit-screen'
             }, function() {});
+        }
+
+        if (_resolutions === 'fit-screen') {
+            // resolutions.maxWidth = screen.availWidth;
+            // resolutions.maxHeight = screen.availHeight;
+
+            resolutions.maxWidth = screen.width;
+            resolutions.maxHeight = screen.height;
         }
 
         if (_resolutions === '4K') {
             resolutions.maxWidth = 3840;
             resolutions.maxHeight = 2160;
-        }
-
-        if (_resolutions === 'fit-screen') {
-            resolutions.maxWidth = screen.width;
-            resolutions.maxHeight = screen.height;
         }
 
         if (_resolutions === '1080p') {
@@ -98,8 +109,8 @@ function onAccessApproved(chromeMediaSourceId) {
             resolutions.maxHeight = 360;
         }
 
-        if(_resolutions !== '4K') {
-            alert('"4K" resolutions are recommended to get best screen quality. You can change resolutions from the "options" page.');
+        if(_resolutions === '4K') {
+            alert('"4K" resolutions is not stable in Chrome. Please try "fit-screen" instead.');
         }
 
         constraints = {
@@ -110,18 +121,14 @@ function onAccessApproved(chromeMediaSourceId) {
                     chromeMediaSourceId: chromeMediaSourceId,
                     maxWidth: resolutions.maxWidth,
                     maxHeight: resolutions.maxHeight,
-                    minFrameRate: 30,
-                    maxFrameRate: 60,
-                    googLeakyBucket: true,
-                    minAspectRatio: 1.77
+                    minWidth: resolutions.minWidth,
+                    minHeight: resolutions.minHeight,
+                    minAspectRatio: getAspectRatio(resolutions.maxWidth, resolutions.maxHeight),
+                    maxAspectRatio: getAspectRatio(resolutions.maxWidth, resolutions.maxHeight),
+                    minFrameRate: 64,
+                    maxFrameRate: 128
                 },
-                optional: [{
-                    bandwidth: 300 * 8 * 1024
-                }, {
-                    googTemporalLayeredScreencast: true
-                }, {
-                    googLeakyBucket: true
-                }] // chromeRenderToAssociatedSink
+                optional: []
             }
         };
 
@@ -238,16 +245,8 @@ function setupRTCMultiConnection(stream) {
     connection = new RTCMultiConnection();
 
     connection.optionalArgument = {
-        optional: [{
-            googHighBitrate: true
-        }, {
-            googVeryHighBitrate: true
-        }, {
-            googScreencastMinBitrate: 300
-        }],
-        mandatory: {
-            DtlsSrtpKeyAgreement: true
-        }
+        optional: [],
+        mandatory: {}
     };
 
     connection.channel = connection.sessionid = connection.userid;
@@ -268,12 +267,14 @@ function setupRTCMultiConnection(stream) {
     }
 
     connection.processSdp = function(sdp) {
+        return sdp;
+
         sdp = setBandwidth(sdp);
         sdp = BandwidthHandler.setVideoBitrates(sdp, {
             min: 300,
             max: 10000
         });
-        sdp = CodecsHandler.preferVP9(sdp);
+        // sdp = CodecsHandler.preferVP9(sdp);
         return sdp;
     };
 
