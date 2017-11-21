@@ -33,7 +33,7 @@ function captureDesktop() {
     });
 
     chrome.storage.sync.get(null, function(items) {
-        var sources = ['window', 'screen'];
+        var sources = ['screen', 'window'];
         var desktop_id = chrome.desktopCapture.chooseDesktopMedia(sources, onAccessApproved);
     });
 }
@@ -41,6 +41,8 @@ function captureDesktop() {
 var constraints;
 var room_password = '';
 var room_id = '';
+var codecs = 'default';
+var bandwidth;
 
 function getAspectRatio(w, h) {
     function gcd (a, b) {
@@ -71,6 +73,14 @@ function onAccessApproved(chromeMediaSourceId) {
 
         if (items['room_id']) {
             room_id = items['room_id'];
+        }
+
+        if (items['codecs']) {
+            codecs = items['codecs'];
+        }
+
+        if (items['bandwidth']) {
+            bandwidth = items['bandwidth'];
         }
 
         var _resolutions = items['resolutions'];
@@ -260,21 +270,33 @@ function setupRTCMultiConnection(stream) {
 
     connection.iceServers = IceServersHandler.getIceServers();
 
-    function setBandwidth(sdp) {
+    function setBandwidth(sdp, value) {
         sdp = sdp.replace(/b=AS([^\r\n]+\r\n)/g, '');
-        sdp = sdp.replace(/a=mid:video\r\n/g, 'a=mid:video\r\nb=AS:10000\r\n');
+        sdp = sdp.replace(/a=mid:video\r\n/g, 'a=mid:video\r\nb=AS:' + value + '\r\n');
         return sdp;
     }
 
     connection.processSdp = function(sdp) {
-        return sdp;
+        if(bandwidth) {
+            try {
+                bandwidth = parseInt(bandwidth);
+            }
+            catch(e) {
+                bandwidth = null;
+            }
 
-        sdp = setBandwidth(sdp);
-        sdp = BandwidthHandler.setVideoBitrates(sdp, {
-            min: 300,
-            max: 10000
-        });
-        // sdp = CodecsHandler.preferVP9(sdp);
+            if(bandwidth && bandwidth != NaN && bandwidth != 'NaN' && typeof bandwidth == 'number') {
+                sdp = setBandwidth(sdp, bandwidth);
+                sdp = BandwidthHandler.setVideoBitrates(sdp, {
+                    min: bandwidth,
+                    max: bandwidth
+                });
+            }
+        }
+
+        if(!!codecs && codecs !== 'default') {
+            sdp = CodecsHandler.preferCodec(sdp, codecs);
+        }
         return sdp;
     };
 
