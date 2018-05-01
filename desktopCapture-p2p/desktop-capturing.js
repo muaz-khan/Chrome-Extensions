@@ -33,7 +33,7 @@ function captureDesktop() {
     });
 
     chrome.storage.sync.get(null, function(items) {
-        var sources = ['screen', 'window'];
+        var sources = ['screen', 'window', 'audio', 'tab'];
         var desktop_id = chrome.desktopCapture.chooseDesktopMedia(sources, onAccessApproved);
     });
 }
@@ -52,7 +52,7 @@ function getAspectRatio(w, h) {
     return (w/r) / (h/r);
 }
 
-function onAccessApproved(chromeMediaSourceId) {
+function onAccessApproved(chromeMediaSourceId, opts) {
     if (!chromeMediaSourceId) {
         setDefaults();
         chrome.windows.create({
@@ -141,6 +141,17 @@ function onAccessApproved(chromeMediaSourceId) {
                 optional: []
             }
         };
+
+        if(opts.canRequestAudioTrack === true) {
+            constraints.audio = {
+                mandatory: {
+                    chromeMediaSource: 'desktop',
+                    chromeMediaSourceId: chromeMediaSourceId,
+                    echoCancellation: true
+                },
+                optional: []
+            };
+        }
 
         navigator.webkitGetUserMedia(constraints, gotStream, getUserMediaError);
     });
@@ -309,9 +320,7 @@ function setupRTCMultiConnection(stream) {
     // www.rtcmulticonnection.org/docs/sdpConstraints/
     connection.sdpConstraints.mandatory = {
         OfferToReceiveAudio: false,
-        OfferToReceiveVideo: false,
-        voiceActivityDetection: false,
-        iceRestart: false
+        OfferToReceiveVideo: false
     };
 
     connection.onstream = connection.onstreamended = function(event) {

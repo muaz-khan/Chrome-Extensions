@@ -11,7 +11,7 @@ function gotStream(stream) {
         type: 'video',
         disableLogs: false,
         recorderType: MediaStreamRecorder, // StereoAudioRecorder
-        timeSlice: 1000
+        // timeSlice: 1000
     };
 
     if (!videoCodec) {
