@@ -1,4 +1,4 @@
-// Last time updated at Sep 23, 2014, 08:32:23
+// Last time updated on: 5th May 2018
 
 // Latest file can be found here: https://cdn.webrtc-experiment.com/Screen-Capturing.js
 
@@ -18,7 +18,7 @@
 
 // Usage:
 // getScreenConstraints(function(screen_constraints) {
-//    navigator.webkitGetUserMedia({ video: screen_constraints }, onSuccess, onFailure );
+//    navigator.mediaDevices.getUserMedia({ video: screen_constraints }).then(onSuccess).catch(onFailure );
 // });
 
 // First Step: Download the extension, modify "manifest.json" and publish to Google AppStore
@@ -105,7 +105,7 @@ function getChromeExtensionStatus(extensionid, callback) {
         window.postMessage('are-you-there', '*');
         setTimeout(function() {
             if (chromeMediaSource == 'screen') {
-                callback(extensionid == extensionid ? 'installed-enabled' : 'installed-disabled');
+                callback('installed-disabled');
             } else callback('installed-enabled');
         }, 2000);
     };
