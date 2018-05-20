@@ -230,10 +230,12 @@
                         if(error) {
                             return alert(error);
                         }
+
+                        // check for "screen_constraints.canRequestAudioTrack===true"
                         
                         console.log('screen_constraints', screen_constraints);
                         
-                        navigator.mediaDevices.getUserMedia({ video: screen_constraints, audio: screen_constraints }).then(function(stream) {
+                        navigator.mediaDevices.getUserMedia({ video: screen_constraints, audio: screen_constraints.canRequestAudioTrack ? screen_constraints : false }).then(function(stream) {
                             document.querySelector('video').srcObject = stream;
                         }).catch(function(error) {
                             alert(JSON.stringify(error, null, '\t'));

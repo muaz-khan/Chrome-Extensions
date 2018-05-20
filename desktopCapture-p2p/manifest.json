@@ -1,7 +1,7 @@
 {
    "name":"WebRTC Desktop Sharing",
    "author":"Muaz Khan",
-   "version":"3.7",
+   "version":"3.8",
    "manifest_version":2,
    "minimum_chrome_version":"34",
    "description":"WebRTC based P2P HQ/HD screen sharing. Share audio+tab or any application's screen. Even share full/entire screen.",
@@ -12,13 +12,15 @@
          "RTCMultiConnection.js",
          "CodecsHandler.js",
          "IceServersHandler.js",
+         "MultiStreamsMixer.js",
          "desktop-capturing.js"
       ],
       "persistent":false
    },
-   "browser_action":{
+   "browser_action":{  
       "default_icon":"images/desktopCapture22.png",
-      "default_title":"Share Desktop!"
+      "default_title":"Share Your Screen",
+      "default_popup": "dropdown.html"
    },
    "icons":{
       "16":"images/desktopCapture16.png",
@@ -32,7 +34,8 @@
       "storage",
       "tabs",
       "<all_urls>",
-      "activeTab"
+      "activeTab",
+      "tabCapture"
    ],
    "web_accessible_resources":[
       "images/desktopCapture48.png"

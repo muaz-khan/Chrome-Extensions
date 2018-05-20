@@ -8,26 +8,26 @@ runtimePort.onMessage.addListener(function(message) {
     }
 });
 
-var isRecording = false;
-chrome.storage.sync.get('isRecording', function(obj) {
-    document.getElementById('default-section').style.display = obj.isRecording === 'true' ? 'none' : 'block';
-    document.getElementById('stop-section').style.display = obj.isRecording === 'true' ? 'block' : 'none';
+var isSharingOn = false;
+chrome.storage.sync.get('isSharingOn', function(obj) {
+    document.getElementById('default-section').style.display = obj.isSharingOn === 'true' ? 'none' : 'block';
+    document.getElementById('stop-section').style.display = obj.isSharingOn === 'true' ? 'block' : 'none';
 
-    isRecording = obj.isRecording === 'true';
+    isSharingOn = obj.isSharingOn === 'true';
 
-    // auto-stop-recording
-    if (isRecording === true) {
-        document.getElementById('stop-recording').click();
+    // auto-stop-sharing
+    if (isSharingOn === true) {
+        document.getElementById('stop-sharing').click();
     }
 });
 
-document.getElementById('stop-recording').onclick = function() {
+document.getElementById('stop-sharing').onclick = function() {
     chrome.storage.sync.set({
-        isRecording: 'false' // FALSE
+        isSharingOn: 'false' // FALSE
     }, function() {
         runtimePort.postMessage({
             messageFromContentScript1234: true,
-            stopRecording: true
+            stopSharing: true
         });
         window.close();
     });
@@ -39,12 +39,12 @@ document.getElementById('full-screen').onclick = function() {
         enableMicrophone: 'false',
         enableCamera: 'false',
         enableScreen: 'true', // TRUE
-        isRecording: 'true', // TRUE
+        isSharingOn: 'true', // TRUE
         enableSpeakers: 'false' // FALSE
     }, function() {
         runtimePort.postMessage({
             messageFromContentScript1234: true,
-            startRecording: true
+            startSharing: true
         });
         window.close();
     });
@@ -56,12 +56,46 @@ document.getElementById('full-screen-audio').onclick = function() {
         enableMicrophone: 'false',
         enableCamera: 'false',
         enableScreen: 'true', // TRUE
-        isRecording: 'true', // TRUE
+        isSharingOn: 'true', // TRUE
         enableSpeakers: 'true' // TRUE
     }, function() {
         runtimePort.postMessage({
             messageFromContentScript1234: true,
-            startRecording: true
+            startSharing: true
+        });
+        window.close();
+    });
+};
+
+document.getElementById('full-screen-audio-microphone').onclick = function() {
+    chrome.storage.sync.set({
+        enableTabCaptureAPI: 'false',
+        enableMicrophone: 'true', // TRUE
+        enableCamera: 'false',
+        enableScreen: 'true', // TRUE
+        isSharingOn: 'true', // TRUE
+        enableSpeakers: 'true' // TRUE
+    }, function() {
+        runtimePort.postMessage({
+            messageFromContentScript1234: true,
+            startSharing: true
+        });
+        window.close();
+    });
+};
+
+document.getElementById('full-screen-audio-microphone-camera').onclick = function() {
+    chrome.storage.sync.set({
+        enableTabCaptureAPI: 'false',
+        enableMicrophone: 'true', // TRUE
+        enableCamera: 'true',
+        enableScreen: 'true', // TRUE
+        isSharingOn: 'true', // TRUE
+        enableSpeakers: 'true' // TRUE
+    }, function() {
+        runtimePort.postMessage({
+            messageFromContentScript1234: true,
+            startSharing: true
         });
         window.close();
     });
@@ -73,12 +107,12 @@ document.getElementById('selected-tab').onclick = function() {
         enableMicrophone: 'false',
         enableCamera: 'false',
         enableScreen: 'false',
-        isRecording: 'true', // TRUE
-        enableSpeakers: 'false'
+        isSharingOn: 'true', // TRUE
+        enableSpeakers: 'true'
     }, function() {
         runtimePort.postMessage({
             messageFromContentScript1234: true,
-            startRecording: true
+            startSharing: true
         });
         window.close();
     });
@@ -90,12 +124,12 @@ document.getElementById('microphone-screen').onclick = function() {
         enableMicrophone: 'true', // TRUE
         enableCamera: 'false',
         enableScreen: 'true', // TRUE
-        isRecording: 'true', // TRUE
+        isSharingOn: 'true', // TRUE
         enableSpeakers: 'false'
     }, function() {
         runtimePort.postMessage({
             messageFromContentScript1234: true,
-            startRecording: true
+            startSharing: true
         });
         window.close();
     });
@@ -107,12 +141,12 @@ document.getElementById('microphone-screen-camera').onclick = function() {
         enableMicrophone: 'true', // TRUE
         enableCamera: 'true', // TRUE
         enableScreen: 'true', // TRUE
-        isRecording: 'true', // TRUE
+        isSharingOn: 'true', // TRUE
         enableSpeakers: 'false'
     }, function() {
         runtimePort.postMessage({
             messageFromContentScript1234: true,
-            startRecording: true
+            startSharing: true
         });
         window.close();
     });
@@ -124,18 +158,18 @@ document.getElementById('microphone-webcam').onclick = function() {
         enableMicrophone: 'true', // TRUE
         enableCamera: 'true', // TRUE
         enableScreen: 'false', // FALSE
-        isRecording: 'true', // TRUE
+        isSharingOn: 'true', // TRUE
         enableSpeakers: 'false'
     }, function() {
         runtimePort.postMessage({
             messageFromContentScript1234: true,
-            startRecording: true
+            startSharing: true
         });
         window.close();
     });
 };
 
 document.getElementById('btn-options').onclick = function(e) {
-    // e.preventDefault();
-    // location.href = this.href;
+    e.preventDefault();
+    location.href = this.href;
 };

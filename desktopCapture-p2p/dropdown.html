@@ -27,7 +27,7 @@
 }
 
 html, body {
-  width: 350px;
+  width: 400px;
   background-color: #F3F3F3;
   font-family: Custom_Font!important;
   font-size: 1em;
@@ -52,13 +52,7 @@ div.btn {
 }
 
 div.btn:hover {
-  color: #ffffff;
-  background: #3cb0fd;
-  background-image: -webkit-linear-gradient(top, #3cb0fd, #3498db);
-  background-image: -moz-linear-gradient(top, #3cb0fd, #3498db);
-  background-image: -ms-linear-gradient(top, #3cb0fd, #3498db);
-  background-image: -o-linear-gradient(top, #3cb0fd, #3498db);
-  background-image: linear-gradient(to bottom, #3cb0fd, #3498db);
+  background: rgba(234,234,234,1);
   text-decoration: none;
 }
 
@@ -84,47 +78,54 @@ section {
 <body>
     <article id="default-section">
       <div class="btn" id="full-screen">
-          <section><img src="images/main-icon.png"></section>
-          Full Screen
+          <section><img src="images/desktopCapture22.png"></section>
+          Screen Without Audio
       </div>
       <hr>
       <div class="btn" id="microphone-screen">
-          <section><img src="images/main-icon.png"></section>
-          Full Screen + Microphone
+          <section><img src="images/desktopCapture22.png"></section>
+          Screen + Microphone
       </div>
       <hr>
       <div class="btn" id="full-screen-audio">
-          <section><img src="images/main-icon.png"></section>
-          Full Screen + Speakers
+          <section><img src="images/desktopCapture22.png"></section>
+          Screen + Speakers
+      </div>
+      <hr>
+      <div class="btn" id="full-screen-audio-microphone">
+          <section><img src="images/desktopCapture22.png"></section>
+          Screen + Microphone + Speakers
+      </div>
+      <hr>
+      <div class="btn" id="full-screen-audio-microphone-camera">
+          <section><img src="images/desktopCapture22.png"></section>
+          Screen + Microphone + Speakers + Camera
       </div>
       <hr>
       <div class="btn" id="selected-tab">
-          <section><img src="images/main-icon.png"></section>
-          Chrome Tab
+          <section><img src="images/desktopCapture22.png"></section>
+          Chrome Tab + Speakers
       </div>
       <hr>
       <div class="btn" id="microphone-screen-camera">
-          <section><img src="images/main-icon.png"></section>
-          Full Screen + Camera
+          <section><img src="images/desktopCapture22.png"></section>
+          Screen + Camera
       </div>
       <hr>
       <div class="btn" id="microphone-webcam">
-          <section><img src="images/main-icon.png"></section>
+          <section><img src="images/desktopCapture22.png"></section>
            Camera Only
       </div>
       <hr>
-      <div style="float: right;">
-        <a href="preview.html" target="_blank">See All Recordings</a>
-      </div>
-      <div>
+      <div style="text-align: right;">
         <a id="btn-options" href="options.html" target="_blank">Options</a>
       </div>
     </article>
 
     <article id="stop-section">
-      <div class="btn" id="stop-recording">
-          <section><img src="images/recordRTC-progress-1.png"></section>
-          Stop Recording
+      <div class="btn" id="stop-sharing">
+          <section><img src="images/desktopCapture22.png"></section>
+          Stop Sharing
       </div>
     </article>
 

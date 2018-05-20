@@ -57,8 +57,8 @@ function gotStream(stream) {
 
     if (cameraStream && cameraStream.getAudioTracks().length) {
         cameraStream.getAudioTracks().forEach(function(track) {
-            cameraStream.removeTrack(track);
             stream.addTrack(track);
+            cameraStream.removeTrack(track);
         });
     }
 

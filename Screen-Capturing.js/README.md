@@ -27,6 +27,11 @@ getScreenConstraints(function(error, screen_constraints) {
         return alert(error);
     }
 
+    if(screen_constraints.canRequestAudioTrack) {
+        // you can capture speakers
+        // getUserMedia({audio:screen_constraints})
+    }
+
     navigator.mediaDevices.getUserMedia({
         video: screen_constraints
     }).then(function(stream) {
