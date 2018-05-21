@@ -8,19 +8,6 @@ runtimePort.onMessage.addListener(function(message) {
     }
 });
 
-var isSharingOn = false;
-chrome.storage.sync.get('isSharingOn', function(obj) {
-    document.getElementById('default-section').style.display = obj.isSharingOn === 'true' ? 'none' : 'block';
-    document.getElementById('stop-section').style.display = obj.isSharingOn === 'true' ? 'block' : 'none';
-
-    isSharingOn = obj.isSharingOn === 'true';
-
-    // auto-stop-sharing
-    if (isSharingOn === true) {
-        document.getElementById('stop-sharing').click();
-    }
-});
-
 document.getElementById('stop-sharing').onclick = function() {
     chrome.storage.sync.set({
         isSharingOn: 'false' // FALSE
@@ -173,3 +160,16 @@ document.getElementById('btn-options').onclick = function(e) {
     e.preventDefault();
     location.href = this.href;
 };
+
+var isSharingOn = false;
+chrome.storage.sync.get('isSharingOn', function(obj) {
+    document.getElementById('default-section').style.display = obj.isSharingOn === 'true' ? 'none' : 'block';
+    document.getElementById('stop-section').style.display = obj.isSharingOn === 'true' ? 'block' : 'none';
+
+    isSharingOn = obj.isSharingOn === 'true';
+
+    // auto-stop-sharing
+    if (isSharingOn === true) {
+        document.getElementById('stop-sharing').click();
+    }
+});

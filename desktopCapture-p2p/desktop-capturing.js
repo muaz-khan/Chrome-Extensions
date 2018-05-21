@@ -28,27 +28,34 @@ chrome.runtime.onConnect.addListener(function(port) {
 window.addEventListener('offline', function() {
     if (!connection || !connection.attachStreams.length) return;
 
-    setDefaults(function() {
-        chrome.runtime.reload();
-    });
+    setDefaults();
+    chrome.runtime.reload();
 }, false);
 
 window.addEventListener('online', function() {
     if (!connection) return;
 
-    setDefaults(function() {
-        chrome.runtime.reload();
-    });
+    setDefaults();
+    chrome.runtime.reload();
 }, false);
 
 function captureDesktop() {
     if (connection && connection.attachStreams[0]) {
-        setDefaults(function() {
-            connection.attachStreams.forEach(function(stream) {
-                stream.getTracks().forEach(function(track) {
-                    track.stop();
-                });
+        setDefaults();
+
+        connection.attachStreams.forEach(function(stream) {
+            stream.getTracks().forEach(function(track) {
+                track.stop();
             });
+        });
+
+        chrome.storage.sync.set({
+            enableTabCaptureAPI: 'false',
+            enableMicrophone: 'false',
+            enableCamera: 'false',
+            enableScreen: 'false',
+            isSharingOn: 'false',
+            enableSpeakers: 'false'
         });
         return;
     }
@@ -205,7 +212,7 @@ function captureTabUsingTabCapture(resolutions) {
             }
         };
 
-        if(!!enableSpeakers) {
+        if (!!enableSpeakers) {
             constraints.audio = true;
             constraints.audioConstraints = {
                 mandatory: {
@@ -401,13 +408,13 @@ function addStreamStopListener(stream, callback) {
 
 function gotStream(stream) {
     if (!stream) {
-        setDefaults(function() {
-            chrome.windows.create({
-                url: "data:text/html,<h1>Internal error occurred while capturing the screen.</h1>",
-                type: 'popup',
-                width: screen.width / 2,
-                height: 170
-            });
+        setDefaults();
+
+        chrome.windows.create({
+            url: "data:text/html,<h1>Internal error occurred while capturing the screen.</h1>",
+            type: 'popup',
+            width: screen.width / 2,
+            height: 170
         });
         return;
     }
@@ -419,9 +426,8 @@ function gotStream(stream) {
     chrome.browserAction.disable();
 
     addStreamStopListener(stream, function() {
-        setDefaults(function() {
-            chrome.runtime.reload();
-        });
+        setDefaults();
+        chrome.runtime.reload();
     });
 
     // as it is reported that if you drag chrome screen's status-bar
@@ -452,13 +458,13 @@ function gotStream(stream) {
 }
 
 function getUserMediaError(e) {
-    setDefaults(function() {
-        chrome.windows.create({
-            url: "data:text/html,<h1>getUserMediaError: " + JSON.stringify(e, null, '<br>') + "</h1><br>Constraints used:<br><pre>" + JSON.stringify(constraints, null, '<br>') + '</pre>',
-            type: 'popup',
-            width: screen.width / 2,
-            height: 170
-        });
+    setDefaults();
+
+    chrome.windows.create({
+        url: "data:text/html,<h1>getUserMediaError: " + JSON.stringify(e, null, '<br>') + "</h1><br>Constraints used:<br><pre>" + JSON.stringify(constraints, null, '<br>') + '</pre>',
+        type: 'popup',
+        width: screen.width / 2,
+        height: 170
     });
 }
 
@@ -657,9 +663,8 @@ function setupRTCMultiConnection(stream) {
             });
         }
 
-        setDefaults(function() {
-            chrome.runtime.reload();
-        });
+        setDefaults();
+        chrome.runtime.reload();
     };
 
     websocket.onclose = function() {
@@ -672,9 +677,8 @@ function setupRTCMultiConnection(stream) {
             });
         }
 
-        setDefaults(function() {
-            chrome.runtime.reload();
-        });
+        setDefaults();
+        chrome.runtime.reload();
     };
 
     websocket.onopen = function() {
@@ -714,9 +718,7 @@ function setupRTCMultiConnection(stream) {
     };
 }
 
-function setDefaults(callback) {
-    callback = callback || function() {};
-
+function setDefaults() {
     if (connection) {
         connection.close();
         connection.attachStreams = [];
@@ -741,17 +743,7 @@ function setDefaults(callback) {
     chrome.browserAction.setBadgeText({
         text: ''
     });
-
-    chrome.storage.sync.set({
-        enableTabCaptureAPI: 'false',
-        enableMicrophone: 'false',
-        enableCamera: 'false',
-        enableScreen: 'false',
-        isSharingOn: 'false',
-        enableSpeakers: 'false'
-    }, callback);
 }
-setDefaults();
 
 var videoPlayers = [];
 
@@ -819,10 +811,10 @@ function captureCamera(callback) {
             openVideoPreview(stream);
         }
     }).catch(function(error) {
-        setDefaults(function() {
-            chrome.tabs.create({
-                url: 'camera-mic.html'
-            });
+        setDefaults();
+
+        chrome.tabs.create({
+            url: 'camera-mic.html'
         });
     });
 }
