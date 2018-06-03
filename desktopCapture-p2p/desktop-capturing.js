@@ -217,7 +217,10 @@ function captureTabUsingTabCapture(resolutions) {
             constraints.audioConstraints = {
                 mandatory: {
                     echoCancellation: true
-                }
+                },
+                optional: [{
+                    googDisableLocalEcho: false // https://www.chromestatus.com/feature/5056629556903936
+                }]
             };
         }
 
@@ -309,7 +312,9 @@ function onAccessApproved(chromeMediaSourceId, opts) {
                     chromeMediaSourceId: chromeMediaSourceId,
                     echoCancellation: true
                 },
-                optional: []
+                optional: [{
+                    googDisableLocalEcho: false // https://www.chromestatus.com/feature/5056629556903936
+                }]
             };
         }
 
@@ -577,14 +582,6 @@ function setupRTCMultiConnection(stream) {
         };
     }
 
-    // www.RTCMultiConnection.org/docs/openSignalingChannel/
-    var onMessageCallbacks = {};
-    var pub = 'pub-c-3c0fc243-9892-4858-aa38-1445e58b4ecb';
-    var sub = 'sub-c-d0c386c6-7263-11e2-8b02-12313f022c90';
-
-    WebSocket = PUBNUB.ws;
-    var websocket = new WebSocket('wss://pubsub.pubnub.com/' + pub + '/' + sub + '/' + connection.channel);
-
     var text = '-';
     (function looper() {
         if (!connection) {
@@ -612,110 +609,101 @@ function setupRTCMultiConnection(stream) {
         setBadgeText(connectedUsers);
     };
 
-    websocket.onmessage = function(e) {
-        data = JSON.parse(e.data);
-
-        if (data === 'received-your-screen') {
-            connectedUsers++;
-            setBadgeText(connectedUsers);
-        }
-
-        if (data.sender == connection.userid) return;
-
-        if (onMessageCallbacks[data.channel]) {
-            onMessageCallbacks[data.channel](data.message);
-        };
-    };
-
-    websocket.push = websocket.send;
-    websocket.send = function(data) {
-        data.sender = connection.userid;
-        websocket.push(JSON.stringify(data));
-    };
-
-    // overriding "openSignalingChannel" method
+    var SIGNALING_SERVER = 'wss://websocket-over-nodejs.herokuapp.com:443/';
     connection.openSignalingChannel = function(config) {
-        var channel = config.channel || this.channel;
-        onMessageCallbacks[channel] = config.onmessage;
+        config.channel = config.channel || this.channel;
+        var websocket = new WebSocket(SIGNALING_SERVER);
+        websocket.channel = config.channel;
+        websocket.onopen = function() {
+            websocket.push(JSON.stringify({
+                open: true,
+                channel: config.channel
+            }));
+            if (config.callback)
+                config.callback(websocket);
 
-        if (config.onopen) setTimeout(config.onopen, 1000);
+            if(config.channel == connection.channel) {
+                websocket.onerror = function() {
+                    if (!!connection && connection.attachStreams.length) {
+                        chrome.windows.create({
+                            url: "data:text/html,<h1>Failed connecting the WebSockets server. Please click screen icon to try again.</h1>",
+                            type: 'popup',
+                            width: screen.width / 2,
+                            height: 170
+                        });
+                    }
 
-        // directly returning socket object using "return" statement
-        return {
-            send: function(message) {
-                websocket.send({
-                    sender: connection.userid,
-                    channel: channel,
-                    message: message
-                });
-            },
-            channel: channel
+                    setDefaults();
+                    chrome.runtime.reload();
+                };
+
+                websocket.onclose = function() {
+                    if (!!connection && connection.attachStreams.length) {
+                        chrome.windows.create({
+                            url: "data:text/html,<p style='font-size:25px;'><span style='color:red;'>Unable to reach the WebSockets server</span>. WebSockets is required/used to help opening media ports between your system and target users' systems (for p2p-streaming).<br><br>Please <span style='color:green;'>click screen icon</span> to share again.</p>",
+                            type: 'popup',
+                            width: screen.width / 2,
+                            height: 200
+                        });
+                    }
+
+                    setDefaults();
+                    chrome.runtime.reload();
+                };
+            }
+        };
+        websocket.onmessage = function(e) {
+            data = JSON.parse(e.data);
+
+            if (data === 'received-your-screen') {
+                connectedUsers++;
+                setBadgeText(connectedUsers);
+            }
+
+            if (data.sender == connection.userid) return;
+
+            config.onmessage(data);
+        };
+        websocket.push = websocket.send;
+        websocket.send = function(data) {
+            websocket.push(JSON.stringify({
+                data: data,
+                channel: config.channel
+            }));
         };
     };
 
-    websocket.onerror = function() {
-        if (!!connection && connection.attachStreams.length) {
-            chrome.windows.create({
-                url: "data:text/html,<h1>Failed connecting the WebSockets server. Please click screen icon to try again.</h1>",
-                type: 'popup',
-                width: screen.width / 2,
-                height: 170
-            });
-        }
+    chrome.browserAction.enable();
 
-        setDefaults();
-        chrome.runtime.reload();
-    };
+    setBadgeText(0);
 
-    websocket.onclose = function() {
-        if (!!connection && connection.attachStreams.length) {
-            chrome.windows.create({
-                url: "data:text/html,<p style='font-size:25px;'><span style='color:red;'>Unable to reach the WebSockets server</span>. WebSockets is required/used to help opening media ports between your system and target users' systems (for p2p-streaming).<br><br>Please <span style='color:green;'>click screen icon</span> to share again.</p>",
-                type: 'popup',
-                width: screen.width / 2,
-                height: 200
-            });
-        }
+    // www.RTCMultiConnection.org/docs/open/
+    var sessionDescription = connection.open({
+        dontTransmit: true
+    });
 
-        setDefaults();
-        chrome.runtime.reload();
-    };
+    var resultingURL = 'https://webrtcweb.com/screen?s=' + connection.sessionid;
 
-    websocket.onopen = function() {
-        chrome.browserAction.enable();
+    // resultingURL = 'http://localhost:9001/?s=' + connection.sessionid;
 
-        setBadgeText(0);
+    if (room_password && room_password.length) {
+        resultingURL += '&p=' + room_password;
+    }
 
-        console.info('WebSockets connection is opened.');
+    var popup_width = 600;
+    var popup_height = 170;
 
-        // www.RTCMultiConnection.org/docs/open/
-        var sessionDescription = connection.open({
-            dontTransmit: true
-        });
-
-        var resultingURL = 'https://webrtcweb.com/screen?s=' + connection.sessionid;
-
-        // resultingURL = 'http://localhost:9001/?s=' + connection.sessionid;
-
-        if (room_password && room_password.length) {
-            resultingURL += '&p=' + room_password;
-        }
-
-        var popup_width = 600;
-        var popup_height = 170;
-
-        chrome.windows.create({
-            url: "data:text/html,<title>Unique Room URL</title><h1 style='text-align:center'>Copy following private URL:</h1><input type='text' value='" + resultingURL + "' style='text-align:center;width:100%;font-size:1.2em;'><p style='text-align:center'>You can share this private-session URI with fellows using email or social networks.</p>",
-            type: 'popup',
-            width: popup_width,
-            height: popup_height,
-            top: parseInt((screen.height / 2) - (popup_height / 2)),
-            left: parseInt((screen.width / 2) - (popup_width / 2)),
-            focused: true
-        }, function(win) {
-            popup_id = win.id;
-        });
-    };
+    chrome.windows.create({
+        url: "data:text/html,<title>Unique Room URL</title><h1 style='text-align:center'>Copy following private URL:</h1><input type='text' value='" + resultingURL + "' style='text-align:center;width:100%;font-size:1.2em;'><p style='text-align:center'>You can share this private-session URI with fellows using email or social networks.</p>",
+        type: 'popup',
+        width: popup_width,
+        height: popup_height,
+        top: parseInt((screen.height / 2) - (popup_height / 2)),
+        left: parseInt((screen.width / 2) - (popup_width / 2)),
+        focused: true
+    }, function(win) {
+        popup_id = win.id;
+    });
 }
 
 function setDefaults() {
