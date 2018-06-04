@@ -378,7 +378,8 @@ function onAccessApproved(chromeMediaSourceId, opts) {
 }
 
 function openVideoPreview(stream) {
-    var win = window.open("video.html?src=" + URL.createObjectURL(stream), "_blank", "top=0,left=0");
+    // var win = window.open("video.html?src=" + URL.createObjectURL(stream), "_blank", "top=0,left=0");
+    var win = window.open("video.html", "_blank", "top=0,left=0");
     var timer = setInterval(function() {
         if (win.closed) {
             clearInterval(timer);
@@ -492,8 +493,20 @@ function setBadgeText(text) {
 }
 
 function setupRTCMultiConnection(stream) {
+    // force adapter.js
+    window.enableAdapter = true;
+
     // www.RTCMultiConnection.org/docs/
     connection = new RTCMultiConnection();
+    connection.socketURL = 'https://rtcmulticonnection.herokuapp.com:443/';
+    connection.autoCloseEntireSession = true;
+
+    connection.enableLogs = true;
+    connection.session = {
+        audio: true,
+        video: true,
+        oneway: true
+    };
 
     connection.optionalArgument = {
         optional: [],
@@ -538,12 +551,6 @@ function setupRTCMultiConnection(stream) {
             sdp = CodecsHandler.preferCodec(sdp, codecs);
         }
         return sdp;
-    };
-
-    // www.RTCMultiConnection.org/docs/session/
-    connection.session = {
-        video: true,
-        oneway: true
     };
 
     // www.rtcmulticonnection.org/docs/sdpConstraints/
@@ -603,113 +610,66 @@ function setupRTCMultiConnection(stream) {
         setTimeout(looper, 500);
     })();
 
-    var connectedUsers = 0;
-    connection.ondisconnected = function() {
-        connectedUsers--;
-        setBadgeText(connectedUsers);
-    };
-
-    var SIGNALING_SERVER = 'wss://websocket-over-nodejs.herokuapp.com:443/';
-    connection.openSignalingChannel = function(config) {
-        config.channel = config.channel || this.channel;
-        var websocket = new WebSocket(SIGNALING_SERVER);
-        websocket.channel = config.channel;
-        websocket.onopen = function() {
-            websocket.push(JSON.stringify({
-                open: true,
-                channel: config.channel
-            }));
-            if (config.callback)
-                config.callback(websocket);
-
-            if(config.channel == connection.channel) {
-                websocket.onerror = function() {
-                    if (!!connection && connection.attachStreams.length) {
-                        chrome.windows.create({
-                            url: "data:text/html,<h1>Failed connecting the WebSockets server. Please click screen icon to try again.</h1>",
-                            type: 'popup',
-                            width: screen.width / 2,
-                            height: 170
-                        });
-                    }
-
-                    setDefaults();
-                    chrome.runtime.reload();
-                };
-
-                websocket.onclose = function() {
-                    if (!!connection && connection.attachStreams.length) {
-                        chrome.windows.create({
-                            url: "data:text/html,<p style='font-size:25px;'><span style='color:red;'>Unable to reach the WebSockets server</span>. WebSockets is required/used to help opening media ports between your system and target users' systems (for p2p-streaming).<br><br>Please <span style='color:green;'>click screen icon</span> to share again.</p>",
-                            type: 'popup',
-                            width: screen.width / 2,
-                            height: 200
-                        });
-                    }
-
-                    setDefaults();
-                    chrome.runtime.reload();
-                };
-            }
-        };
-        websocket.onmessage = function(e) {
-            data = JSON.parse(e.data);
-
-            if (data === 'received-your-screen') {
-                connectedUsers++;
-                setBadgeText(connectedUsers);
-            }
-
-            if (data.sender == connection.userid) return;
-
-            config.onmessage(data);
-        };
-        websocket.push = websocket.send;
-        websocket.send = function(data) {
-            websocket.push(JSON.stringify({
-                data: data,
-                channel: config.channel
-            }));
-        };
-    };
-
-    chrome.browserAction.enable();
-
-    setBadgeText(0);
-
     // www.RTCMultiConnection.org/docs/open/
-    var sessionDescription = connection.open({
-        dontTransmit: true
+    connection.socketCustomEvent = connection.sessionid;
+    connection.open(connection.sessionid, function() {
+        chrome.browserAction.enable();
+        setBadgeText(0);
+
+        var resultingURL = 'https://webrtcweb.com/screen?s=' + connection.sessionid;
+
+        // resultingURL = 'http://localhost:9001/?s=' + connection.sessionid;
+
+        if (room_password && room_password.length) {
+            resultingURL += '&p=' + room_password;
+        }
+
+        var popup_width = 600;
+        var popup_height = 170;
+
+        chrome.windows.create({
+            url: "data:text/html,<title>Unique Room URL</title><h1 style='text-align:center'>Copy following private URL:</h1><input type='text' value='" + resultingURL + "' style='text-align:center;width:100%;font-size:1.2em;'><p style='text-align:center'>You can share this private-session URI with fellows using email or social networks.</p>",
+            type: 'popup',
+            width: popup_width,
+            height: popup_height,
+            top: parseInt((screen.height / 2) - (popup_height / 2)),
+            left: parseInt((screen.width / 2) - (popup_width / 2)),
+            focused: true
+        }, function(win) {
+            popup_id = win.id;
+        });
+
+        connection.socket.on(connection.socketCustomEvent, function(message) {
+            if(message.receivedYourScreen) {
+                setBadgeText(connection.isInitiator ? connection.getAllParticipants().length : '');
+            }
+        });
     });
 
-    var resultingURL = 'https://webrtcweb.com/screen?s=' + connection.sessionid;
-
-    // resultingURL = 'http://localhost:9001/?s=' + connection.sessionid;
-
-    if (room_password && room_password.length) {
-        resultingURL += '&p=' + room_password;
-    }
-
-    var popup_width = 600;
-    var popup_height = 170;
-
-    chrome.windows.create({
-        url: "data:text/html,<title>Unique Room URL</title><h1 style='text-align:center'>Copy following private URL:</h1><input type='text' value='" + resultingURL + "' style='text-align:center;width:100%;font-size:1.2em;'><p style='text-align:center'>You can share this private-session URI with fellows using email or social networks.</p>",
-        type: 'popup',
-        width: popup_width,
-        height: popup_height,
-        top: parseInt((screen.height / 2) - (popup_height / 2)),
-        left: parseInt((screen.width / 2) - (popup_width / 2)),
-        focused: true
-    }, function(win) {
-        popup_id = win.id;
-    });
+    connection.onleave = connection.onPeerStateChanged = function() {
+        setBadgeText(connection.isInitiator ? connection.getAllParticipants().length : '');
+    };
 }
 
 function setDefaults() {
     if (connection) {
         connection.close();
-        connection.attachStreams = [];
+        connection.closeSocket();
+        connection.attachStreams.forEach(function(stream) {
+            stream.getTracks().forEach(function(track){
+                 track.stop();
+            });
+        });
+        connection = null;
+
+        chrome.storage.sync.set({
+            enableTabCaptureAPI: 'false',
+            enableMicrophone: 'false',
+            enableCamera: 'false',
+            enableScreen: 'false',
+            isSharingOn: 'false',
+            enableSpeakers: 'false'
+        });
     }
 
     chrome.browserAction.setIcon({
