@@ -1,4 +1,8 @@
-﻿
+<?php
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+?>
+
 <title>WebRTC Desktop Viewer</title>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta charset="utf-8">
@@ -11,12 +15,12 @@
 <meta name="author" content="Muaz Khan">
 <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
 
-<script src="socket.io.js"></script>
-<script src="adapter.js"></script>
-<script src="RTCMultiConnection.js"></script>
-<script src="CodecsHandler.js"></script>
-<script src="IceServersHandler.js"></script>
-<script src="getStats.js"></script>
+<script type="text/javascript"><?php readfile(getcwd()."/socket.io.js"); ?></script>
+<script type="text/javascript"><?php readfile(getcwd()."/adapter.js"); ?></script>
+<script type="text/javascript"><?php readfile(getcwd()."/RTCMultiConnection.js"); ?></script>
+<script type="text/javascript"><?php readfile(getcwd()."/CodecsHandler.js"); ?></script>
+<script type="text/javascript"><?php readfile(getcwd()."/IceServersHandler.js"); ?></script>
+<script type="text/javascript"><?php readfile(getcwd()."/getStats.js"); ?></script>
 
 <style>
 body,
