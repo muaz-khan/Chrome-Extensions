@@ -311,6 +311,8 @@ connection.onstream = function(e) {
 };
 // if user left
 connection.onleave = function(e) {
+    if(e.userid !== params.s) return;
+
     transitionToWaiting();
     connection.onSessionClosed();
 };
@@ -320,13 +322,13 @@ connection.onSessionClosed = function() {
     infoBar.style.display = 'block';
     statsBar.style.display = 'none';
     connection.close();
-    
-    setTimeout(function() {
-        location.reload();
-    }, 2000);
+    connection.closeSocket();
+    connection.userid = connection.token();
 
     remoteVideo.pause();
     remoteVideo.src = 'https://cdn.webrtc-experiment.com/images/muted.png';
+
+    setTimeout(checkPresence, 2000);
 };
 
 connection.ondisconnected = connection.onSessionClosed;
@@ -379,10 +381,22 @@ function enterFullScreen() {
 </script>
 
 <script>
-if (params.p) {
-    // it seems a password protected room.
-    connection.extra.password = params.p;
-}
+connection.onJoinWithPassword = function(remoteUserId) {
+    if(!params.p) {
+        params.p = prompt(remoteUserId + ' is password protected. Please enter the pasword:');
+    }
+
+    connection.openOrJoin(remoteUserId, params.p);
+};
+
+connection.onInvalidPassword = function(remoteUserId, oldPassword) {
+    var password = prompt(remoteUserId + ' is password protected. Your entered wrong password (' + oldPassword + '). Please enter valid pasword:');
+    connection.openOrJoin(remoteUserId, password);
+};
+
+connection.onPasswordMaxTriesOver = function(remoteUserId) {
+    alert(remoteUserId + ' is password protected. Your max password tries exceeded the limit.');
+};
 
 connection.socketCustomEvent = params.s;
 
@@ -401,7 +415,13 @@ function checkPresence() {
         }
 
         infoBar.innerHTML = 'Joining room: ' + params.s;
-        connection.join(params.s);
+
+        if (params.p) {
+            connection.openOrJoin(params.s, params.p);
+        }
+        else {
+            connection.join(params.s);
+        }
     });
 }
 

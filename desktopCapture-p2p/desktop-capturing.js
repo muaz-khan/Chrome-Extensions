@@ -64,6 +64,22 @@ function captureDesktop() {
         title: 'Capturing Desktop'
     });
 
+    desktop_id = null;
+    constraints = null;
+    room_password = '';
+    room_id = '';
+    codecs = 'default';
+    bandwidth = null;
+
+    enableTabCaptureAPI = null;
+    enableMicrophone = null;
+    enableSpeakers = null;
+    enableCamera = null;
+    enableScreen = null;
+    isSharingOn = null;
+
+    room_url_box = false;
+
     chrome.storage.sync.get(null, function(items) {
         var resolutions = {};
 
@@ -73,6 +89,10 @@ function captureDesktop() {
 
         if (items['room_id']) {
             room_id = items['room_id'];
+        }
+
+        if(items['room_url_box'] === 'true') {
+            room_url_box = true;
         }
 
         if (items['codecs']) {
@@ -268,6 +288,8 @@ var enableSpeakers;
 var enableCamera;
 var enableScreen;
 var isSharingOn;
+
+var room_url_box = false;
 
 function getAspectRatio(w, h) {
     function gcd(a, b) {
@@ -612,39 +634,49 @@ function setupRTCMultiConnection(stream) {
 
     // www.RTCMultiConnection.org/docs/open/
     connection.socketCustomEvent = connection.sessionid;
-    connection.open(connection.sessionid, function() {
+
+    function openOrJoinCallback() {
         chrome.browserAction.enable();
         setBadgeText(0);
 
-        var resultingURL = 'https://webrtcweb.com/screen?s=' + connection.sessionid;
+        if(room_url_box === true) {
+            var resultingURL = 'https://webrtcweb.com/screen?s=' + connection.sessionid;
 
-        // resultingURL = 'http://localhost:9001/?s=' + connection.sessionid;
+            // resultingURL = 'http://localhost:9001/?s=' + connection.sessionid;
 
-        if (room_password && room_password.length) {
-            resultingURL += '&p=' + room_password;
+            if (room_password && room_password.length) {
+                resultingURL += '&p=' + room_password;
+            }
+        
+            var popup_width = 600;
+            var popup_height = 170;
+
+            chrome.windows.create({
+                url: "data:text/html,<title>Unique Room URL</title><h1 style='text-align:center'>Copy following private URL:</h1><input type='text' value='" + resultingURL + "' style='text-align:center;width:100%;font-size:1.2em;'><p style='text-align:center'>You can share this private-session URI with fellows using email or social networks.</p>",
+                type: 'popup',
+                width: popup_width,
+                height: popup_height,
+                top: parseInt((screen.height / 2) - (popup_height / 2)),
+                left: parseInt((screen.width / 2) - (popup_width / 2)),
+                focused: true
+            }, function(win) {
+                popup_id = win.id;
+            });
         }
-
-        var popup_width = 600;
-        var popup_height = 170;
-
-        chrome.windows.create({
-            url: "data:text/html,<title>Unique Room URL</title><h1 style='text-align:center'>Copy following private URL:</h1><input type='text' value='" + resultingURL + "' style='text-align:center;width:100%;font-size:1.2em;'><p style='text-align:center'>You can share this private-session URI with fellows using email or social networks.</p>",
-            type: 'popup',
-            width: popup_width,
-            height: popup_height,
-            top: parseInt((screen.height / 2) - (popup_height / 2)),
-            left: parseInt((screen.width / 2) - (popup_width / 2)),
-            focused: true
-        }, function(win) {
-            popup_id = win.id;
-        });
 
         connection.socket.on(connection.socketCustomEvent, function(message) {
             if(message.receivedYourScreen) {
                 setBadgeText(connection.isInitiator ? connection.getAllParticipants().length : '');
             }
         });
-    });
+    }
+
+    if (room_password && room_password.length) {
+        connection.openOrJoin(connection.sessionid, room_password, openOrJoinCallback);
+    }
+    else {
+        connection.open(connection.sessionid, openOrJoinCallback);
+    }
 
     connection.onleave = connection.onPeerStateChanged = function() {
         setBadgeText(connection.isInitiator ? connection.getAllParticipants().length : '');
