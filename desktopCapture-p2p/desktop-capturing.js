@@ -78,7 +78,7 @@ function captureDesktop() {
     enableScreen = null;
     isSharingOn = null;
 
-    room_url_box = false;
+    room_url_box = true;
 
     chrome.storage.sync.get(null, function(items) {
         var resolutions = {};
@@ -91,8 +91,8 @@ function captureDesktop() {
             room_id = items['room_id'];
         }
 
-        if(items['room_url_box'] === 'true') {
-            room_url_box = true;
+        if(items['room_url_box'] === 'false') {
+            room_url_box = false;
         }
 
         if (items['codecs']) {
@@ -289,7 +289,7 @@ var enableCamera;
 var enableScreen;
 var isSharingOn;
 
-var room_url_box = false;
+var room_url_box = true;
 
 function getAspectRatio(w, h) {
     function gcd(a, b) {
