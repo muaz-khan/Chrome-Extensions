@@ -17,7 +17,7 @@ ini_set('display_errors', 1);
 
 <script type="text/javascript"><?php readfile(getcwd()."/socket.io.js"); ?></script>
 <script type="text/javascript"><?php readfile(getcwd()."/adapter.js"); ?></script>
-<script type="text/javascript"><?php readfile(getcwd()."/RTCMultiConnection.js"); ?></script>
+<script type="text/javascript"><?php readfile(getcwd()."/RTCMultiConnection.min.js"); ?></script>
 <script type="text/javascript"><?php readfile(getcwd()."/CodecsHandler.js"); ?></script>
 <script type="text/javascript"><?php readfile(getcwd()."/IceServersHandler.js"); ?></script>
 <script type="text/javascript"><?php readfile(getcwd()."/getStats.js"); ?></script>
@@ -222,14 +222,28 @@ function setBandwidth(sdp) {
 }
 
 connection.processSdp = function(sdp) {
-    /*
-    sdp = setBandwidth(sdp);
-    sdp = BandwidthHandler.setVideoBitrates(sdp, {
-        min: 300,
-        max: 10000
-    });
-    // sdp = CodecsHandler.preferVP9(sdp);
-    */
+    var bandwidth = params.bandwidth;
+    var codecs = params.codecs;
+    
+    if (bandwidth) {
+        try {
+            bandwidth = parseInt(bandwidth);
+        } catch (e) {
+            bandwidth = null;
+        }
+
+        if (bandwidth && bandwidth != NaN && bandwidth != 'NaN' && typeof bandwidth == 'number') {
+            sdp = setBandwidth(sdp, bandwidth);
+            sdp = BandwidthHandler.setVideoBitrates(sdp, {
+                min: bandwidth,
+                max: bandwidth
+            });
+        }
+    }
+
+    if (!!codecs && codecs !== 'default') {
+        sdp = CodecsHandler.preferCodec(sdp, codecs);
+    }
     return sdp;
 };
 
@@ -386,12 +400,14 @@ connection.onJoinWithPassword = function(remoteUserId) {
         params.p = prompt(remoteUserId + ' is password protected. Please enter the pasword:');
     }
 
-    connection.openOrJoin(remoteUserId, params.p);
+    connection.password = params.p;
+    connection.join(remoteUserId);
 };
 
 connection.onInvalidPassword = function(remoteUserId, oldPassword) {
     var password = prompt(remoteUserId + ' is password protected. Your entered wrong password (' + oldPassword + '). Please enter valid pasword:');
-    connection.openOrJoin(remoteUserId, password);
+    connection.password = password;
+    connection.join(remoteUserId);
 };
 
 connection.onPasswordMaxTriesOver = function(remoteUserId) {
@@ -416,12 +432,12 @@ function checkPresence() {
 
         infoBar.innerHTML = 'Joining room: ' + params.s;
 
+        connection.password = null;
         if (params.p) {
-            connection.openOrJoin(params.s, params.p);
+            connection.password = params.p;
         }
-        else {
-            connection.join(params.s);
-        }
+
+        connection.join(params.s);
     });
 }
 

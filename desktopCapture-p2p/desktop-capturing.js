@@ -43,7 +43,7 @@ function captureDesktop() {
     if (connection && connection.attachStreams[0]) {
         setDefaults();
 
-        connection.attachStreams.forEach(function(stream) {
+        connection && connection.attachStreams.forEach(function(stream) {
             stream.getTracks().forEach(function(track) {
                 track.stop();
             });
@@ -635,7 +635,7 @@ function setupRTCMultiConnection(stream) {
     // www.RTCMultiConnection.org/docs/open/
     connection.socketCustomEvent = connection.sessionid;
 
-    function openOrJoinCallback() {
+    function roomOpenCallback() {
         chrome.browserAction.enable();
         setBadgeText(0);
 
@@ -646,6 +646,13 @@ function setupRTCMultiConnection(stream) {
 
             if (room_password && room_password.length) {
                 resultingURL += '&p=' + room_password;
+            }
+
+            if(bandwidth) {
+                resultingURL += '&bandwidth=' + bandwidth;
+            }
+            if (!!codecs && codecs !== 'default') {
+                resultingURL += '&codecs=' + codecs;
             }
         
             var popup_width = 600;
@@ -671,12 +678,12 @@ function setupRTCMultiConnection(stream) {
         });
     }
 
+    connection.password = null;
     if (room_password && room_password.length) {
-        connection.openOrJoin(connection.sessionid, room_password, openOrJoinCallback);
+        connection.password = room_password;
     }
-    else {
-        connection.open(connection.sessionid, openOrJoinCallback);
-    }
+    
+    connection.open(connection.sessionid, roomOpenCallback);
 
     connection.onleave = connection.onPeerStateChanged = function() {
         setBadgeText(connection.isInitiator ? connection.getAllParticipants().length : '');
@@ -685,13 +692,28 @@ function setupRTCMultiConnection(stream) {
 
 function setDefaults() {
     if (connection) {
-        connection.close();
-        connection.closeSocket();
         connection.attachStreams.forEach(function(stream) {
-            stream.getTracks().forEach(function(track){
-                 track.stop();
-            });
+            try {
+                stream.getTracks().forEach(function(track){
+                     try {
+                        track.stop();
+                     }
+                     catch(e) {}
+                });
+            }
+            catch(e) {}
         });
+
+        try {
+            connection.close();
+        }
+        catch(e) {}
+
+        try {
+            connection.closeSocket();
+        }
+        catch(e) {}
+
         connection = null;
 
         chrome.storage.sync.set({
