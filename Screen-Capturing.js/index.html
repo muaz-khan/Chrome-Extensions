@@ -106,6 +106,10 @@
                     </li>
 
                     <li>
+                        <button id="getCustomSourceId">getCustomSourceId</button> » Simply get "chromeMediaSourceId" from chrome extension however pass yoru own array. 
+                    </li>
+
+                    <li>
                         <button id="getSourceIdWithAudio">getSourceIdWithAudio</button> » Simply get "chromeMediaSourceId" from chrome extension. (system audio is included)
                     </li>
                     
@@ -169,6 +173,15 @@
                     
                     getSourceId(function(sourceId) {
                         document.querySelector('#getSourceId').innerHTML = 'SourceId: ' + sourceId;
+                    });
+                };
+
+                document.querySelector('#getCustomSourceId').onclick =  function() {
+                    this.disabled=true;
+                    
+                    var our_own_choices = ['tab', 'audio'];
+                    getCustomSourceId(our_own_choices, function(sourceId) {
+                        document.querySelector('#getCustomSourceId').innerHTML = 'SourceId for [' + our_own_choices.join(',') + ']: ' + sourceId;
                     });
                 };
 

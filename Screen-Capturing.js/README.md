@@ -81,6 +81,30 @@ getSourceId(function(sourceId, canRequestAudioTrack) {
 });
 ```
 
+### `getCustomSourceId`
+
+Get your own custom source-id according to requested screen formats. Supported formats are:
+
+* `window`
+* `screen`
+* `tab`
+* `audio`
+
+> Note: First parameter must be an array.
+
+```javascript
+var our_own_choices = ['tab', 'audio'];
+getCustomSourceId(our_own_choices, function(sourceId, canRequestAudioTrack) {
+    if(sourceId != 'PermissionDeniedError') {
+        // your code here
+    }
+
+    if(canRequestAudioTrack === true) {
+        // system audio i.e. speakers are enabled
+    }
+});
+```
+
 ### `getSourceIdWithAudio`
 
 This method includes system-audio i.e. speakers as well.

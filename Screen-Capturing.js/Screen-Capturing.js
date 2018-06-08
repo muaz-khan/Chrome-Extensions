@@ -1,4 +1,4 @@
-// Last time updated on: May 19, 2018
+// Last time updated on: June 08, 2018
 
 // Latest file can be found here: https://cdn.webrtc-experiment.com/Screen-Capturing.js
 
@@ -84,6 +84,19 @@ function getSourceId(callback) {
     
     screenCallback = callback;
     window.postMessage('get-sourceId', '*');
+}
+
+// this function can be used to get "source-id" from the extension
+function getCustomSourceId(arr, callback) {
+    if (!arr || !arr.forEach) throw '"arr" parameter is mandatory and it must be an array.';
+    if (!callback) throw '"callback" parameter is mandatory.';
+
+    if(sourceId) return callback(sourceId);
+    
+    screenCallback = callback;
+    window.postMessage({
+        'get-custom-sourceId': arr
+    }, '*');
 }
 
 // this function can be used to get "source-id" from the extension
