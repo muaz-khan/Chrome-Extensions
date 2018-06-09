@@ -192,9 +192,6 @@ button[disabled] {
     window.params = params;
 })();
 
-// force adapter.js
-window.enableAdapter = true;
-
 // http://www.rtcmulticonnection.org/docs/constructor/
 var connection = new RTCMultiConnection(params.s);
 connection.socketURL = 'https://rtcmulticonnection.herokuapp.com:443/';
@@ -329,6 +326,8 @@ connection.onleave = function(e) {
 
     transitionToWaiting();
     connection.onSessionClosed();
+
+    location.reload();
 };
 
 connection.onSessionClosed = function() {

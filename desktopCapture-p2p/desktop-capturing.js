@@ -474,7 +474,7 @@ function gotStream(stream) {
         var background_page_id = win.id;
 
         setTimeout(function() {
-            chrome.windows.remove(background_page_id);
+            // chrome.windows.remove(background_page_id);
         }, 3000);
     });
 
@@ -515,9 +515,6 @@ function setBadgeText(text) {
 }
 
 function setupRTCMultiConnection(stream) {
-    // force adapter.js
-    window.enableAdapter = true;
-
     // www.RTCMultiConnection.org/docs/
     connection = new RTCMultiConnection();
     connection.socketURL = 'https://rtcmulticonnection.herokuapp.com:443/';
