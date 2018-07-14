@@ -91,6 +91,10 @@ header {
   background: #F3F3F3;
 }
 
+.btn-upload-dropdown-selected {
+  background: #dad6d6!important;
+}
+
 #btn-recordings-list {
   float: left;
 }
@@ -102,11 +106,15 @@ header {
   overflow: auto;
 }
 
-.cross-icon {
+.cross-icon, .edit-icon {
     float: right;
     width: 22px;
     margin-left: 20px;
     cursor: pointer;
+}
+
+.cross-icon {
+  margin-left: 15px;
 }
 </style>
 
@@ -122,7 +130,7 @@ header {
         Duration: <span id="file-duration">00:00</span>
         -->
     </p>
-    <span style="font-size: 17px">This file is in your <b>browser cache</b>. Click above link to <b>download</b> ie. save-to-disk.</span>
+    <span id="browser-cache" style="font-size: 17px">This file is in your <b>browser cache</b>. Click above link to <b>download</b> ie. save-to-disk.</span>
 </header>
 
 <div id="btn-upload-dropdown">

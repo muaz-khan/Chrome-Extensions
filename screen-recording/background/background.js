@@ -145,6 +145,8 @@ function stopScreenRecording() {
             type: mimeType
         });
 
+        localStorage.setItem('selected-file', file.name);
+
         // initialTime = initialTime || Date.now();
         // var timeDifference = Date.now() - initialTime;
         // var formatted = convertTime(timeDifference);

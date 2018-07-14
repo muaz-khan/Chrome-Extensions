@@ -33,13 +33,23 @@ function showPHPURL(videoURL) {
     var html = '<p>Uploaded: <a href="' + videoURL + '" target="_blank">' + videoURL.replace('/RecordRTC/uploads/', '/') + '</a></p>';
     html += '<span style="font-size: 17px;">This video URL is valid <b style="color: red;">till one week</b>. It will be automatically removed from the server after one week.</span>';
 
-    header.innerHTML = html;
+    DiskStorage.UpdateFileInfo(file.name, {
+        php: videoURL
+    }, function() {
+        header.innerHTML = html;
+    });
 }
 
 function uploadToPHPServer(blob, callback) {
     // create FormData
     var formData = new FormData();
-    formData.append('video-filename', blob.name);
+
+    var fName = blob.name;
+    if(fName.indexOf('RecordRTC-') !== 0) {
+        fName = 'RecordRTC-' + fName;
+    }
+
+    formData.append('video-filename', fName);
     formData.append('video-blob', blob);
 
     callback('Uploading recorded-file to server.');
@@ -52,7 +62,7 @@ function uploadToPHPServer(blob, callback) {
 
         var initialURL = 'https://webrtcweb.com/RecordRTC/uploads/';
 
-        callback('ended', initialURL + blob.name);
+        callback('ended', initialURL + fName);
     });
 }
 

@@ -6,6 +6,8 @@ var header = document.querySelector('header');
 var title = document.querySelector('title');
 var header = document.querySelector('header');
 
+var browserCache = document.querySelector('#browser-cache');
+
 function setVideoWidth() {
     video.style.cursor = 'pointer';
     video.style.marginTop = header.clientHeight;
@@ -16,18 +18,26 @@ window.onresize = setVideoWidth;
 
 var file;
 
-function onGettingFile(f) {
+function onGettingFile(f, item) {
     file = f;
 
     if (!file) {
-        header.querySelector('p').innerHTML = 'You did NOT record anything yet.';
-        header.querySelector('span').innerHTML = '';
+        if (item && item.name) {
+            header.querySelector('p').innerHTML = item.display + ' has no video data.';
+            header.querySelector('span').innerHTML = '';
+        } else {
+            header.querySelector('p').innerHTML = 'You did NOT record anything yet.';
+            header.querySelector('span').innerHTML = '';
+        }
         return;
     }
 
+    file.item = item;
+
     video.src = URL.createObjectURL(file);
-    fname.innerHTML = fname.download = title.innerHTML = file.name;
-    fname.innerHTML = '<img src="images/download-icon.png" style="height: 32px; vertical-align: middle;margin-right: 5px;">' + file.name;
+    fname.download = file.name;
+    title.innerHTML = item.display;
+    fname.innerHTML = '<img src="images/download-icon.png" style="height: 32px; vertical-align: middle;margin-right: 5px;">' + item.display;
     fname.href = video.src;
     fsize.innerHTML = bytesToSize(file.size);
     // fduration.innerHTML = file.duration || '00:00';
@@ -38,8 +48,57 @@ function onGettingFile(f) {
         video.style.cursor = '';
         video.play();
     };
+
+    var html = 'This file is in your <b>browser cache</b>. Click above link to <b>download</b> ie. save-to-disk.';
+    if (item.php && item.youtube) {
+        html = 'Click to download file from <a href="' + item.php + '" target="_blank">Private Server</a> or <a href="' + item.youtube + '" target="_blank">YouTube</a>';
+    } else if (item.php) {
+        html = 'Click to download file from: <a href="' + item.php + '" target="_blank">' + item.php + '</a>';
+    } else if (item.youtube) {
+        html = 'Click to download file from: <a href="' + item.youtube + '" target="_blank">' + item.youtube + '</a>';
+    }
+    browserCache.innerHTML = html;
+
+    localStorage.setItem('selected-file', file.name);
 }
-DiskStorage.GetRecentFile(onGettingFile);
+
+var recentFile = localStorage.getItem('selected-file');
+DiskStorage.GetLastSelectedFile(recentFile, function(file) {
+    if (!file) {
+        onGettingFile(file);
+        return;
+    }
+
+    DiskStorage.GetFilesList(function(list) {
+        if (!recentFile) {
+            onGettingFile(file, list[0]);
+            return;
+        }
+
+        var found;
+        list.forEach(function(item) {
+            if (typeof item === 'string') {
+                if (item === recentFile) {
+                    found = {
+                        name: item,
+                        display: item,
+                        php: '',
+                        youtube: ''
+                    };
+                }
+            } else if (item.name === recentFile) {
+                found = item;
+            }
+        });
+
+        if (!found) {
+            onGettingFile(file, list[0]);
+            return;
+        }
+
+        onGettingFile(file, found);
+    });
+});
 
 var btnUploadDropDown = document.querySelector('#btn-upload-dropdown');
 document.querySelector('#btn-upload').onclick = function(e) {
@@ -68,16 +127,16 @@ document.querySelector('#btn-recordings-list').onclick = function(e) {
         btnRecordingsListDropDown.className = 'visible';
 
         btnRecordingsListDropDown.innerHTML = '';
-        DiskStorage.GetFilesList(function(fileNames) {
-            if (!fileNames.length) {
+        DiskStorage.GetFilesList(function(list) {
+            if (!list.length) {
                 btnRecordingsListDropDown.className = '';
                 alert('You have no recordings.');
                 return;
             }
 
-            fileNames.forEach(function(fName) {
+            list.forEach(function(item) {
                 var div = document.createElement('div');
-                div.innerHTML = '<img src="images/cross-icon.png" class="cross-icon">' + fName;
+                div.innerHTML = '<img src="images/cross-icon.png" class="cross-icon"><img src="images/edit-icon.png" class="edit-icon">' + item.display;
                 btnRecordingsListDropDown.appendChild(div);
 
                 div.querySelector('.cross-icon').onclick = function(e) {
@@ -88,8 +147,32 @@ document.querySelector('#btn-recordings-list').onclick = function(e) {
                         return;
                     }
 
-                    DiskStorage.RemoveFile(fName, function() {
-                        location.reload();
+                    DiskStorage.RemoveFile(item.name, function() {
+                        if (div.previousSibling) {
+                            div.previousSibling.click();
+                        } else if (div.nextSibling) {
+                            div.nextSibling.click();
+                        } else {
+                            location.reload();
+                        }
+
+                        div.parentNode.removeChild(div);
+                    });
+                };
+
+                div.querySelector('.edit-icon').onclick = function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+
+                    var newFileName = prompt('Please enter new file name', item.display);
+
+                    DiskStorage.UpdateFileInfo(item.name, {
+                        display: newFileName
+                    }, function() {
+                        item.display = newFileName;
+
+                        onGettingFile(file, item);
+                        document.body.onclick();
                     });
                 };
 
@@ -97,12 +180,16 @@ document.querySelector('#btn-recordings-list').onclick = function(e) {
                     e.preventDefault();
                     e.stopPropagation();
 
-                    DiskStorage.Fetch(fName, function(file) {
-                        onGettingFile(file);
+                    DiskStorage.Fetch(item.name, function(file) {
+                        onGettingFile(file, item);
                     });
 
                     document.body.onclick();
                 };
+
+                if (file && file.item && file.item.name === item.name) {
+                    div.className = 'btn-upload-dropdown-selected';
+                }
             });
         });
     }

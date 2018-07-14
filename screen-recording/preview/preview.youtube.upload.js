@@ -37,7 +37,11 @@ function showYouTubeURL(videoURL) {
         html += '<span style="font-size: 17px;">This video is <b style="color: red;">privately</b> published to <a href="https://www.youtube.com/channel/'+uploadVideo.uploadResponse.snippet.channelId+'" target="_blank">' + channelTitle + '</a>. Go to youtube.com/my_videos and <a href="https://www.youtube.com/my_videos?o=U" target="_blank"><span style="background: yellow;display: inline-block;border-bottom: 1px solid red;">Make It Public!</span></a></span>';
     }
 
-    header.innerHTML = html;
+    DiskStorage.UpdateFileInfo(file.name, {
+        youtube: videoURL
+    }, function() {
+        header.innerHTML = html;
+    });
 }
 
 function uploadVideoCallback(response, videoURL) {
