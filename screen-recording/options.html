@@ -32,7 +32,6 @@ html, body {
   font-family: Custom_Font!important;
   font-size: 1em;
   overflow: hidden;
-  overflow-x: hidden;
 }
 
 label, input {
@@ -105,9 +104,28 @@ label:hover {
 td {
     padding: 10px 20px;
 }
+
+article {
+    width: 800px;
+    margin: 0 auto;
+    border: 1px solid black;
+    border-top: 0;
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px;
+}
+
+h1 {
+    text-align: center;
+    padding: 20px 0;
+    font-weight: normal;
+    font-size: 250%;
+}
 </style>
 
 <p id="applying-changes">Applying Changes...</p>
+
+<article>
+<h1>Customize RecordRTC Extension</h1>
 
 <table>
     <tr>
@@ -178,7 +196,23 @@ td {
             </select>
         </td>
     </tr>
+
+    <tr>
+        <td>
+            YouTube upload privacy:
+        </td>
+
+        <td>
+            <select id="youtube_privacy">
+                <option value="public" selected>public</option>
+                <option value="private">private</option>
+                <option value="unlisted">unlisted</option>
+            </select>
+        </td>
+    </tr>
 </table>
+
+</article>
 
 <script src="RecordRTC/getAllAudioVideoDevices.js"></script>
 <script src="options.js"></script>

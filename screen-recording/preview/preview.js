@@ -51,13 +51,30 @@ function onGettingFile(f, item) {
 
     var html = 'This file is in your <b>browser cache</b>. Click above link to <b>download</b> ie. save-to-disk.';
     if (item.php && item.youtube) {
-        html = 'Click to download file from <a href="' + item.php + '" target="_blank">Private Server</a> or <a href="' + item.youtube + '" target="_blank">YouTube</a>';
+        html = 'Click to download file from <a href="' + item.php + '" target="_blank">Private Server</a> <img src="images/cross-icon.png" class="cross-icon" title="Delete from server"> or <a href="' + item.youtube + '" target="_blank">YouTube</a>';
     } else if (item.php) {
-        html = 'Click to download file from: <a href="' + item.php + '" target="_blank">' + item.php + '</a>';
+        html = 'Click to download file from: <a href="' + item.php + '" target="_blank">' + item.php + '</a> <img src="images/cross-icon.png" class="cross-icon" title="Delete from server">';
     } else if (item.youtube) {
         html = 'Click to download file from: <a href="' + item.youtube + '" target="_blank">' + item.youtube + '</a>';
     }
     browserCache.innerHTML = html;
+    if (browserCache.querySelector('.cross-icon')) {
+        browserCache.querySelector('.cross-icon').onclick = function() {
+            if (window.confirm('Do you want to delete this video from server?')) {
+                deleteFromPHPServer(item.name, function(response) {
+                    DiskStorage.UpdateFileInfo(file.name, {
+                        php: ''
+                    }, function() {
+                        if (response === 'deleted') {
+                            location.reload();
+                        } else {
+                            alert(response);
+                        }
+                    });
+                });
+            }
+        };
+    }
 
     localStorage.setItem('selected-file', file.name);
 }
@@ -147,7 +164,7 @@ document.querySelector('#btn-recordings-list').onclick = function(e) {
                         return;
                     }
 
-                    DiskStorage.RemoveFile(item.name, function() {
+                    function afterDelete() {
                         if (div.previousSibling) {
                             div.previousSibling.click();
                         } else if (div.nextSibling) {
@@ -157,6 +174,15 @@ document.querySelector('#btn-recordings-list').onclick = function(e) {
                         }
 
                         div.parentNode.removeChild(div);
+                    }
+
+                    DiskStorage.RemoveFile(item.name, function() {
+                        if(!item.php || !item.php.length) {
+                            afterDelete();
+                            return;
+                        }
+
+                        deleteFromPHPServer(item.name, afterDelete);
                     });
                 };
 
@@ -164,7 +190,7 @@ document.querySelector('#btn-recordings-list').onclick = function(e) {
                     e.preventDefault();
                     e.stopPropagation();
 
-                    var newFileName = prompt('Please enter new file name', item.display);
+                    var newFileName = prompt('Please enter new file name', item.display) || item.display;
 
                     DiskStorage.UpdateFileInfo(item.name, {
                         display: newFileName

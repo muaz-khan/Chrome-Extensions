@@ -49,15 +49,15 @@ function captureCamera(callback) {
         initVideoPlayer(stream);
         callback(stream);
 
-        if(enableCamera && !enableScreen) {
-            var win = window.open("video.html?src=" + URL.createObjectURL(stream),"_blank", "top=20,left=20,width=360,height=240");
+        if (enableCamera && !enableScreen) {
+            var win = window.open("video.html", "_blank", "top=0,left=0,width=" + screen.width + ",height=" + screen.height);
 
-            var timer = setInterval(function() {   
-                if(win.closed) {  
+            var timer = setInterval(function() {
+                if (win.closed) {
                     clearInterval(timer);
                     stopScreenRecording();
-                }  
-            }, 1000); 
+                }
+            }, 1000);
         }
     }).catch(function(error) {
         chrome.tabs.create({

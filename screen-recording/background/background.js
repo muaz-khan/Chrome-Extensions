@@ -153,8 +153,24 @@ function stopScreenRecording() {
         // file.duration = formatted;
 
         DiskStorage.StoreFile(file, function() {
-            chrome.tabs.create({
-                url: 'preview.html'
+            chrome.tabs.query({}, function(tabs) {
+                var found = false;
+                var url = 'chrome-extension://' + chrome.runtime.id + '/preview.html';
+                for (var i = tabs.length - 1; i >= 0; i--) {
+                    if (tabs[i].url === url) {
+                        found = true;
+                        chrome.tabs.update(tabs[i].id, {
+                            active: true,
+                            url: url
+                        });
+                        break;
+                    }
+                }
+                if (!found) {
+                    chrome.tabs.create({
+                        url: 'preview.html'
+                    });
+                }
             });
         });
 

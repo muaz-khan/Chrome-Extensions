@@ -35,6 +35,16 @@
             document.getElementById('bitsPerSecond').value = 'default';
         });
     }
+
+    if (items['youtube_privacy']) {
+        document.getElementById('youtube_privacy').value = items['youtube_privacy'];
+    } else {
+        chrome.storage.sync.set({
+            youtube_privacy: ''
+        }, function() {
+            document.getElementById('youtube_privacy').value = 'public';
+        });
+    }
 });
 
 function querySelectorAll(selector) {
@@ -79,6 +89,17 @@ document.getElementById('bitsPerSecond').onchange = function() {
         bitsPerSecond: this.value === 'default' ? '' : this.value
     }, function() {
         document.getElementById('bitsPerSecond').disabled = false;
+        hideSaving();
+    });
+};
+
+document.getElementById('youtube_privacy').onchange = function() {
+    this.disabled = true;
+    showSaving();
+    chrome.storage.sync.set({
+        youtube_privacy: this.value === 'public' ? '' : this.value
+    }, function() {
+        document.getElementById('youtube_privacy').disabled = false;
         hideSaving();
     });
 };

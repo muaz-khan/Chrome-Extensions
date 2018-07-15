@@ -1,3 +1,11 @@
+var youtube_privacy = 'public';
+
+chrome.storage.sync.get(null, function(items) {
+    if (items['youtube_privacy'] && items['youtube_privacy'] !== 'public') {
+        youtube_privacy = items['youtube_privacy'];
+    }
+});
+
 document.querySelector('#btn-youtube-upload').onclick = function() {
     if (!file) {
         header.innerHTML = 'You did NOT record anything yet.';
@@ -11,9 +19,12 @@ document.querySelector('#btn-youtube-upload').onclick = function() {
         'interactive': true
     }, function(access_token) {
         if (chrome.runtime.lastError) {
-            if(typeof chrome.runtime.lastError === 'object') {
-                chrome.runtime.lastError = JSON.stringify(chrome.runtime.lastError);
-                alert(chrome.runtime.lastError);
+            if (typeof chrome.runtime.lastError === 'object') {
+                if (chrome.runtime.lastError && chrome.runtime.lastError.message) {
+                    alert(chrome.runtime.lastError.message);
+                } else {
+                    alert(JSON.stringify(chrome.runtime.lastError));
+                }
             }
 
             header.innerHTML = chrome.runtime.lastError;
@@ -34,7 +45,7 @@ function showYouTubeURL(videoURL) {
 
     if (uploadVideo.uploadResponse) {
         var channelTitle = uploadVideo.uploadResponse.snippet.channelTitle;
-        html += '<span style="font-size: 17px;">This video is <b style="color: red;">privately</b> published to <a href="https://www.youtube.com/channel/'+uploadVideo.uploadResponse.snippet.channelId+'" target="_blank">' + channelTitle + '</a>. Go to youtube.com/my_videos and <a href="https://www.youtube.com/my_videos?o=U" target="_blank"><span style="background: yellow;display: inline-block;border-bottom: 1px solid red;">Make It Public!</span></a></span>';
+        html += '<span style="font-size: 17px;">This video is <b style="color: red;">privately</b> published to <a href="https://www.youtube.com/channel/' + uploadVideo.uploadResponse.snippet.channelId + '" target="_blank">' + channelTitle + '</a>. Go to youtube.com/my_videos and <a href="https://www.youtube.com/my_videos?o=U" target="_blank"><span style="background: yellow;display: inline-block;border-bottom: 1px solid red;">Make It Public!</span></a></span>';
     }
 
     DiskStorage.UpdateFileInfo(file.name, {
@@ -100,6 +111,11 @@ UploadVideo.prototype.ready = function(accessToken) {
 };
 
 UploadVideo.prototype.uploadFile = function(fileName, file) {
+    var youtube_title = fileName;
+    if (file.item && file.item.display) {
+        youtube_title = file.item.display;
+    }
+
     var metadata = {
         snippet: {
             title: fileName,
@@ -108,7 +124,7 @@ UploadVideo.prototype.uploadFile = function(fileName, file) {
             categoryId: this.categoryId
         },
         status: {
-            privacyStatus: 'public'
+            privacyStatus: youtube_privacy
         }
     };
     var uploader = new MediaUploader({

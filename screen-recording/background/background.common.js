@@ -69,8 +69,16 @@ function getRandomString() {
 
 function getFileName(fileExtension) {
     var d = new Date();
-    var year = d.getUTCFullYear();
-    var month = d.getUTCMonth();
-    var date = d.getUTCDate();
-    return 'RecordRTC-' + year + month + date + '-' + getRandomString() + '.' + fileExtension;
+    var year = d.getUTCFullYear() + '';
+    var month = d.getUTCMonth() + '';
+    var date = d.getUTCDate() + '';
+
+    if(month.length === 1) {
+        month = '0' + month;
+    }
+
+    if(date.length === 1) {
+        date = '0' + date;
+    }
+    return year + month + date + getRandomString() + '.' + fileExtension;
 }
