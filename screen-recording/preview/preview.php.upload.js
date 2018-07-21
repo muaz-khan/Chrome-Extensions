@@ -2,14 +2,18 @@ var server_url = 'https://webrtcweb.com/f/';
 
 document.querySelector('#btn-php-upload').onclick = function() {
     if (!file) {
-        header.innerHTML = 'You did NOT record anything yet.';
+        fname.innerHTML = 'You did NOT record anything yet.';
         return;
     }
 
     this.disabled = true;
-    header.innerHTML = 'Upload started...';
+
+    fresolutions.innerHTML = fsize.innerHTML = fduration.innerHTML = browserCache.innerHTML = '';
+    fname.innerHTML = 'Upload started...';
 
     uploadToPHPServer(file, function(progress, videoURL) {
+        browserCache.innerHTML = '';
+
         if (progress === 'ended' || videoURL) {
             showPHPURL(videoURL);
             document.title = 'Upload successful';
@@ -17,27 +21,29 @@ document.querySelector('#btn-php-upload').onclick = function() {
         }
 
         if (progress != 'Upload started...') {
-            header.innerHTML = 'Upload Progress: ' + progress + '%';
+            fname.innerHTML = 'Upload Progress: ' + progress + '%';
+            browserCache.innerHTML = '<progress min=0 max=100 value=' + progress + ' style="margin-top: 10px;"></progress>';
         } else {
-            header.innerHTML = progress;
+            fname.innerHTML = progress;
         }
 
         document.title = progress + '% uploaded';
 
         if (progress >= 99 || videoURL || progress === 'progress-ended') {
-            header.innerHTML = 'Uploaded to Server. Retrieving the private video URL...';
+            browserCache.innerHTML = '';
+            fname.innerHTML = 'Uploaded to Server. Retrieving the private video URL...';
         }
     });
 };
 
 function showPHPURL(videoURL) {
-    var html = '<p>Uploaded: <a href="' + videoURL + '" target="_blank">' + videoURL.replace('/RecordRTC/uploads/', '/') + '</a></p>';
-    html += '<span style="font-size: 17px;">This video URL is valid <b style="color: red;">till one week</b>. It will be automatically removed from the server after one week.</span>';
-
     DiskStorage.UpdateFileInfo(file.name, {
         php: videoURL
     }, function() {
-        header.innerHTML = html;
+        file.url = videoURL;
+        if(!file.item) file.item = {};
+        file.item.php = videoURL;
+        onGettingFile(file, file.item);
     });
 }
 
@@ -84,7 +90,7 @@ function makeXMLHttpRequest(url, data, callback) {
     request.onreadystatechange = function() {
         if (request.readyState == 4 && request.status == 200) {
             if (request.responseText && request.responseText.toString().indexOf('<h2>Upload failed.</h2>') === 0) {
-                header.innerHTML = request.responseText;
+                fname.innerHTML = request.responseText;
                 header.style.height = 'auto';
                 header.style.color = 'red';
                 callback('upload-faild');

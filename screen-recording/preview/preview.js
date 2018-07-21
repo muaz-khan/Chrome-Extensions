@@ -1,9 +1,9 @@
 var video = document.querySelector('video');
 var fname = document.querySelector('#file-name');
 var fsize = document.querySelector('#file-size');
-// var fduration = document.querySelector('#file-duration');
+var fduration = document.querySelector('#file-duration');
+var fresolutions = document.querySelector('#file-resolutions');
 var header = document.querySelector('header');
-var title = document.querySelector('title');
 var header = document.querySelector('header');
 
 var browserCache = document.querySelector('#browser-cache');
@@ -34,13 +34,37 @@ function onGettingFile(f, item) {
 
     file.item = item;
 
-    video.src = URL.createObjectURL(file);
-    fname.download = file.name;
-    title.innerHTML = item.display;
-    fname.innerHTML = '<img src="images/download-icon.png" style="height: 32px; vertical-align: middle;margin-right: 5px;">' + item.display;
-    fname.href = video.src;
+    if(!file.url || file.url.toString().toLowerCase().indexOf('youtube') !== -1) {
+        file.url = URL.createObjectURL(file);
+    }
+
+    (function() {
+        // this function calculates the duration
+        var hidden = document.createElement('video');
+        var url = file.url;
+        hidden.currentTime = 9999999999;
+        hidden.onloadedmetadata = function() {
+            if(url !== file.url) return;
+
+            fresolutions.innerHTML = hidden.clientWidth + 'x' + hidden.clientHeight;
+
+            if(hidden.duration === Infinity) {
+                setTimeout(hidden.onloadedmetadata, 1000);
+                return;
+            }
+            fduration.innerHTML = formatSecondsAsTime(hidden.duration);
+            hidden.parentNode.removeChild(hidden);
+        };
+        hidden.style = 'position: absolute; top: -99999999999; left: -99999999999; opacity: 0;';
+        (document.body || document.documentElement).appendChild(hidden);
+        hidden.muted = true;
+        hidden.src = file.url;
+        hidden.play();
+    })();
+
+    video.src = file.url;
+    fname.innerHTML = item.display;
     fsize.innerHTML = bytesToSize(file.size);
-    // fduration.innerHTML = file.duration || '00:00';
 
     setVideoWidth();
     video.onclick = function() {
@@ -49,7 +73,7 @@ function onGettingFile(f, item) {
         video.play();
     };
 
-    var html = 'This file is in your <b>browser cache</b>. Click above link to <b>download</b> ie. save-to-disk.';
+    var html = 'This file is in your browser cache. Click <a href="' + file.url + '" download="' + file.name + '">here</a> to download.';
     if (item.php && item.youtube) {
         html = 'Click to download file from <a href="' + item.php + '" target="_blank">Private Server</a> <img src="images/cross-icon.png" class="cross-icon" title="Delete from server"> or <a href="' + item.youtube + '" target="_blank">YouTube</a>';
     } else if (item.php) {
@@ -230,3 +254,22 @@ document.body.onclick = function() {
         btnRecordingsListDropDown.className = '';
     }
 };
+
+function formatSecondsAsTime(secs) {
+    var hr = Math.floor(secs / 3600);
+    var min = Math.floor((secs - (hr * 3600)) / 60);
+    var sec = Math.floor(secs - (hr * 3600) - (min * 60));
+
+    if (min < 10) {
+        min = "0" + min;
+    }
+    if (sec < 10) {
+        sec = "0" + sec;
+    }
+
+    if (hr <= 0) {
+        return min + ':' + sec;
+    }
+
+    return hr + ':' + min + ':' + sec;
+}

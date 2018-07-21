@@ -8,12 +8,14 @@ chrome.storage.sync.get(null, function(items) {
 
 document.querySelector('#btn-youtube-upload').onclick = function() {
     if (!file) {
-        header.innerHTML = 'You did NOT record anything yet.';
+        fname.innerHTML = 'You did NOT record anything yet.';
         return;
     }
 
     this.disabled = true;
-    header.innerHTML = 'Google.getAuthToken...';
+
+    fresolutions.innerHTML = fsize.innerHTML = fduration.innerHTML = browserCache.innerHTML = '';
+    fname.innerHTML = 'Google.getAuthToken...';
 
     chrome.identity.getAuthToken({
         'interactive': true
@@ -27,11 +29,11 @@ document.querySelector('#btn-youtube-upload').onclick = function() {
                 }
             }
 
-            header.innerHTML = chrome.runtime.lastError;
+            fname.innerHTML = chrome.runtime.lastError;
             return;
         }
 
-        header.innerHTML = 'Upload started...';
+        fname.innerHTML = 'Upload started...';
 
         uploadVideo = new UploadVideo();
         uploadVideo.ready(access_token);
@@ -41,29 +43,28 @@ document.querySelector('#btn-youtube-upload').onclick = function() {
 };
 
 function showYouTubeURL(videoURL) {
-    var html = '<p>Uploaded to YouTube: <a href="' + videoURL + '" target="_blank">' + videoURL + '</a></p>';
-
-    if (uploadVideo.uploadResponse) {
-        var channelTitle = uploadVideo.uploadResponse.snippet.channelTitle;
-        html += '<span style="font-size: 17px;">This video is <b style="color: red;">privately</b> published to <a href="https://www.youtube.com/channel/' + uploadVideo.uploadResponse.snippet.channelId + '" target="_blank">' + channelTitle + '</a>. Go to youtube.com/my_videos and <a href="https://www.youtube.com/my_videos?o=U" target="_blank"><span style="background: yellow;display: inline-block;border-bottom: 1px solid red;">Make It Public!</span></a></span>';
-    }
-
     DiskStorage.UpdateFileInfo(file.name, {
         youtube: videoURL
     }, function() {
-        header.innerHTML = html;
+        file.url = videoURL;
+        if(!file.item) file.item = {};
+        file.item.youtube = videoURL;
+        onGettingFile(file, file.item);
     });
 }
 
 function uploadVideoCallback(response, videoURL) {
-    header.innerHTML = 'YouTube Upload Progress: ' + response + '%';
+    fname.innerHTML = 'YouTube Upload Progress: ' + response + '%';
+    browserCache.innerHTML = '<progress min=0 max=100 value=' + response + ' style="margin-top: 10px;"></progress>';
     document.title = response + '% uploaded';
 
     if (response >= 100 || videoURL) {
-        header.innerHTML = 'Uploaded to YouTube. Retrieving the video URL...';
+        browserCache.innerHTML = '';
+        fname.innerHTML = 'Uploaded to YouTube. Retrieving the video URL...';
     }
 
     if (videoURL) {
+        browserCache.innerHTML = '';
         showYouTubeURL(videoURL);
         document.title = 'Upload successful';
     }
@@ -118,7 +119,7 @@ UploadVideo.prototype.uploadFile = function(fileName, file) {
 
     var metadata = {
         snippet: {
-            title: fileName,
+            title: youtube_title,
             description: fileName,
             tags: this.tags,
             categoryId: this.categoryId

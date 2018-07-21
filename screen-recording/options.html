@@ -122,6 +122,8 @@ h1 {
 }
 </style>
 
+<title>RecordRTC Extension</title>
+
 <p id="applying-changes">Applying Changes...</p>
 
 <article>
@@ -199,14 +201,15 @@ h1 {
 
     <tr>
         <td>
-            YouTube upload privacy:
+            YouTube visibility:
         </td>
 
         <td>
             <select id="youtube_privacy">
-                <option value="public" selected>public</option>
-                <option value="private">private</option>
-                <option value="unlisted">unlisted</option>
+                <option value="public" selected>Public</option>
+                <option value="unlisted">Unlisted</option>
+                <option value="private">Private</option>
+                <option value="scheduled" disabled>Scheduled</option>
             </select>
         </td>
     </tr>
