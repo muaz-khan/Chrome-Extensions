@@ -62,7 +62,16 @@ function onGettingFile(f, item) {
         hidden.play();
     })();
 
+    video.onloadedmetadata = function() {
+        // video.onloadedmetadata = null;
+
+        // seek back to the beginning
+        // video.currentTime = 0;
+    };
+
     video.src = file.url;
+    video.currentTime = 9999999999;
+
     fname.innerHTML = item.display;
     fsize.innerHTML = bytesToSize(file.size);
 
