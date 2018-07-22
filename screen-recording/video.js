@@ -1,10 +1,56 @@
 // var src = location.href.split('?src=')[1];
 // document.querySelector('video').src = src;
 
-navigator.mediaDevices.getUserMedia({video: true}).then(function(stream) {
-    document.querySelector('video').srcObject = stream;
-}).catch(function() {
-    alert('Unable to capture your camera.');
+var video = document.querySelector('video');
+video.style.height = parseInt(innerHeight - 100) + 'px';
+
+var deviceId = {};
+chrome.storage.sync.get(null, function(items) {
+    var hints = {
+        video: true
+    };
+
+    if(items['camera'] && typeof items['camera'] === 'string') {
+        hints.video = {
+            deviceId: items['camera']
+        };
+    }
+
+    if(items['videoResolutions'] && items['videoResolutions'] !== 'default') {
+        var videoResolutions = items['videoResolutions'];
+
+        if(hints.video === true) {
+            hints.video = {};
+        }
+
+        var width = videoResolutions.split('x')[0];
+        var height = videoResolutions.split('x')[1];
+
+        if(width && height) {
+            hints.video.width = {
+                ideal: width
+            };
+
+            hints.video.height = {
+                ideal: height
+            };
+        }
+    }
+
+    navigator.mediaDevices.getUserMedia(hints).then(function(stream) {
+        video.srcObject = stream;
+    }).catch(function() {
+        // retry with default devices
+        hints = {
+            video: true
+        };
+
+        navigator.mediaDevices.getUserMedia(hints).then(function(stream) {
+            video.srcObject = stream;
+        }).catch(function() {
+            alert('Unable to capture your camera.');
+        });
+    });
 });
 
 

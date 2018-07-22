@@ -45,6 +45,16 @@
             document.getElementById('youtube_privacy').value = 'public';
         });
     }
+
+    if (items['videoResolutions']) {
+        document.getElementById('videoResolutions').value = items['videoResolutions'];
+    } else {
+        chrome.storage.sync.set({
+            videoResolutions: '1920x1080'
+        }, function() {
+            document.getElementById('videoResolutions').value = '1920x1080';
+        });
+    }
 });
 
 function querySelectorAll(selector) {
@@ -100,6 +110,17 @@ document.getElementById('youtube_privacy').onchange = function() {
         youtube_privacy: this.value === 'public' ? '' : this.value
     }, function() {
         document.getElementById('youtube_privacy').disabled = false;
+        hideSaving();
+    });
+};
+
+document.getElementById('videoResolutions').onchange = function() {
+    this.disabled = true;
+    showSaving();
+    chrome.storage.sync.set({
+        videoResolutions: this.value || '1920x1080'
+    }, function() {
+        document.getElementById('videoResolutions').disabled = false;
         hideSaving();
     });
 };

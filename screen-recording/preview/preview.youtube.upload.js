@@ -120,7 +120,7 @@ UploadVideo.prototype.uploadFile = function(fileName, file) {
     var metadata = {
         snippet: {
             title: youtube_title,
-            description: fileName,
+            description: fileName + ' (via RecordRTC)',
             tags: this.tags,
             categoryId: this.categoryId
         },

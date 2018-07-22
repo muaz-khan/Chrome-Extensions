@@ -236,6 +236,7 @@ function setDefaults() {
     enableSpeakers = true;
     videoCodec = 'Default';
     videoMaxFrameRates = '';
+    videoResolutions = '1920x1080';
     isRecordingVOD = false;
     startedVODRecordedAt = (new Date).getTime();
 
@@ -277,6 +278,10 @@ function getUserConfigs() {
 
         if (items['videoMaxFrameRates'] && items['videoMaxFrameRates'].toString().length) {
             videoMaxFrameRates = parseInt(items['videoMaxFrameRates']);
+        }
+
+        if (items['videoResolutions'] && items['videoResolutions'].toString().length) {
+            videoResolutions = items['videoResolutions'];
         }
 
         if (items['microphone']) {
