@@ -6,7 +6,17 @@
 | ------------- |-------------|-------------|
 | Access/capture screen from any HTTPs domain. | [Source Code](https://github.com/muaz-khan/Chrome-Extensions/tree/master/desktopCapture) | [Install from Google Web Store](https://chrome.google.com/webstore/detail/screen-capturing/ajhifddimkapgcifgcodmmfdlknahffk) |
 
-# How to modify?
+# Demos
+
+Note: Following demos works only if you install chrome extension from [Google WebStore](https://chrome.google.com/webstore/detail/screen-capturing/ajhifddimkapgcifgcodmmfdlknahffk).
+
+* https://www.webrtc-experiment.com/getScreenId/
+* https://www.webrtc-experiment.com/Screen-Capturing/
+* https://www.webrtc-experiment.com/Pluginfree-Screen-Sharing/ (peer to peer)
+* https://www.webrtc-experiment.com/RecordRTC/simple-demos/video-plus-screen-recording.html (rcording)
+* https://www.webrtc-experiment.com/RecordRTC/ (select screen from dropdown)
+
+# How to modify this chrome extension?
 
 1. Download [ZIP](http://webrtcweb.com/desktopCapture.zip) or [TAR](http://webrtcweb.com/desktopCapture.tar.gz)
 2. Windows users can use WinZip/WinRAR/7Zip however MacOSX/Linux users can use `tar -zxvf desktopCapture.tar.gz` to extract the archive
