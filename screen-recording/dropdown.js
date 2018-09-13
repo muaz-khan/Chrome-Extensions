@@ -54,6 +54,7 @@ document.getElementById('stop-recording').onclick = function() {
 document.getElementById('full-screen').onclick = function() {
     chrome.storage.sync.set({
         enableTabCaptureAPI: 'false',
+        enableTabCaptureAPIAudioOnly: 'false',
         enableMicrophone: 'false',
         enableCamera: 'false',
         enableScreen: 'true', // TRUE
@@ -71,6 +72,7 @@ document.getElementById('full-screen').onclick = function() {
 document.getElementById('full-screen-audio').onclick = function() {
     chrome.storage.sync.set({
         enableTabCaptureAPI: 'false',
+        enableTabCaptureAPIAudioOnly: 'false',
         enableMicrophone: 'false',
         enableCamera: 'false',
         enableScreen: 'true', // TRUE
@@ -88,6 +90,25 @@ document.getElementById('full-screen-audio').onclick = function() {
 document.getElementById('selected-tab').onclick = function() {
     chrome.storage.sync.set({
         enableTabCaptureAPI: 'true', // TRUE
+        enableTabCaptureAPIAudioOnly: 'false',
+        enableMicrophone: 'false',
+        enableCamera: 'false',
+        enableScreen: 'false',
+        isRecording: 'true', // TRUE
+        enableSpeakers: 'false'
+    }, function() {
+        runtimePort.postMessage({
+            messageFromContentScript1234: true,
+            startRecording: true
+        });
+        window.close();
+    });
+};
+
+document.getElementById('selected-tab-audio-only').onclick = function() {
+    chrome.storage.sync.set({
+        enableTabCaptureAPI: 'true', // TRUE
+        enableTabCaptureAPIAudioOnly: 'true', // TRUE
         enableMicrophone: 'false',
         enableCamera: 'false',
         enableScreen: 'false',
@@ -105,6 +126,7 @@ document.getElementById('selected-tab').onclick = function() {
 document.getElementById('microphone-screen').onclick = function() {
     chrome.storage.sync.set({
         enableTabCaptureAPI: 'false',
+        enableTabCaptureAPIAudioOnly: 'false',
         enableMicrophone: 'true', // TRUE
         enableCamera: 'false',
         enableScreen: 'true', // TRUE
@@ -122,6 +144,7 @@ document.getElementById('microphone-screen').onclick = function() {
 document.getElementById('microphone-screen-camera').onclick = function() {
     chrome.storage.sync.set({
         enableTabCaptureAPI: 'false',
+        enableTabCaptureAPIAudioOnly: 'false',
         enableMicrophone: 'true', // TRUE
         enableCamera: 'true', // TRUE
         enableScreen: 'true', // TRUE
@@ -139,6 +162,7 @@ document.getElementById('microphone-screen-camera').onclick = function() {
 document.getElementById('microphone-webcam').onclick = function() {
     chrome.storage.sync.set({
         enableTabCaptureAPI: 'false',
+        enableTabCaptureAPIAudioOnly: 'false',
         enableMicrophone: 'true', // TRUE
         enableCamera: 'true', // TRUE
         enableScreen: 'false', // FALSE

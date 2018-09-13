@@ -42,6 +42,18 @@ function gotStream(stream) {
                 options.mimeType = 'video/x-matroska;codecs=avc1';
             }
         }
+
+        if(enableTabCaptureAPIAudioOnly) {
+            if (isMimeTypeSupported('audio/ogg')) {
+                options.mimeType = 'audio/ogg';
+            }
+            else if (isMimeTypeSupported('audio/webm')) {
+                options.mimeType = 'audio/webm';
+            }
+            else {
+                options.mimeType = 'audio/wav';
+            }
+        }
     }
 
     if (bitsPerSecond) {
@@ -141,6 +153,21 @@ function stopScreenRecording() {
             }
         }
 
+        if(enableTabCaptureAPIAudioOnly) {
+            if (isMimeTypeSupported('audio/ogg')) {
+                mimeType = 'audio/ogg';
+                fileExtension = 'ogg';
+            }
+            else if (isMimeTypeSupported('audio/webm')) {
+                mimeType = 'audio/mp3';
+                fileExtension = 'mp3';
+            }
+            else {
+                mimeType = 'audio/wav';
+                fileExtension = 'wav';
+            }
+        }
+
         var file = new File([recorder ? recorder.blob : ''], getFileName(fileExtension), {
             type: mimeType
         });
@@ -229,6 +256,7 @@ function setDefaults() {
 
     bitsPerSecond = 0;
     enableTabCaptureAPI = false;
+    enableTabCaptureAPIAudioOnly = false;
     enableScreen = true;
     enableMicrophone = false;
     enableCamera = false;
@@ -254,6 +282,10 @@ function getUserConfigs() {
 
         if (items['enableTabCaptureAPI']) {
             enableTabCaptureAPI = items['enableTabCaptureAPI'] == 'true';
+        }
+
+        if (items['enableTabCaptureAPIAudioOnly']) {
+            enableTabCaptureAPIAudioOnly = items['enableTabCaptureAPIAudioOnly'] == 'true';
         }
 
         if (items['enableCamera']) {

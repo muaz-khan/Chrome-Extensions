@@ -4,6 +4,7 @@ var bitsPerSecond = 0;
 var isChrome = true; // used by RecordRTC
 
 var enableTabCaptureAPI = false;
+var enableTabCaptureAPIAudioOnly = false;
 
 var enableScreen = true;
 var enableMicrophone = false;
