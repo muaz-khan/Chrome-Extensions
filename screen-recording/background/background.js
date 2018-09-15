@@ -44,15 +44,8 @@ function gotStream(stream) {
         }
 
         if(enableTabCaptureAPIAudioOnly) {
-            if (isMimeTypeSupported('audio/ogg')) {
-                options.mimeType = 'audio/ogg';
-            }
-            else if (isMimeTypeSupported('audio/webm')) {
-                options.mimeType = 'audio/webm';
-            }
-            else {
-                options.mimeType = 'audio/wav';
-            }
+            options.recorderType = StereoAudioRecorder;
+            options.mimeType = 'audio/wav';
         }
     }
 
@@ -154,18 +147,8 @@ function stopScreenRecording() {
         }
 
         if(enableTabCaptureAPIAudioOnly) {
-            if (isMimeTypeSupported('audio/ogg')) {
-                mimeType = 'audio/ogg';
-                fileExtension = 'ogg';
-            }
-            else if (isMimeTypeSupported('audio/webm')) {
-                mimeType = 'audio/mp3';
-                fileExtension = 'mp3';
-            }
-            else {
-                mimeType = 'audio/wav';
-                fileExtension = 'wav';
-            }
+            mimeType = 'audio/wav';
+            fileExtension = 'wav';
         }
 
         var file = new File([recorder ? recorder.blob : ''], getFileName(fileExtension), {
