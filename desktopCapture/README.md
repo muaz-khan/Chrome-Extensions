@@ -121,7 +121,7 @@ getScreenId(function (error, sourceId, screen_constraints) {
 
 1. [RecordRTC.js](https://github.com/muaz-khan/RecordRTC) - a WebRTC wrapper library for audio+video+screen activity recording
 2. [RTCMultiConnection.js](https://github.com/muaz-khan/RTCMultiConnection) - a WebRTC wrapper library for peer-to-peer applications
-3. [getScreenId.js](https://github.com/muaz-khan/getScreenId) - a tinny javascript library that be used in any domain, application or WebRTC wrapper library.
+3. [getScreenId.js](https://github.com/muaz-khan/getScreenId) - a tinny javascript library that can be used in any domain, application or WebRTC wrapper library.
 4. [Screen.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/screen-sharing) - a screen capturing library along with multi-user p2p screen streaming.
 5. [Pluginfree Screen Sharing](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/Pluginfree-Screen-Sharing) - a standalone application, providing multi-user p2p screen streaming in HD format.
 

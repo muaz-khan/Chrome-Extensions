@@ -21,10 +21,10 @@
 
 # Features:
 
-1. Share full screen or any app's screen in 1080p or 720p format
+1. Share full screen or any apps screen in 1080p or 720p format
 2. Record full screen (1920p, 1080p, 720p) or any app's screen
 3. Share youtube video (+ audio) along with tab activity
-4. Share any tab's activity along with audio being played on the selected tab (youtube, dailymotion, soundcloud, whatever)
+4. Share any tabs activity along with audio being played on the selected tab (youtube, dailymotion, soundcloud, whatever)
 5. Record your microphone along with full screen
 6. Record your microphone along with youtube video (+audio) as well as youtube tab activity (all-in-one)
 7. Share files (peer-to-peer) on windows, mac, linux, Android and iOS
