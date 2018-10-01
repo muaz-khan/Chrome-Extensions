@@ -4,7 +4,7 @@
 
 * https://chrome.google.com/webstore/detail/recordrtc/ndcljioonkecdnaaihodjgiliohngojp
 
-<a target="_blank" href="https://chrome.google.com/webstore/detail/recordrtc/ndcljioonkecdnaaihodjgiliohngojp"><img alt="Install RecordRTC Extension" src="https://webrtcweb.com/RecordRTC/RecordRTC-Extension.png" title="Click here to install this sample from the Chrome Web Store"></img></a>
+<a target="_blank" href="https://chrome.google.com/webstore/detail/recordrtc/ndcljioonkecdnaaihodjgiliohngojp"><img alt="Install RecordRTC Extension" src="https://webrtcweb.com/RecordRTC/RecordRTC-Extension.png" title="Click here to install this sample from the Chrome Web Store" /></a>
 
 **The JavaScript Library:** https://github.com/muaz-khan/RecordRTC
 
