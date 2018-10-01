@@ -1,32 +1,6 @@
-// source code from: http://typedarray.org/wp-content/projects/WebAudioRecorder/script.js
-// https://github.com/mattdiamond/Recorderjs#license-mit
-// ______________________
-// StereoAudioRecorder.js
-
-/**
- * StereoAudioRecorder is a standalone class used by {@link RecordRTC} to bring "stereo" audio-recording in chrome.
- * @summary JavaScript standalone object for stereo audio recording.
- * @license {@link https://github.com/muaz-khan/RecordRTC#license|MIT}
- * @author {@link http://www.MuazKhan.com|Muaz Khan}
- * @typedef StereoAudioRecorder
- * @class
- * @example
- * var recorder = new StereoAudioRecorder(MediaStream, {
- *     sampleRate: 44100,
- *     bufferSize: 4096
- * });
- * recorder.record();
- * recorder.stop(function(blob) {
- *     video.src = URL.createObjectURL(blob);
- * });
- * @see {@link https://github.com/muaz-khan/RecordRTC|RecordRTC Source Code}
- * @param {MediaStream} mediaStream - MediaStream object fetched using getUserMedia API or generated using captureStreamUntilEnded or WebAudio API.
- * @param {object} config - {sampleRate: 44100, bufferSize: 4096, numberOfAudioChannels: 1, etc.}
- */
-
 function StereoAudioRecorder(mediaStream, config) {
     if (!mediaStream.getAudioTracks().length) {
-        throw 'Your stream has no audio tracks.';
+        alert('Your stream has no audio tracks.');
     }
 
     config = config || {};
@@ -294,14 +268,6 @@ function StereoAudioRecorder(mediaStream, config) {
             });
         }
 
-        if (isEdge || isOpera || isSafari || config.noWorker) {
-            mergeAudioBuffers(config, function(data) {
-                callback(data.buffer, data.view);
-            });
-            return;
-        }
-
-
         var webWorker = processInWebWorker(mergeAudioBuffers);
 
         webWorker.onmessage = function(event) {
@@ -398,6 +364,13 @@ function StereoAudioRecorder(mediaStream, config) {
             }
         });
     };
+
+    if(typeof Storage === 'undefined') {
+        window.Storage = {
+            AudioContextConstructor: null,
+            AudioContext: window.AudioContext || window.webkitAudioContext
+        };
+    }
 
     if (!Storage.AudioContextConstructor) {
         Storage.AudioContextConstructor = new Storage.AudioContext();
@@ -701,8 +674,4 @@ function StereoAudioRecorder(mediaStream, config) {
             setTimeout(looper, config.timeSlice);
         }
     }
-}
-
-if (typeof RecordRTC !== 'undefined') {
-    RecordRTC.StereoAudioRecorder = StereoAudioRecorder;
 }

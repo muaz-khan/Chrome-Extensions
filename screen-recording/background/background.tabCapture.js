@@ -30,10 +30,13 @@ function captureTabUsingTabCapture(isNoAudio) {
 
             // chrome.tabs.update(activeTabId, {active: true});
 
-            // to fix bug: https://github.com/muaz-khan/RecordRTC/issues/281
-            chrome.tabs.executeScript(activeTabId, {
-                code: executeScriptForTabCapture.toString() + ';executeScriptForTabCapture();'
-            });
+            try {
+                // to fix bug: https://github.com/muaz-khan/RecordRTC/issues/281
+                chrome.tabs.executeScript(activeTabId, {
+                    code: executeScriptForTabCapture.toString() + ';executeScriptForTabCapture();'
+                });
+            }
+            catch(e) {}
         });
     });
 }
