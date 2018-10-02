@@ -194,7 +194,8 @@ button[disabled] {
 
 // http://www.rtcmulticonnection.org/docs/constructor/
 var connection = new RTCMultiConnection(params.s);
-connection.socketURL = 'https://rtcmulticonnection.herokuapp.com:443/';
+// connection.socketURL = 'https://rtcmulticonnection.herokuapp.com:443/';
+connection.socketURL = 'https://webrtcweb.com:9001/';
 
 connection.enableLogs = true;
 connection.session = {
