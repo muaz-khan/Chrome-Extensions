@@ -87,6 +87,24 @@ document.getElementById('full-screen-audio').onclick = function() {
     });
 };
 
+document.getElementById('full-screen-microphone-audio').onclick = function() {
+    chrome.storage.sync.set({
+        enableTabCaptureAPI: 'false',
+        enableTabCaptureAPIAudioOnly: 'false',
+        enableMicrophone: 'true',
+        enableCamera: 'false',
+        enableScreen: 'true',
+        isRecording: 'true',
+        enableSpeakers: 'true'
+    }, function() {
+        runtimePort.postMessage({
+            messageFromContentScript1234: true,
+            startRecording: true
+        });
+        window.close();
+    });
+};
+
 document.getElementById('selected-tab').onclick = function() {
     chrome.storage.sync.set({
         enableTabCaptureAPI: 'true',
