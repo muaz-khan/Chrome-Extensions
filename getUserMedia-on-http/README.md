@@ -2,9 +2,7 @@
 
 This chrome extension allows you invoke getUserMedia on any HTTP domain. You can invoke getUserMedia for camera+microphone or screen or tabs.
 
-# Disabled By Chrome. So please install using `chrome://extensions`
-
-### Link from Google WebStore May NOT Work!!!
+# If disabled by chrome? Then please install using `chrome://extensions`
 
 <a target="_blank" href="https://chrome.google.com/webstore/detail/getusermedia/nbnpcmljmiinldficickhdoaiblgkggc">![Try it now in CWS](https://raw.github.com/GoogleChrome/chrome-app-samples/master/tryitnowbutton.png "Click here to install this extension from the Chrome Web Store")</a>
 
