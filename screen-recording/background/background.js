@@ -127,10 +127,13 @@ function gotStream(stream) {
 
     initialTime = Date.now()
     timer = setInterval(checkTime, 100);
+
+    // tell website that recording is started
+    startRecordingCallback();
 }
 
 function stopScreenRecording() {
-    isRecording = false;
+    if(!recorder || !isRecording) return;
 
     if (timer) {
         clearTimeout(timer);
@@ -187,10 +190,36 @@ function stopScreenRecording() {
                 videoPlayers = [];
             } catch (e) {}
 
-            chrome.storage.sync.set({
-                isRecording: 'false', // for dropdown.js
-                openPreviewPage: 'true' // for previewing recorded video
+            if(openPreviewOnStopRecording) {
+                chrome.storage.sync.set({
+                    isRecording: 'false', // for dropdown.js
+                    openPreviewPage: 'true' // for previewing recorded video
+                });
+            }
+
+            // -------------
+            if (recorder && recorder.streams) {
+                recorder.streams.forEach(function(stream, idx) {
+                    stream.getTracks().forEach(function(track) {
+                        track.stop();
+                    });
+
+                    if (idx == 0 && typeof stream.onended === 'function') {
+                        stream.onended();
+                    }
+                });
+
+                recorder.streams = null;
+            }
+
+            isRecording = false;
+            setBadgeText('');
+            chrome.browserAction.setIcon({
+                path: 'images/main-icon.png'
             });
+            // -------------
+
+            stopRecordingCallback(file);
 
             setTimeout(function() {
                 setDefaults();
@@ -231,7 +260,6 @@ function setDefaults() {
     videoMaxFrameRates = '';
     videoResolutions = '1920x1080';
     isRecordingVOD = false;
-    startedVODRecordedAt = (new Date).getTime();
 
     // for dropdown.js
     chrome.storage.sync.set({
@@ -306,10 +334,6 @@ function getUserConfigs() {
 
         captureDesktop();
     });
-}
-
-function stopVODRecording() {
-    isRecordingVOD = false;
 }
 
 chrome.storage.sync.get('openPreviewPage', function(item) {
