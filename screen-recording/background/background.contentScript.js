@@ -9,6 +9,36 @@ window.addEventListener('message', function(event) {
     port.postMessage(event.data);
 });
 
+// ctrl+tab to stop the recording
+var isControlKeyPressed;
+window.addEventListener('keydown', function(e) {
+    keyCode = e.which || e.keyCode || 0;
+
+    if(keyCode === 17) {
+        isControlKeyPressed = true;
+    }
+}, false);
+
+window.addEventListener('keyup', function(e) {
+    keyCode = e.which || e.keyCode || 0;
+
+    if(isControlKeyPressed && keyCode === 32) {
+        port.postMessage({
+            messageFromContentScript1234: true,
+            stopRecording: true,
+            dropdown: true
+        });
+
+        e.preventDefault();
+        e.stopPropagation();
+        return false;
+    }
+
+    if(keyCode === 17) {
+        isControlKeyPressed = false;
+    }
+}, false);
+
 function RecordRTC_Extension(config) {
     config = config || {
         enableTabCaptureAPI: false,

@@ -194,8 +194,21 @@ function stopScreenRecording() {
                 chrome.storage.sync.set({
                     isRecording: 'false', // for dropdown.js
                     openPreviewPage: 'true' // for previewing recorded video
+                }, function() {
+                    // wait 100 milliseconds to make sure DiskStorage finished its job
+                    setTimeout(function() {
+                        // reset & reload to make sure we clear everything
+                        setDefaults();
+                        chrome.runtime.reload();
+                    }, 100);
                 });
+                return;
             }
+
+            setTimeout(function() {
+                setDefaults();
+                chrome.runtime.reload();
+            }, 2000);
 
             // -------------
             if (recorder && recorder.streams) {
@@ -220,11 +233,6 @@ function stopScreenRecording() {
             // -------------
 
             stopRecordingCallback(file);
-
-            setTimeout(function() {
-                setDefaults();
-                chrome.runtime.reload();
-            }, 1000);
         });
     });
 }
