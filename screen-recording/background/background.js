@@ -338,6 +338,7 @@ function getUserConfigs() {
 
 chrome.storage.sync.get('openPreviewPage', function(item) {
     if (item.openPreviewPage !== 'true') return;
+    
     chrome.storage.sync.set({
         isRecording: 'false',
         openPreviewPage: 'false'

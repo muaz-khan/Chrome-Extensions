@@ -9,9 +9,14 @@ chrome.runtime.onConnect.addListener(function(port) {
         }
 
         if (message.startRecording) {
-            if (isRecording) {
-                // stopScreenRecording();
-                // return;
+            if(message.dropdown) {
+                openPreviewOnStopRecording = true;
+                openCameraPreviewDuringRecording = true;
+            }
+
+            if (isRecording && message.dropdown) {
+                stopScreenRecording();
+                return;
             }
 
             if(message.RecordRTC_Extension) {
