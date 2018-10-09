@@ -638,7 +638,8 @@ function setupRTCMultiConnection(stream) {
         setBadgeText(0);
 
         if(room_url_box === true) {
-            var resultingURL = 'https://webrtcweb.com/screen?s=' + connection.sessionid;
+            var resultingURL = 'https://webrtcweb.com/screen/?s=' + connection.sessionid;
+            resultingURL = 'https://www.webrtc-experiment.com/screen/?s=' + connection.sessionid;
 
             // resultingURL = 'http://localhost:9001/?s=' + connection.sessionid;
 
