@@ -190,7 +190,7 @@ function stopScreenRecording() {
                 videoPlayers = [];
             } catch (e) {}
 
-            if(openPreviewOnStopRecording) {
+            if(false && openPreviewOnStopRecording) {
                 chrome.storage.sync.set({
                     isRecording: 'false', // for dropdown.js
                     openPreviewPage: 'true' // for previewing recorded video
@@ -205,7 +205,7 @@ function stopScreenRecording() {
                 return;
             }
 
-            setTimeout(function() {
+            false && setTimeout(function() {
                 setDefaults();
                 chrome.runtime.reload();
             }, 2000);
@@ -233,6 +233,33 @@ function stopScreenRecording() {
             // -------------
 
             stopRecordingCallback(file);
+
+            chrome.storage.sync.set({
+                isRecording: 'false',
+                openPreviewPage: 'false'
+            });
+
+            openPreviewOnStopRecording && chrome.tabs.query({}, function(tabs) {
+                var found = false;
+                var url = 'chrome-extension://' + chrome.runtime.id + '/preview.html';
+                for (var i = tabs.length - 1; i >= 0; i--) {
+                    if (tabs[i].url === url) {
+                        found = true;
+                        chrome.tabs.update(tabs[i].id, {
+                            active: true,
+                            url: url
+                        });
+                        break;
+                    }
+                }
+                if (!found) {
+                    chrome.tabs.create({
+                        url: 'preview.html'
+                    });
+                }
+
+                setDefaults();
+            });
         });
     });
 }
@@ -344,7 +371,7 @@ function getUserConfigs() {
     });
 }
 
-chrome.storage.sync.get('openPreviewPage', function(item) {
+false && chrome.storage.sync.get('openPreviewPage', function(item) {
     if (item.openPreviewPage !== 'true') return;
     
     chrome.storage.sync.set({
