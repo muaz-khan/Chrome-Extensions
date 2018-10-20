@@ -14,7 +14,7 @@ Try any of the below URL. Replace `your_room_id` with real room-id:
 
 ```
 https://webrtcweb.com/screen?s=your_room_id
-https://cdn.rawgit.com/muaz-khan/Chrome-Extensions/master/desktopCapture-p2p/index.html
+https://cdn.rawgit.com/muaz-khan/Chrome-Extensions/master/desktopCapture-p2p/index.php
 ```
 
 ## Developer Notes
