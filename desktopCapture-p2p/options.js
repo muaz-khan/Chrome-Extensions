@@ -40,7 +40,27 @@
             document.getElementById('room_url_box').checked = true;
         });
     }
+
+    if (items['streaming_method']) {
+        document.getElementById('streaming_method').value = items['streaming_method'];
+    } else {
+        chrome.storage.sync.set({
+            streaming_method: 'RTCMultiConnection'
+        }, function() {
+            document.getElementById('streaming_method').value = 'RTCMultiConnection'
+        });
+    }
 });
+
+document.getElementById('streaming_method').onchange = function() {
+    this.disabled = true;
+
+    chrome.storage.sync.set({
+        streaming_method: this.value
+    }, function() {
+        document.getElementById('streaming_method').disabled = false;
+    });
+};
 
 document.getElementById('resolutions').onchange = function() {
     this.disabled = true;

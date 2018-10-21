@@ -40,6 +40,10 @@ window.addEventListener('online', function() {
 }, false);
 
 function captureDesktop() {
+    chrome.storage.sync.set({
+        isSharingOn: 'false'
+    });
+
     if (connection && connection.attachStreams[0]) {
         setDefaults();
 
@@ -78,6 +82,8 @@ function captureDesktop() {
     enableScreen = null;
     isSharingOn = null;
 
+    streaming_method = 'RTCMultiConnection';
+
     room_url_box = true;
 
     chrome.storage.sync.get(null, function(items) {
@@ -91,7 +97,11 @@ function captureDesktop() {
             room_id = items['room_id'];
         }
 
-        if(items['room_url_box'] === 'false') {
+        if (items['streaming_method']) {
+            streaming_method = items['streaming_method'];
+        }
+
+        if (items['room_url_box'] === 'false') {
             room_url_box = false;
         }
 
@@ -289,6 +299,8 @@ var enableCamera;
 var enableScreen;
 var isSharingOn;
 
+var streaming_method = 'RTCMultiConnection';
+
 var room_url_box = true;
 
 function getAspectRatio(w, h) {
@@ -404,8 +416,10 @@ function openVideoPreview(stream) {
     var win = window.open("video.html", "_blank", "top=0,left=0");
     var timer = setInterval(function() {
         if (win.closed) {
+            // captureDesktop();
+            setDefaults();
+
             clearInterval(timer);
-            captureDesktop();
         }
     }, 1000);
     return win;
@@ -515,6 +529,16 @@ function setBadgeText(text) {
 }
 
 function setupRTCMultiConnection(stream) {
+    if (streaming_method === 'RTCMultiConnection') {
+        shareStreamUsingRTCMultiConnection(stream);
+    }
+
+    if (streaming_method === 'AntMediaServer') {
+        shareStreamUsingAntMediaServer(stream);
+    }
+}
+
+function shareStreamUsingRTCMultiConnection(stream) {
     // www.RTCMultiConnection.org/docs/
     connection = new RTCMultiConnection();
     // connection.socketURL = 'https://rtcmulticonnection.herokuapp.com:443/';
@@ -637,9 +661,9 @@ function setupRTCMultiConnection(stream) {
         chrome.browserAction.enable();
         setBadgeText(0);
 
-        if(room_url_box === true) {
+        if (room_url_box === true) {
             var resultingURL = 'https://webrtcweb.com/screen/?s=' + connection.sessionid;
-            resultingURL = 'https://www.webrtc-experiment.com/screen/?s=' + connection.sessionid;
+            // resultingURL = 'https://www.webrtc-experiment.com/screen/?s=' + connection.sessionid;
 
             // resultingURL = 'http://localhost:9001/?s=' + connection.sessionid;
 
@@ -647,13 +671,13 @@ function setupRTCMultiConnection(stream) {
                 resultingURL += '&p=' + room_password;
             }
 
-            if(bandwidth) {
+            if (bandwidth) {
                 resultingURL += '&bandwidth=' + bandwidth;
             }
             if (!!codecs && codecs !== 'default') {
                 resultingURL += '&codecs=' + codecs;
             }
-        
+
             var popup_width = 600;
             var popup_height = 170;
 
@@ -671,7 +695,7 @@ function setupRTCMultiConnection(stream) {
         }
 
         connection.socket.on(connection.socketCustomEvent, function(message) {
-            if(message.receivedYourScreen) {
+            if (message.receivedYourScreen) {
                 setBadgeText(connection.isInitiator ? connection.getAllParticipants().length : '');
             }
         });
@@ -681,7 +705,7 @@ function setupRTCMultiConnection(stream) {
     if (room_password && room_password.length) {
         connection.password = room_password;
     }
-    
+
     connection.open(connection.sessionid, roomOpenCallback);
 
     connection.onleave = connection.onPeerStateChanged = function() {
@@ -689,40 +713,81 @@ function setupRTCMultiConnection(stream) {
     };
 }
 
+function shareStreamUsingAntMediaServer(stream) {
+    var wrapper = new AntMediaWrapper();
+    wrapper.callbacks('onopen', function() {
+        var uid = room_id || (Math.random() * 100).toString().replace('.', '');
+        wrapper.publish(stream, uid, function(isPublished, error) {
+            if (isPublished === true) {
+                var resultingURL = 'http://webrtcweb.com/screen/ant/?s=' + uid;
+                var hlsURL = 'http://webrtcweb.com/screen/ant/?s=' + uid + '&hls=true';
+
+                var html = "<title>Unique Room URL</title><h1 style='text-align:center'>Copy following private URL:</h1>";
+                html += "<p><label style='font-weight:bold'>WebRTC URL:</label><br><input type='text' value='" + resultingURL + "' style='text-align:left;width:100%;font-size:1.2em;'></p>";
+                html += "<p><label style='font-weight:bold'>HLS Live Stream URL:</label><br><input type='text' value='" + hlsURL + "' style='text-align:left;width:100%;font-size:1.2em;'></p>";
+
+                var popup_width = 600;
+                var popup_height = 230;
+
+                chrome.windows.create({
+                    url: "data:text/html," + html,
+                    type: 'popup',
+                    width: popup_width,
+                    height: popup_height,
+                    top: parseInt((screen.height / 2) - (popup_height / 2)),
+                    left: parseInt((screen.width / 2) - (popup_width / 2)),
+                    focused: true
+                }, function(win) {
+                    popup_id = win.id;
+                });
+
+                chrome.browserAction.enable();
+                setBadgeText(0);
+            } else {
+                alert(error);
+            }
+        });
+    });
+
+    wrapper.callbacks('onerror', function() {
+        alert('Ant-Media Server is down or not reachable in the moment. Please go to options page and try other streaming method.');
+        stream.getTracks().forEach(function(track) {
+            track.stop();
+        });
+        setDefaults();
+    });
+}
+
 function setDefaults() {
+    chrome.storage.sync.set({
+        enableTabCaptureAPI: 'false',
+        enableMicrophone: 'false',
+        enableCamera: 'false',
+        enableScreen: 'false',
+        isSharingOn: 'false',
+        enableSpeakers: 'false'
+    });
+
     if (connection) {
         connection.attachStreams.forEach(function(stream) {
             try {
-                stream.getTracks().forEach(function(track){
-                     try {
+                stream.getTracks().forEach(function(track) {
+                    try {
                         track.stop();
-                     }
-                     catch(e) {}
+                    } catch (e) {}
                 });
-            }
-            catch(e) {}
+            } catch (e) {}
         });
 
         try {
             connection.close();
-        }
-        catch(e) {}
+        } catch (e) {}
 
         try {
             connection.closeSocket();
-        }
-        catch(e) {}
+        } catch (e) {}
 
         connection = null;
-
-        chrome.storage.sync.set({
-            enableTabCaptureAPI: 'false',
-            enableMicrophone: 'false',
-            enableCamera: 'false',
-            enableScreen: 'false',
-            isSharingOn: 'false',
-            enableSpeakers: 'false'
-        });
     }
 
     chrome.browserAction.setIcon({
@@ -744,6 +809,8 @@ function setDefaults() {
     chrome.browserAction.setBadgeText({
         text: ''
     });
+
+    chrome.runtime.reload();
 }
 
 var videoPlayers = [];

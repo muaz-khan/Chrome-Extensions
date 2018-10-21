@@ -57,6 +57,12 @@ select[disabled] {
     <option value="h264">H264</option>
 </select>
 <hr>
+<label for="streaming_method">Select Streaming Method</label>
+<select id="streaming_method" size="2" style="vertical-align: middle; background: white;">
+    <option value="RTCMultiConnection" selected>Peer-to-Peer</option>
+    <option value="AntMediaServer">Ant-Media Server</option>
+</select>
+<hr>
 <label for="bandwidth">Set Bandwidth (e.g. 8192)</label>
 <input type="text" id="bandwidth" value="">
 <hr>
