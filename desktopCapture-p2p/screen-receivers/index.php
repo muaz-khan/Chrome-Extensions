@@ -97,12 +97,12 @@ video {
     <div id="stats-bar-html"></div>
 </div>
 
-<script type="text/javascript"><?php readfile(getcwd()."/socket.io.js"); ?></script>
-<script type="text/javascript"><?php readfile(getcwd()."/adapter.js"); ?></script>
-<script type="text/javascript"><?php readfile(getcwd()."/RTCMultiConnection.min.js"); ?></script>
-<script type="text/javascript"><?php readfile(getcwd()."/CodecsHandler.js"); ?></script>
-<script type="text/javascript"><?php readfile(getcwd()."/IceServersHandler.js"); ?></script>
-<script type="text/javascript"><?php readfile(getcwd()."/getStats.js"); ?></script>
+<script type="text/javascript"><?php readfile(getcwd()."/../background/helpers/socket.io.js"); ?></script>
+<script type="text/javascript"><?php readfile(getcwd()."/../background/helpers/adapter.js"); ?></script>
+<script type="text/javascript"><?php readfile(getcwd()."/../background/helpers/RTCMultiConnection.min.js"); ?></script>
+<script type="text/javascript"><?php readfile(getcwd()."/../background/helpers/CodecsHandler.js"); ?></script>
+<script type="text/javascript"><?php readfile(getcwd()."/../background/helpers/IceServersHandler.js"); ?></script>
+<script type="text/javascript"><?php readfile(getcwd()."/../background/helpers/getStats.js"); ?></script>
 
 <script>
 (function() {

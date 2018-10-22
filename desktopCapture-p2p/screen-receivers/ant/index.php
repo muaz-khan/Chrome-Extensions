@@ -78,8 +78,8 @@ video {
     <div id="info-bar"></div>
 </div>
 
-<script type="text/javascript"><?php readfile(getcwd()."/../adapter.js"); ?></script>
-<script type="text/javascript"><?php readfile(getcwd()."/../AntMediaWrapper.js"); ?></script>
+<script type="text/javascript"><?php readfile(getcwd()."/../../background/helpers/adapter.js"); ?></script>
+<script type="text/javascript"><?php readfile(getcwd()."/../../background/helpers/AntMediaWrapper.js"); ?></script>
 
 <script>
 (function() {

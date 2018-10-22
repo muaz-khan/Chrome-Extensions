@@ -1,5 +1,6 @@
 ﻿ <!DOCTYPE html>
 <html>
+<link rel="shortcut icon" href="../images/desktopCapture128.png">
 <head>
 <style>
 * {
@@ -9,18 +10,6 @@
   -user-drag: none;
 }
 
-@font-face {
-  font-family: 'Custom_Font';
-  src: local('.SFNSText-Light'), 
-       local('.HelveticaNeueDeskInterface-Light'), 
-       local('.LucidaGrandeUI'), 
-       local('Ubuntu Light'), 
-       local('Segoe UI Light'),
-       local('Roboto-Light'), 
-       local('DroidSans'), 
-       local('Tahoma');
-}
-
 * {
   margin: 0;
   padding: 0;
@@ -28,8 +17,7 @@
 
 html, body {
   width: 400px;
-  background-color: #F3F3F3;
-  font-family: Custom_Font!important;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
   font-size: 1em;
   overflow: hidden;
 }
@@ -63,11 +51,12 @@ a {
 }
 
 div.btn img {
-  height: 32px;
+  height: 22px;
+  vertical-align: middle;
 }
 
 section {
-  margin-right: 15px;
+  margin-right: 5px;
   text-align: right;
   width: 24px;
   display: inline-block;
@@ -78,42 +67,42 @@ section {
 <body>
     <article id="default-section">
       <div class="btn" id="full-screen">
-          <section><img src="images/desktopCapture22.png"></section>
+          <section><img src="../images/desktopCapture22.png"></section>
           Screen Without Audio
       </div>
       <hr>
       <div class="btn" id="microphone-screen">
-          <section><img src="images/desktopCapture22.png"></section>
+          <section><img src="../images/desktopCapture22.png"></section>
           Screen + Microphone
       </div>
       <hr>
       <div class="btn" id="full-screen-audio">
-          <section><img src="images/desktopCapture22.png"></section>
+          <section><img src="../images/desktopCapture22.png"></section>
           Screen + Speakers
       </div>
       <hr>
       <div class="btn" id="full-screen-audio-microphone">
-          <section><img src="images/desktopCapture22.png"></section>
+          <section><img src="../images/desktopCapture22.png"></section>
           Screen + Microphone + Speakers
       </div>
       <hr>
       <div class="btn" id="full-screen-audio-microphone-camera">
-          <section><img src="images/desktopCapture22.png"></section>
+          <section><img src="../images/desktopCapture22.png"></section>
           Screen + Microphone + Speakers + Camera
       </div>
       <hr>
       <div class="btn" id="selected-tab">
-          <section><img src="images/desktopCapture22.png"></section>
+          <section><img src="../images/desktopCapture22.png"></section>
           Chrome Tab + Speakers
       </div>
       <hr>
       <div class="btn" id="microphone-screen-camera">
-          <section><img src="images/desktopCapture22.png"></section>
+          <section><img src="../images/desktopCapture22.png"></section>
           Screen + Camera
       </div>
       <hr>
       <div class="btn" id="microphone-webcam">
-          <section><img src="images/desktopCapture22.png"></section>
+          <section><img src="../images/desktopCapture22.png"></section>
            Camera Only
       </div>
       <hr>
@@ -124,7 +113,7 @@ section {
 
     <article id="stop-section">
       <div class="btn" id="stop-sharing">
-          <section><img src="images/desktopCapture22.png"></section>
+          <section><img src="../images/desktopCapture22.png"></section>
           Stop Sharing
       </div>
     </article>
