@@ -8,6 +8,8 @@
 
 ## Call From Your Own WebSite
 
+**Live Demo:** [simple-demos/RecordRTC_Extension.html](https://www.webrtc-experiment.com/RecordRTC/simple-demos/RecordRTC_Extension.html)
+
 You can call this chrome extension directly from your own website as well!
 
 ```javascript

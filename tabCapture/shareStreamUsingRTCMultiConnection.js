@@ -7,7 +7,7 @@ function shareStreamUsingRTCMultiConnection(stream) {
 
     // this must match the viewer page
     connection.socketMessageEvent = 'desktopCapture';
-    
+
     connection.password = null;
     if (room_password && room_password.length) {
         connection.password = room_password;

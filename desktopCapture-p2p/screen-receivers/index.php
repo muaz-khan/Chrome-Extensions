@@ -127,6 +127,10 @@ var overlay = document.getElementById('overlay');
 var connection = new RTCMultiConnection(params.s);
 // connection.socketURL = 'https://rtcmulticonnection.herokuapp.com:443/';
 connection.socketURL = 'https://webrtcweb.com:9001/';
+connection.autoCloseEntireSession = true;
+
+// this must match the extension page
+connection.socketMessageEvent = 'desktopCapture';
 
 connection.enableLogs = true;
 connection.session = {
