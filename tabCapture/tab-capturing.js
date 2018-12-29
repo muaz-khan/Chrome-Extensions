@@ -17,26 +17,38 @@ chrome.browserAction.onClicked.addListener(function() {
     });
 });
 
+chrome.browserAction.setIcon({
+    path: 'images/tabCapture22.png'
+});
+
+chrome.browserAction.setTitle({
+    title: 'Share this tab!'
+});
+
+chrome.browserAction.setBadgeText({
+    text: ''
+});
+
 var constraints;
-var min_bandwidth = 512;
-var max_bandwidth = 1048;
+var min_bandwidth = 0;
+var max_bandwidth = 0;
 var room_password = '';
 var room_id = '';
 var room_url_box = true;
 var bandwidth = min_bandwidth;
-var codecs = 'vp9'; // h264, vp8
+var codecs = 'default'; // h264, vp8, vp9
 
 function captureTab() {
     chrome.storage.sync.get(null, function(items) {
         var resolutions = {};
 
         if (items['min_bandwidth']) {
-            min_bandwidth = parseInt(items['min_bandwidth']);
-            bandwidth = min_bandwidth;
+            // min_bandwidth = parseInt(items['min_bandwidth']);
+            // bandwidth = min_bandwidth;
         }
 
         if (items['max_bandwidth']) {
-            max_bandwidth = parseInt(items['max_bandwidth']);
+            // max_bandwidth = parseInt(items['max_bandwidth']);
         }
 
         if (items['room_password']) {
@@ -50,18 +62,18 @@ function captureTab() {
         var _resolutions = items['resolutions'];
         if (!_resolutions) {
             resolutions = {
-                maxWidth: screen.width > 1920 ? screen.width : 1920,
-                maxHeight: screen.height > 1080 ? screen.height : 1080
+                maxWidth: innerWidth,
+                maxHeight: innerHeight
             }
 
             chrome.storage.sync.set({
-                resolutions: '1080p'
+                resolutions: 'fit-screen'
             }, function() {});
         }
 
         if (_resolutions === 'fit-screen') {
-            resolutions.maxWidth = screen.width;
-            resolutions.maxHeight = screen.height;
+            resolutions.maxWidth = innerWidth;
+            resolutions.maxHeight = innerHeight;
         }
 
         if (_resolutions === '1080p') {
@@ -84,7 +96,8 @@ function captureTab() {
             video: true,
             audioConstraints: {
                 mandatory: {
-                    chromeMediaSource: 'tab'
+                    chromeMediaSource: 'tab',
+                    echoCancellation: true
                 }
             },
             videoConstraints: {
@@ -93,10 +106,7 @@ function captureTab() {
                     maxWidth: resolutions.maxWidth,
                     maxHeight: resolutions.maxHeight,
                     minFrameRate: 30,
-                    maxFrameRate: 64,
-                    minAspectRatio: 1.77,
-                    googLeakyBucket: true,
-                    googTemporalLayeredScreencast: true
+                    minAspectRatio: 1.77
                 }
             }
         };
@@ -122,10 +132,9 @@ function captureTab() {
 
         chrome.browserAction.disable();
 
-        stream.onended = function() {
+        addStreamStopListener(stream, function() {
             setDefaults();
-            chrome.runtime.reload();
-        };
+        });
 
         // as it is reported that if you drag chrome screen's status-bar
         // and scroll up/down the screen-viewer page.
@@ -143,7 +152,7 @@ function captureTab() {
             var background_page_id = win.id;
 
             setTimeout(function() {
-                chrome.windows.remove(background_page_id);
+                // chrome.windows.remove(background_page_id);
             }, 3000);
         });
 
@@ -152,12 +161,20 @@ function captureTab() {
         chrome.browserAction.setIcon({
             path: 'images/pause22.png'
         });
+
+        videoPlayer = document.createElement('video');
+        videoPlayer.muted = true;
+        videoPlayer.volume = 0;
+        videoPlayer.autoplay = true;
+        videoPlayer.srcObject = stream;
+        videoPlayer.play();
     }
 }
 
 // RTCMultiConnection - www.RTCMultiConnection.org
 var connection;
 var popup_id;
+var videoPlayer;
 
 function setBadgeText(text) {
     /*
@@ -176,28 +193,9 @@ function setBadgeText(text) {
 }
 
 function setDefaults() {
-    if (connection) {
-        connection.close();
-        connection.closeSocket();
-        connection.attachStreams.forEach(function(stream) {
-            stream.getTracks().forEach(function(track) {
-                track.stop();
-            });
-        });
-        connection.attachStreams = [];
-    }
-
     chrome.browserAction.setIcon({
         path: 'images/tabCapture22.png'
     });
-
-    if (popup_id) {
-        try {
-            chrome.windows.remove(popup_id);
-        } catch (e) {}
-
-        popup_id = null;
-    }
 
     chrome.browserAction.setTitle({
         title: 'Share this tab!'
@@ -206,5 +204,48 @@ function setDefaults() {
     chrome.browserAction.setBadgeText({
         text: ''
     });
+
+    if (connection) {
+        try {
+            connection.close();
+            connection.closeSocket();
+            connection.attachStreams.forEach(function(stream) {
+                stream.getTracks().forEach(function(track) {
+                    track.stop();
+                });
+            });
+            connection.attachStreams = [];
+        }
+        catch(e) {}
+
+        connection = null;
+    }
+
+    if(videoPlayer) {
+        videoPlayer.srcObject = null;
+        videoPlayer = null;
+    }
+
+    chrome.runtime.reload();
 }
 
+function addStreamStopListener(stream, callback) {
+    stream.addEventListener('ended', function() {
+        callback();
+        callback = function() {};
+    }, false);
+    stream.addEventListener('inactive', function() {
+        callback();
+        callback = function() {};
+    }, false);
+    stream.getTracks().forEach(function(track) {
+        track.addEventListener('ended', function() {
+            callback();
+            callback = function() {};
+        }, false);
+        track.addEventListener('inactive', function() {
+            callback();
+            callback = function() {};
+        }, false);
+    });
+}

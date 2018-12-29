@@ -13,7 +13,7 @@ function shareStreamUsingRTCMultiConnection(stream) {
         connection.password = room_password;
     }
 
-    connection.enableLogs = true;
+    connection.enableLogs = false;
     connection.session = {
         audio: true,
         video: true,
@@ -141,7 +141,7 @@ function shareStreamUsingRTCMultiConnection(stream) {
                 left: parseInt((screen.width / 2) - (popup_width / 2)),
                 focused: true
             }, function(win) {
-                popup_id = win.id;
+                // popup_id = win.id;
             });
         }
 

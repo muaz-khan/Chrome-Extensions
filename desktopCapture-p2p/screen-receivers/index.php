@@ -205,6 +205,10 @@ var video = document.getElementById('video');
 connection.onstream = function(e) {
     video.srcObject = e.stream;
     overlay.style.display = 'none';
+    
+    setTimeout(function() {
+        video.play();
+    }, 3000);
 };
 
 // if user left

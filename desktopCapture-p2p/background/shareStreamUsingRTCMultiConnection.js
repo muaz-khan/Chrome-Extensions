@@ -13,7 +13,7 @@ function shareStreamUsingRTCMultiConnection(stream) {
         connection.password = room_password;
     }
 
-    connection.enableLogs = true;
+    connection.enableLogs = false;
     connection.session = {
         audio: true,
         video: true,
