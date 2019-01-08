@@ -120,8 +120,6 @@ function shareStreamUsingRTCMultiConnection(stream) {
     function roomOpenCallback(isRoomOpened, roomid, error) {
         if(error) {
             alert(error);
-            chrome.runtime.reload();
-            return;
         }
 
         chrome.browserAction.enable();
