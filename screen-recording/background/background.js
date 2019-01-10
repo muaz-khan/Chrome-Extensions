@@ -62,12 +62,12 @@ function gotStream(stream) {
         
         if(enableSpeakers && enableMicrophone) {
             var mixAudioStream = getMixedAudioStream([cameraStream, stream]);
-            if(mixAudioStream && mixAudioStream.getAudioTracks().length) {
+            if(mixAudioStream && getTracks(mixAudioStream, 'audio').length) {
                 ignoreSecondPart = true;
                 
-                var mixedTrack = mixAudioStream.getAudioTracks()[0];
+                var mixedTrack = getTracks(mixAudioStream, 'audio')[0];
                 stream.addTrack(mixedTrack);
-                stream.getAudioTracks().forEach(function(track) {
+                getTracks(stream, 'audio').forEach(function(track) {
                     if(track === mixedTrack) return;
                     stream.removeTrack(track);
                 });
@@ -75,7 +75,7 @@ function gotStream(stream) {
         }
 
         if(!ignoreSecondPart) {
-            cameraStream.getAudioTracks().forEach(function(track) {
+            getTracks(cameraStream, 'audio').forEach(function(track) {
                 stream.addTrack(track);
                 cameraStream.removeTrack(track);
             });
@@ -90,7 +90,7 @@ function gotStream(stream) {
         recorder = new StereoAudioRecorder(stream, options);
         recorder.streams = [stream];
     }
-    else if (enableScreen && cameraStream && cameraStream.getVideoTracks().length) {
+    else if (enableScreen && cameraStream && getTracks(cameraStream, 'video').length) {
         // adjust video on top over screen
 
         // on faster systems (i.e. 4MB or higher RAM):

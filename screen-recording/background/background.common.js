@@ -98,13 +98,13 @@ function addStreamStopListener(stream, callback) {
         callback();
         callback = function() {};
     });
-    stream.getAudioTracks().forEach(function(track) {
+    getTracks(stream, 'audio').forEach(function(track) {
         track.addEventListener(streamEndedEvent, function() {
             callback();
             callback = function() {};
         });
     });
-    stream.getVideoTracks().forEach(function(track) {
+    getTracks(stream, 'video').forEach(function(track) {
         track.addEventListener(streamEndedEvent, function() {
             callback();
             callback = function() {};
@@ -135,7 +135,7 @@ function getMixedAudioStream(arrayOfMediaStreams) {
 
     var audioTracksLength = 0;
     arrayOfMediaStreams.forEach(function(stream) {
-        if (!stream.getAudioTracks().length) {
+        if (!getTracks(stream, 'audio').length) {
             return;
         }
 
@@ -156,4 +156,14 @@ function getMixedAudioStream(arrayOfMediaStreams) {
     });
 
     return mediaStremDestination.stream;
+}
+
+function getTracks(stream, kind) {
+    if (!stream || !stream.getTracks) {
+        return [];
+    }
+
+    return stream.getTracks().filter(function(t) {
+        return t.kind === (kind || 'audio');
+    });
 }
