@@ -148,7 +148,14 @@ function stopScreenRecording() {
         path: 'images/main-icon.png'
     });
 
-    recorder.stop(function() {
+    recorder.stop(function onStopRecording(blob, ignoreGetSeekableBlob) {
+        if(fixVideoSeekingIssues && recorder && !ignoreGetSeekableBlob) {
+            getSeekableBlob(recorder.blob, function(seekableBlob) {
+                onStopRecording(seekableBlob, true);
+            });
+            return;
+        }
+
         var mimeType = 'video/webm';
         var fileExtension = 'webm';
 
@@ -174,6 +181,12 @@ function stopScreenRecording() {
         var file = new File([recorder ? recorder.blob : ''], getFileName(fileExtension), {
             type: mimeType
         });
+
+        if(ignoreGetSeekableBlob === true) {
+            file = new File([blob], getFileName(fileExtension), {
+                type: mimeType
+            });
+        }
 
         localStorage.setItem('selected-file', file.name);
 
@@ -295,6 +308,7 @@ function setDefaults() {
     videoMaxFrameRates = '';
     videoResolutions = '1920x1080';
     isRecordingVOD = false;
+    fixVideoSeekingIssues = false;
 
     // for dropdown.js
     chrome.storage.sync.set({
@@ -350,6 +364,10 @@ function getUserConfigs() {
 
         if (items['camera']) {
             cameraDevice = items['camera'];
+        }
+
+        if(items['fixVideoSeekingIssues']) {
+            fixVideoSeekingIssues = items['fixVideoSeekingIssues'] === 'true';
         }
 
         if (enableMicrophone || enableCamera) {
