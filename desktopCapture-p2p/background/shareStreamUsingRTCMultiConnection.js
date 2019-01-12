@@ -16,6 +16,7 @@ function shareStreamUsingRTCMultiConnection(stream) {
     connection.session = {
         audio: true,
         video: true,
+        data: true,
         oneway: true
     };
 
@@ -163,6 +164,45 @@ function shareStreamUsingRTCMultiConnection(stream) {
             }
         });
     }
+
+    connection.onSocketDisconnect = function(event) {
+        // alert('Connection to the server is closed.');
+        chrome.runtime.reload();
+    };
+
+    connection.onSocketError = function(event) {
+        alert('Unable to connect to the server. Please try again.');
+        
+        setTimeout(function() {
+            chrome.runtime.reload();
+        }, 1000);
+    };
+
+    connection.onopen = function(event) {
+        // 
+    };
+
+    connection.onmessage = function(event) {
+        if(event.data.newChatMessage) {
+            runtimePort.postMessage({
+                messageFromContentScript1234: true,
+                newChatMessage: event.data.newChatMessage
+            });
+
+            connection.send({
+                receivedChatMessage: true,
+                checkmark_id: event.data.checkmark_id
+            });
+        }
+
+        if(event.data.receivedChatMessage) {
+            runtimePort.postMessage({
+                messageFromContentScript1234: true,
+                receivedChatMessage: true,
+                checkmark_id: event.data.checkmark_id
+            });
+        }
+    };
 
     connection.open(connection.sessionid, roomOpenCallback);
 
