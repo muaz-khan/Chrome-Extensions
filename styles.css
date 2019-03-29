@@ -1,0 +1,153 @@
+body, html {
+    text-align: center;
+    overflow: hidden;
+    width: 100%;
+    height: 100%;
+}
+
+svg {
+  height: 50px;
+  width: auto;
+  margin-bottom: 30px;
+}
+
+video {
+    width: 70%;
+    height: auto;
+    object-fit: contain;
+}
+
+#overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    background: #000000a3;
+    text-align: center;
+    padding-top: 10%;
+}
+
+#info-bar {
+    display: inline-block;
+    color: white;
+    font-size: 150%;
+    font-weight: bold;
+    font-family: Arial;
+}
+
+#stats-bar {
+    background-color: rgba(255, 255, 255, 0.92);
+    top: 20px;
+    left: 20px;
+    color: black;
+    font-size: 17px;
+    line-height: 1.5em;
+    position: absolute;
+    border: 2px solid rgba(0, 0, 0, 0.82);
+    border-radius: 7px;
+    font-family: Arial;
+    
+    text-align: left;
+    display: none;
+}
+
+#stats-bar-html {
+    padding: 5px 10px;
+}
+
+#hide-stats-bar {
+    float: right;
+    cursor: pointer;
+    color: red;
+    font-size: 20px;
+    font-weight: bold;
+    margin-right: 8px;
+}
+
+#hide-stats-bar:hover, #hide-stats-bar:active {
+    color: #6c1414;
+}
+
+#chat-container {
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+    height: 370px;
+    width: 300px;
+    background: white;
+    z-index: 9;
+    border-radius: 5px;
+    text-align: left;
+    -moz-box-shadow: 0px 0px 1px 7px #b9b9b9;
+    -webkit-box-shadow: 0px 0px 1px 7px #b9b9b9;
+    box-shadow: 0px 0px 1px 7px #b9b9b9;
+    display: none;
+}
+
+#chat-messages::-webkit-scrollbar {
+  width: 15px;
+  height: 5px;
+  background-color: rgba(256, 256, 256, 0);
+}
+
+#chat-messages::-webkit-scrollbar-button {
+  height: 0;
+  width: 0;
+}
+
+#chat-messages::-webkit-scrollbar-thumb {
+  background-color: rgba(256, 256, 256, 0);
+  box-shadow: inset 0 1px 3px black;
+  border-radius: 8px;
+}
+
+#chat-messages::-webkit-scrollbar-thumb:hover {
+  box-shadow: inset 0 1px 3px black;
+}
+
+#chat-messages::-webkit-scrollbar-thumb:active {
+  box-shadow: inset 0 1px 3px black;
+}
+
+#chat-messages::-webkit-scrollbar-track {
+  box-shadow: none;
+  background-color: transparent;
+}
+
+#chat-container, #chat-container * {
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+}
+
+#chat-messages {
+  height: 335px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  width: 300px;
+}
+
+#chat-messages div {
+  border-bottom: 1px solid lightgray;
+  padding: 2px 5px;
+  font-size: 20px;
+}
+
+#chat-messages div span.name {
+  font-weight: bold;
+}
+
+#txt-chat-message {
+  width: 300px;
+  border: 0;
+  border-top: 1px solid lightgray;
+  font-size: 20px;
+  padding: 2px 5px;
+}
+
+.checkmark {
+    width: 18px;
+    vertical-align: middle;
+}
