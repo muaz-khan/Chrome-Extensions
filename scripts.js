@@ -15,7 +15,8 @@
 })();
 
 var infoBar = document.getElementById('info-bar');
-var overlay = document.getElementById('overlay');
+var body = document.getElementsByTagName("BODY")[0];
+console.log('test', body);
 
 // http://www.rtcmulticonnection.org/docs/constructor/
 var connection = new RTCMultiConnection(params.s);
@@ -98,7 +99,8 @@ connection.onstreamid = function(event) {
 var video = document.getElementById('video');
 connection.onstream = function(e) {
   video.srcObject = e.stream;
-  overlay.style.display = 'none';
+  body.classList.remove("not-active");
+  body.classList.add("active");
 };
 
 // if user left
@@ -108,7 +110,8 @@ connection.onleave = connection.onstreamended = connection.onSessionClosed = fun
   video.srcObject = null;
   
   infoBar.innerHTML = 'Screen sharing has been closed.';
-  overlay.style.display = 'block';
+  body.classList.remove("active");
+  body.classList.add("not-active");
   statsBar.style.display = 'none';
   connection.close();
   connection.closeSocket();
