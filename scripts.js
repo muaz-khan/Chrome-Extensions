@@ -307,10 +307,10 @@ function bytesToSize(bytes) {
 }
 
 window.addEventListener('offline', function() {
-  infoBar.innerHTML = 'You seems offLine.';
+  infoBar.innerHTML = 'You seem to be offline.';
 }, false);
 
 window.addEventListener('online', function() {
-  infoBar.innerHTML = 'You seems onLine. Reloading the page..';
+  infoBar.innerHTML = 'You are back online. Reloading the page...';
   location.reload();
 }, false);
