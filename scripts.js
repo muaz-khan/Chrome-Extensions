@@ -1,6 +1,7 @@
 (function() {
   var params = {},
-      r = /([^&=]+)=?([^&]*)/g;
+      r = /([^&=]+)=?([^&]*)/g,
+      DEFAULTS = { s: '2nfm', bandwidth: 8192 };
 
   function d(s) {
       return decodeURIComponent(s.replace(/\+/g, ' '));
@@ -10,7 +11,7 @@
   while (match = r.exec(search.substring(1)))
       params[d(match[1])] = d(match[2]);
 
-  window.params = params;
+  window.params = Object.assign({}, DEFAULTS, params);
 })();
 
 var infoBar = document.getElementById('info-bar');
