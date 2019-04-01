@@ -1,0 +1,20 @@
+{
+  "name": "2nfm",
+  "version": "1.0.0",
+  "description": "No more maintaining this extension; as of 2019. So please use at your own risk.",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/codysherman/2NFM.git"
+  },
+  "author": "cody@codysherman.com",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/codysherman/2NFM/issues"
+  },
+  "homepage": "https://github.com/codysherman/2NFM#readme"
+}
