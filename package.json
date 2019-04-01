@@ -5,7 +5,8 @@
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js"
+    "start:server": "node server.js",
+    "start": "nodemon --ext css,html,js,json --exec npm run start:server"
   },
   "repository": {
     "type": "git",
@@ -16,5 +17,8 @@
   "bugs": {
     "url": "https://github.com/codysherman/2NFM/issues"
   },
-  "homepage": "https://github.com/codysherman/2NFM#readme"
+  "homepage": "https://github.com/codysherman/2NFM#readme",
+  "devDependencies": {
+    "nodemon": "^1.18.10"
+  }
 }
