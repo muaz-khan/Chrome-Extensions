@@ -2,7 +2,7 @@ function gotTabCaptureStream(stream, constraints) {
     if (!stream) {
         if (constraints.audio === true) {
             enableSpeakers = false;
-            captureTabUsingTabCapture(resolutions);
+            captureTabUsingTabCapture(constraints.videoConstraints.mandatory);
             return;
         }
         return alert('still no tabCapture stream');

@@ -29,9 +29,9 @@ function captureTabUsingTabCapture(resolutions) {
                 mandatory: {
                     echoCancellation: true
                 },
-                optional: [{
+                optional: {
                     googDisableLocalEcho: false // https://www.chromestatus.com/feature/5056629556903936
-                }]
+                }
             };
         }
 
