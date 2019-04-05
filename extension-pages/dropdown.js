@@ -8,29 +8,29 @@ runtimePort.onMessage.addListener(function(message) {
     }
 });
 
-document.getElementById('full-screen').onclick = function() {
-    chrome.storage.sync.set({
-        enableTabCaptureAPI: 'false',
-        enableMicrophone: 'false',
-        enableCamera: 'false',
-        enableScreen: 'true', // TRUE
-        isSharingOn: 'true', // TRUE
-        enableSpeakers: 'false' // FALSE
-    }, function() {
-        runtimePort.postMessage({
-            messageFromContentScript1234: true,
-            startSharing: true
-        });
-        window.close();
-    });
-};
+// document.getElementById('full-screen').onclick = function() {
+//     chrome.storage.sync.set({
+//         enableTabCaptureAPI: 'false',
+//         enableMicrophone: 'false',
+//         enableCamera: 'false',
+//         enableScreen: 'true', // TRUE
+//         isSharingOn: 'true', // TRUE
+//         enableSpeakers: 'false' // FALSE
+//     }, function() {
+//         runtimePort.postMessage({
+//             messageFromContentScript1234: true,
+//             startSharing: true
+//         });
+//         window.close();
+//     });
+// };
 
 document.getElementById('full-screen-audio').onclick = function() {
     chrome.storage.sync.set({
         enableTabCaptureAPI: 'false',
         enableMicrophone: 'false',
         enableCamera: 'false',
-        enableScreen: 'true', // TRUE
+        enableScreen: 'false', // TRUE
         isSharingOn: 'true', // TRUE
         enableSpeakers: 'true' // TRUE
     }, function() {
@@ -42,39 +42,39 @@ document.getElementById('full-screen-audio').onclick = function() {
     });
 };
 
-document.getElementById('full-screen-audio-microphone').onclick = function() {
-    chrome.storage.sync.set({
-        enableTabCaptureAPI: 'false',
-        enableMicrophone: 'true', // TRUE
-        enableCamera: 'false',
-        enableScreen: 'true', // TRUE
-        isSharingOn: 'true', // TRUE
-        enableSpeakers: 'true' // TRUE
-    }, function() {
-        runtimePort.postMessage({
-            messageFromContentScript1234: true,
-            startSharing: true
-        });
-        window.close();
-    });
-};
+// document.getElementById('full-screen-audio-microphone').onclick = function() {
+//     chrome.storage.sync.set({
+//         enableTabCaptureAPI: 'false',
+//         enableMicrophone: 'true', // TRUE
+//         enableCamera: 'false',
+//         enableScreen: 'true', // TRUE
+//         isSharingOn: 'true', // TRUE
+//         enableSpeakers: 'true' // TRUE
+//     }, function() {
+//         runtimePort.postMessage({
+//             messageFromContentScript1234: true,
+//             startSharing: true
+//         });
+//         window.close();
+//     });
+// };
 
-document.getElementById('full-screen-audio-microphone-camera').onclick = function() {
-    chrome.storage.sync.set({
-        enableTabCaptureAPI: 'false',
-        enableMicrophone: 'true', // TRUE
-        enableCamera: 'true',
-        enableScreen: 'true', // TRUE
-        isSharingOn: 'true', // TRUE
-        enableSpeakers: 'true' // TRUE
-    }, function() {
-        runtimePort.postMessage({
-            messageFromContentScript1234: true,
-            startSharing: true
-        });
-        window.close();
-    });
-};
+// document.getElementById('full-screen-audio-microphone-camera').onclick = function() {
+//     chrome.storage.sync.set({
+//         enableTabCaptureAPI: 'false',
+//         enableMicrophone: 'true', // TRUE
+//         enableCamera: 'true',
+//         enableScreen: 'true', // TRUE
+//         isSharingOn: 'true', // TRUE
+//         enableSpeakers: 'true' // TRUE
+//     }, function() {
+//         runtimePort.postMessage({
+//             messageFromContentScript1234: true,
+//             startSharing: true
+//         });
+//         window.close();
+//     });
+// };
 
 document.getElementById('selected-tab').onclick = function() {
     chrome.storage.sync.set({
@@ -93,56 +93,56 @@ document.getElementById('selected-tab').onclick = function() {
     });
 };
 
-document.getElementById('microphone-screen').onclick = function() {
-    chrome.storage.sync.set({
-        enableTabCaptureAPI: 'false',
-        enableMicrophone: 'true', // TRUE
-        enableCamera: 'false',
-        enableScreen: 'true', // TRUE
-        isSharingOn: 'true', // TRUE
-        enableSpeakers: 'false'
-    }, function() {
-        runtimePort.postMessage({
-            messageFromContentScript1234: true,
-            startSharing: true
-        });
-        window.close();
-    });
-};
+// document.getElementById('microphone-screen').onclick = function() {
+//     chrome.storage.sync.set({
+//         enableTabCaptureAPI: 'false',
+//         enableMicrophone: 'true', // TRUE
+//         enableCamera: 'false',
+//         enableScreen: 'true', // TRUE
+//         isSharingOn: 'true', // TRUE
+//         enableSpeakers: 'false'
+//     }, function() {
+//         runtimePort.postMessage({
+//             messageFromContentScript1234: true,
+//             startSharing: true
+//         });
+//         window.close();
+//     });
+// };
 
-document.getElementById('microphone-screen-camera').onclick = function() {
-    chrome.storage.sync.set({
-        enableTabCaptureAPI: 'false',
-        enableMicrophone: 'true', // TRUE
-        enableCamera: 'true', // TRUE
-        enableScreen: 'true', // TRUE
-        isSharingOn: 'true', // TRUE
-        enableSpeakers: 'false'
-    }, function() {
-        runtimePort.postMessage({
-            messageFromContentScript1234: true,
-            startSharing: true
-        });
-        window.close();
-    });
-};
+// document.getElementById('microphone-screen-camera').onclick = function() {
+//     chrome.storage.sync.set({
+//         enableTabCaptureAPI: 'false',
+//         enableMicrophone: 'true', // TRUE
+//         enableCamera: 'true', // TRUE
+//         enableScreen: 'true', // TRUE
+//         isSharingOn: 'true', // TRUE
+//         enableSpeakers: 'false'
+//     }, function() {
+//         runtimePort.postMessage({
+//             messageFromContentScript1234: true,
+//             startSharing: true
+//         });
+//         window.close();
+//     });
+// };
 
-document.getElementById('microphone-webcam').onclick = function() {
-    chrome.storage.sync.set({
-        enableTabCaptureAPI: 'false',
-        enableMicrophone: 'true', // TRUE
-        enableCamera: 'true', // TRUE
-        enableScreen: 'false', // FALSE
-        isSharingOn: 'true', // TRUE
-        enableSpeakers: 'false'
-    }, function() {
-        runtimePort.postMessage({
-            messageFromContentScript1234: true,
-            startSharing: true
-        });
-        window.close();
-    });
-};
+// document.getElementById('microphone-webcam').onclick = function() {
+//     chrome.storage.sync.set({
+//         enableTabCaptureAPI: 'false',
+//         enableMicrophone: 'true', // TRUE
+//         enableCamera: 'true', // TRUE
+//         enableScreen: 'false', // FALSE
+//         isSharingOn: 'true', // TRUE
+//         enableSpeakers: 'false'
+//     }, function() {
+//         runtimePort.postMessage({
+//             messageFromContentScript1234: true,
+//             startSharing: true
+//         });
+//         window.close();
+//     });
+// };
 
 document.getElementById('btn-options').onclick = function(e) {
     e.preventDefault();
