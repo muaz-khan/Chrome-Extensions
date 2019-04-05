@@ -150,7 +150,11 @@ function captureDesktop() {
             alert('"4K" resolutions is not stable in Chrome. Please try "fit-screen" instead.');
         }
 
-        var sources = ['screen', 'window', 'tab'];
+        var sources = [
+            // 'screen',
+            // 'window',
+            'tab'
+        ];
 
         if (enableSpeakers) {
             sources.push('audio');
