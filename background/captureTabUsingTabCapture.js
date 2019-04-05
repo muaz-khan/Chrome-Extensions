@@ -25,14 +25,6 @@ function captureTabUsingTabCapture(resolutions) {
 
         if (!!enableSpeakers) {
             constraints.audio = true;
-            constraints.audioConstraints = {
-                mandatory: {
-                    echoCancellation: true
-                },
-                optional: {
-                    googDisableLocalEcho: false // https://www.chromestatus.com/feature/5056629556903936
-                }
-            };
         }
 
         // chrome.tabCapture.onStatusChanged.addListener(function(event) { /* event.status */ });
