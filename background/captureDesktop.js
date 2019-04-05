@@ -141,9 +141,9 @@ function captureDesktop() {
             resolutions.maxHeight = 360;
         }
 
-        if (_resolutions === '5p') {
-            resolutions.maxWidth = 5;
-            resolutions.maxHeight = 5;
+        if (_resolutions === '9p') {
+            resolutions.maxWidth = 16;
+            resolutions.maxHeight = 9;
         }
 
         if (_resolutions === '4K') {
