@@ -1,10 +1,10 @@
 {
    "name": "2NFM",
    "author": "Cody Sherman",
-   "version": "5.9",
+   "version": "1.0",
    "manifest_version": 2,
    "minimum_chrome_version": "34",
-   "description": "WebRTC P2P HQ/HD screen-sharing. Share camera, microphone, speakers, full-screen, or software's screens.",
+   "description": "The easiest way to share your tab",
    "homepage_url": "https://github.com/codysherman/2NFM/tree/master",
    "background":{
       "scripts":[
@@ -33,16 +33,12 @@
       "persistent":false
    },
    "browser_action":{  
-      "default_icon":"images/desktopCapture22.png",
-      "default_title":"Share Your Screen",
+      "default_icon":"images/icon-inactive_128.png",
+      "default_title":"2N.FM Streamer",
       "default_popup": "extension-pages/dropdown.html"
    },
    "icons":{
-      "16":"images/desktopCapture16.png",
-      "22":"images/desktopCapture22.png",
-      "32":"images/desktopCapture32.png",
-      "48":"images/desktopCapture48.png",
-      "128":"images/desktopCapture128.png"
+      "128":"images/icon_128.png"
    },
    "permissions":[
       "desktopCapture",
@@ -53,7 +49,7 @@
       "tabCapture"
    ],
    "web_accessible_resources":[
-      "images/desktopCapture48.png"
+      "images/icon_128.png"
    ],
    "options_ui":{
       "page":"extension-pages/options.html"

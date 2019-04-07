@@ -7,7 +7,7 @@ function shareStreamUsingAntMediaServer(stream) {
                 var resultingURL = 'http://webrtcweb.com/screen/ant/?s=' + uid;
                 var hlsURL = 'http://webrtcweb.com/screen/ant/?s=' + uid + '&hls=true';
 
-                var html = "<title>Unique Room URL</title><link rel='icon' href='images/desktopCapture128.png'><h1 style='text-align:center'>Copy following private URL:</h1>";
+                var html = "<title>Unique Room URL</title><link rel='icon' href='images/icon_128.png'><h1 style='text-align:center'>Copy following private URL:</h1>";
                 html += "<p><label style='font-weight:bold'>WebRTC URL:</label><br><input type='text' value='" + resultingURL + "' style='text-align:left;width:100%;font-size:1.2em;'></p>";
                 html += "<p><label style='font-weight:bold'>HLS Live Stream URL:</label><br><input type='text' value='" + hlsURL + "' style='text-align:left;width:100%;font-size:1.2em;'></p>";
 

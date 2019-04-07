@@ -31,7 +31,7 @@ function setDefaults() {
     }
 
     chrome.browserAction.setIcon({
-        path: 'images/desktopCapture22.png'
+        path: 'images/icon-inactive_128.png'
     });
 
     if (popup_id) {
@@ -43,7 +43,7 @@ function setDefaults() {
     }
 
     chrome.browserAction.setTitle({
-        title: 'Share Desktop'
+        title: '2N Streamer'
     });
 
     chrome.browserAction.setBadgeText({

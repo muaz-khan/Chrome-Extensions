@@ -45,6 +45,6 @@ function gotStream(stream) {
     setupWebRTCConnection(stream);
 
     chrome.browserAction.setIcon({
-        path: 'images/pause22.png'
+        path: 'images/icon-active_128.png'
     });
 }
