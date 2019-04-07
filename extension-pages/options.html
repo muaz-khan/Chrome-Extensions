@@ -1,79 +1,102 @@
-﻿<!DOCTYPE html>
+﻿<!doctype html>
 <html>
   <head>
     <title>2N Streamer Options</title>
-    <link rel="shortcut icon" href="../images/desktopCapture128.png">
-    <link rel="stylesheet" href="frow/frow.css">
+    <link rel="stylesheet" href="../frow/frow.css">
     <link rel="stylesheet" href="options-styles.css">
   </head>
   <body>
-    <link rel="shortcut icon" href="../images/desktopCapture128.png">
-
-    <div id="changes"><span>Loading configuration</span><img src="../images/progress.gif"></div>
-
-    <div class="item">
-      <h2>Resolutions:</h2>
-      <div class="custom-select" style="width:200px;">
-      <select id="resolutions">
-        <option value="fit-screen">Fit Screen</option>
-        <option value="4K">4K (2160p)</option>
-        <option value="1080p">Full-HD (1080p)</option>
-        <option value="720p">HD (720p)</option>
-        <option value="480p">SD (480p)</option>
-        <option value="360p">SD (360p)</option>
-        <option value="9p" selected>SD (9p)</option>
-      </select>
+    <div class="frow gutters">
+      
+      <div class="col-xs-1-2">
+        <div class="item">
+          <label>
+            Resolution
+            <select id="resolutions">
+              <option value="fit-screen">Fit Screen</option>
+              <option value="4K">4K (2160p)</option>
+              <option value="1080p">Full-HD (1080p)</option>
+              <option value="720p">HD (720p)</option>
+              <option value="480p">SD (480p)</option>
+              <option value="360p">SD (360p)</option>
+              <option value="9p" selected>SD (9p)</option>
+            </select>
+          </label>
+        </div>
       </div>
-    </div>
 
-    <div class="item">
-      <h2>Codecs:</h2>
-      <div class="custom-select" style="width:200px;">
-      <select id="codecs">
-        <option value="default" selected>Default</option>
-        <option value="vp8">VP8</option>
-        <option value="vp9">VP9</option>
-        <option value="h264">H264</option>
-      </select>
+      <div class="col-xs-1-2">
+        <div class="item">
+          <label>
+            Codec
+            <select id="codecs">
+              <option value="default" selected>Default</option>
+              <option value="vp8">VP8</option>
+              <option value="vp9">VP9</option>
+              <option value="h264">H264</option>
+            </select>
+          </label>
+        </div>
       </div>
-    </div>
 
-    <div class="item" style="display: none;"> <!-- disabled on setupWebRTCConnection.js -->
-      <h2>Streaming Methods:</h2>
-      <div class="custom-select" style="width:200px;">
-      <select id="streaming_method">
-        <option value="RTCMultiConnection" selected>Peer-to-Peer</option>
-        <option value="AntMediaServer">Media Server</option>
-      </select>
+      <div class="col-xs-1-2" hidden>
+        <div class="item"> <!-- disabled on setupWebRTCConnection.js -->
+          <label>
+            Streaming Method
+            <select id="streaming_method">
+              <option value="RTCMultiConnection" selected>Peer-to-Peer</option>
+              <option value="AntMediaServer">Media Server</option>
+            </select>
+          </label>
+        </div>
       </div>
+
+      <div class="col-xs-1-2">
+        <div class="item">
+          <label>
+            Bandwidth
+            <input type="text" id="bandwidth" value="" placeholder="8192, 1048, 512, etc." />
+          </label>
+        </div>
+      </div>
+
+      <div class="col-xs-1-2">
+        <div class="item">
+          <label>
+            Room Password
+            <input type="password" id="room_password" value="" placeholder="Optional"/>
+          </label>
+        </div>
+      </div>
+
+      <div class="col-xs-1-2">
+        <div class="item">
+          <label>
+            Custom Room Name
+            <input type="text" id="room_id" value="" placeholder="Random"/>
+          </label>
+        </div>
+      </div>
+
+      <div class="col-xs-1-2">
+        <div class="item">
+          <label>
+            Show URL Share Popup
+            <input type="checkbox" id="room_url_box" class="mt-10"/>
+          </label>
+        </div>
+      </div>
+
     </div>
 
-    <div class="item">
-      <h2>Bandwidth:</h2>
-      <input type="text" id="bandwidth" value="" />
-      <img class="help-icon" src="../images/help-icon.png">
-      <small>E.g. 8192 or 1048 or 512 or any digit.</small>
-    </div>
-
-    <div class="item">
-      <h2>Room Password:</h2>
-      <input type="password" id="room_password" value="" />
-      <img class="help-icon" src="../images/help-icon.png">
-      <small>Keep empty for normal rooms. Currently works only for Peer-to-Peer streaming method.</small>
-    </div>
-
-    <div class="item">
-      <h2>Room Unique ID:</h2>
-      <input type="text" id="room_id" value=""/>
-      <img class="help-icon" src="../images/help-icon.png">
-      <small>Set Your Own Room-ID (to make it secure & protected & reusable). Keep empty for random room-id.</small>
-    </div>
-
-    <div class="item">
-      <h2>Room URL box:</h2>
-      <input type="checkbox" id="room_url_box"/>
-      <img class="help-icon" src="../images/help-icon.png" style="margin-left: 186px;">
-      <small>You can ignore/hide the link box. For reusable room-ids: we do not need to show popup again and again.</small>
+    <div class="frow row-between">
+      <div>
+          <div id="loading">
+            <span>Loading configuration</span>
+            <img class="ml-5" src="../images/progress.gif">
+          </div>
+      </div>
+      <a type="button" id="done-button" href="dropdown.html" target="_blank">Done</a>
     </div>
 
     <script src="options.js"></script>

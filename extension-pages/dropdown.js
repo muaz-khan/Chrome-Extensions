@@ -144,7 +144,7 @@ document.getElementById('selected-tab').onclick = function() {
 //   });
 // };
 
-document.getElementById('btn-options').onclick = function(e) {
+document.getElementById('options-button').onclick = function(e) {
   e.preventDefault();
   location.href = this.href;
 };

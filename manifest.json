@@ -56,7 +56,6 @@
       "images/desktopCapture48.png"
    ],
    "options_ui":{
-      "page":"extension-pages/options.html",
-      "chrome_style":true
+      "page":"extension-pages/options.html"
    }
 }
