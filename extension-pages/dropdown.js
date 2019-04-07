@@ -157,7 +157,7 @@ function querySelectorAll(selector, element) {
 chrome.storage.sync.get('isSharingOn', function(obj) {
   var isSharingOn = obj.isSharingOn === 'true';
   
-  document.getElementById('default-section').style.display = isSharingOn ? 'none' : 'block';
+  document.getElementById('stream-section').style.display = isSharingOn ? 'none' : 'block';
   document.getElementById('stop-section').style.display = isSharingOn ? 'block' : 'none';
 
   // auto-stop-sharing
