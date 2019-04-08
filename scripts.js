@@ -295,13 +295,18 @@ var statsBarHTML = document.getElementById('stats-bar-html');
 var NO_MORE = false;
 
 document.getElementById('show-stats-bar').onclick = function() {
-  statsBar.removeAttribute('hidden');
+  statsBar.toggleAttribute('hidden');
   NO_MORE = false;
 };
 
 document.getElementById('hide-stats-bar').onclick = function() {
   statsBar.setAttribute('hidden', '');
   NO_MORE = true;
+};
+
+document.getElementById('show-chats').onclick = function() {
+  chatContainer.toggleAttribute('hidden');
+  chatMessages.scrollTo(0,chatMessages.scrollHeight);
 };
 
 function onGettingWebRCStats(stats, userid) {
