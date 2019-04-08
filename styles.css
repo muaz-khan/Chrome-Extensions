@@ -21,8 +21,9 @@ body, html {
 }
 
 .menu-bar {
-  padding-left: 10px;
-  padding-top: 5px;
+  position: fixed;
+  left: 10px;
+  top: 5px;
 }
 
 .menu-bar button {
@@ -99,39 +100,8 @@ audio:focus {
   display: none;
 }
 
-#chat-messages::-webkit-scrollbar {
-  width: 15px;
-  height: 5px;
-  background-color: rgba(256, 256, 256, 0);
-}
-
-#chat-messages::-webkit-scrollbar-button {
-  height: 0;
-  width: 0;
-}
-
-#chat-messages::-webkit-scrollbar-thumb {
-  background-color: rgba(256, 256, 256, 0);
-  box-shadow: inset 0 1px 3px black;
-  border-radius: 8px;
-}
-
-#chat-messages::-webkit-scrollbar-thumb:hover {
-  box-shadow: inset 0 1px 3px black;
-}
-
-#chat-messages::-webkit-scrollbar-thumb:active {
-  box-shadow: inset 0 1px 3px black;
-}
-
-#chat-messages::-webkit-scrollbar-track {
-  box-shadow: none;
-  background-color: transparent;
-}
-
 #chat-container, #chat-container * {
   padding: 0;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
 }
 
 #chat-messages {

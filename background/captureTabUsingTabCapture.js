@@ -92,7 +92,7 @@ function captureTabUsingTabCapture(resolutions) {
 
 function sendChatMessage(newChatMessage) {
     if (connection) {
-        connection.send({ openChat: true });
+        // connection.send({ openChat: true });
         connection.send({ newChatMessage });
     }
 }

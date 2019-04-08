@@ -170,28 +170,29 @@ connection.onopen = function(event) {
 var chatContainer = document.getElementById('chat-container');
 connection.onmessage = function(event) {
   if(event.data.openChat === true) {
-      chatContainer.style.display = 'block';
+    chatContainer.removeAttribute('hidden');
   }
 
   if(event.data.closeChat === true) {
-      chatContainer.style.display = 'none';
+    chatContainer.setAttribute('hidden', '');
   }
 
   if(event.data.newChatMessage) {
-      // there is a possibility that broadcaster did not send "openChat:true" signal
-      chatContainer.style.display = 'block';
+    // there is a possibility that broadcaster did not send "openChat:true" signal
+    // chatContainer.removeAttribute('hidden');
 
-      appendChatMessage('Broadcaster', event.data.newChatMessage);
-      connection.send({
-          receivedChatMessage: true,
-          checkmark_id: event.data.checkmark_id
-      });
+    appendChatMessage('Broadcaster', event.data.newChatMessage);
+    updateTitle(event.data.newChatMessage);
+    connection.send({
+        receivedChatMessage: true,
+        checkmark_id: event.data.checkmark_id
+    });
   }
 
   if(event.data.receivedChatMessage) {
-      if(document.getElementById(event.data.checkmark_id)) {
-          document.getElementById(event.data.checkmark_id).style.display = '';
-      }
+    if(document.getElementById(event.data.checkmark_id)) {
+        document.getElementById(event.data.checkmark_id).style.display = '';
+    }
   }
 };
 
@@ -200,12 +201,12 @@ var chatMessages = document.getElementById('chat-messages');
 
 txtChatMessage.onkeyup = function(e) {
   if(e.keyCode === 13) {
-      var checkmark_id = (Math.random()*100).toString().replace('.', '');
-      appendChatMessage('You', this.value, checkmark_id);
-      connection.send({
-          newChatMessage: this.value
-      });
-      this.value = '';
+    var checkmark_id = (Math.random()*100).toString().replace('.', '');
+    appendChatMessage('You', this.value, checkmark_id);
+    connection.send({
+        newChatMessage: this.value
+    });
+    this.value = '';
   }
 };
 
@@ -221,6 +222,11 @@ function appendChatMessage(name, message, checkmark_id) {
 
   chatMessages.scrollTop = chatMessages.clientHeight;
   chatMessages.scrollTop = chatMessages.scrollHeight - chatMessages.scrollTop;
+}
+
+var tabTitle = document.getElementById('tab-title');
+function updateTitle(message) {
+  tabTitle.innerHTML = message;
 }
 
 connection.socketCustomEvent = params.s;
