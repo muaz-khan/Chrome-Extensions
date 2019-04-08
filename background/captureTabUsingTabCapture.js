@@ -1,3 +1,8 @@
+var tabId;
+var tabTitle;
+var tabListener;
+var tabCaptureListener;
+
 function captureTabUsingTabCapture(resolutions) {
     chrome.tabs.query({
         active: true,
@@ -31,7 +36,53 @@ function captureTabUsingTabCapture(resolutions) {
             constraints.audio = true;
         }
 
-        // chrome.tabCapture.onStatusChanged.addListener(function(event) { /* event.status */ });
+        chrome.tabs.query({ active: true, currentWindow: true }, function (results) {
+            const tab = results.pop();
+            tabId = tab ? tab.id : null;
+            tabTitle = tab ? tab.title : "";
+
+            console.log('tabTitle:', tabTitle);
+        });
+
+        if (tabCaptureListener) {
+            chrome.tabCapture.onStatusChanged.removeListener(tabCaptureListener);
+            tabCaptureListener = null;
+        }
+        tabCaptureListener = chrome.tabCapture.onStatusChanged.addListener(function(event) {
+            if (event.tabId != tabId) {
+                return;
+            }
+
+            switch (event.status) {
+                case "active":
+                    // begin watching tab title
+                    if (tabListener) {
+                        chrome.tabs.onUpdated.removeListener(tabListener);
+                    }
+
+                    tabListener = chrome.tabs.onUpdated.addListener(function (changeTabId, changeInfo) {
+                        if (changeTabId != tabId) {
+                            return;
+                        }
+                        if (changeInfo.title && changeInfo.title != tabTitle) {
+                            tabTitle = changeInfo.title || tabTitle;
+                            console.log('tabTitle:', tabTitle);
+                        }
+                    });
+                    break;
+                case "stopped":
+                case "error":
+                    // end watching tab title, reset state
+                    chrome.tabs.onUpdated.removeListener(tabListener);
+                    tabListener = null;
+                    tabId = null;
+                    tabTitle = "";
+                    break;
+                case "pending":
+                default:
+                    break;
+            }
+        });
 
         chrome.tabCapture.capture(constraints, function(stream) {
             gotTabCaptureStream(stream, constraints);
