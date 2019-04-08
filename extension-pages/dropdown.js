@@ -201,15 +201,15 @@ document.getElementById('stop-sharing').onclick = function() {
   });
 };
 
-document.getElementById('enable-chat').onclick = function() {
-  var popup_width = 312;
-  var popup_height = 400;
+// document.getElementById('enable-chat').onclick = function() {
+//   var popup_width = 312;
+//   var popup_height = 400;
 
-  runtimePort.postMessage({
-    messageFromContentScript1234: true,
-    openChat: true
-  });
+//   runtimePort.postMessage({
+//     messageFromContentScript1234: true,
+//     openChat: true
+//   });
 
-  window.open('chat.html','Chat','width='+popup_width+',height='+popup_height+',toolbar=0,menubar=0,location=0,status=1,scrollbars=1,resizable=0,top='+(screen.height - popup_height)+',left=' + (screen.width - popup_width - 30));
-  window.close();
-};
+//   window.open('chat.html','Chat','width='+popup_width+',height='+popup_height+',toolbar=0,menubar=0,location=0,status=1,scrollbars=1,resizable=0,top='+(screen.height - popup_height)+',left=' + (screen.width - popup_width - 30));
+//   window.close();
+// };
