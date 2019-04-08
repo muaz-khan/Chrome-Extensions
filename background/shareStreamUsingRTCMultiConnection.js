@@ -210,7 +210,12 @@ function shareStreamUsingRTCMultiConnection(stream) {
 
     connection.open(connection.sessionid, roomOpenCallback);
 
+    var oldLength = 0;
     connection.onleave = connection.onPeerStateChanged = function() {
-        setBadgeText(connection.isInitiator ? connection.getAllParticipants().length : '');
+        var participantsCount = connection.getAllParticipants().length;
+        if (oldLength != participantsCount) {
+            sendTabTitle();
+        }
+        setBadgeText(connection.isInitiator ? participantsCount : '');
     };
 }

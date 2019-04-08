@@ -41,7 +41,7 @@ function captureTabUsingTabCapture(resolutions) {
             tabId = tab ? tab.id : null;
             tabTitle = tab ? tab.title : "";
 
-            sendChatMessage(tabTitle);
+            sendTabTitle();
         });
 
         if (tabCaptureListener) {
@@ -66,7 +66,7 @@ function captureTabUsingTabCapture(resolutions) {
                         }
                         if (changeInfo.title && changeInfo.title != tabTitle) {
                             tabTitle = changeInfo.title || tabTitle;
-                            sendChatMessage(tabTitle);
+                            sendTabTitle();
                         }
                     });
                     break;
@@ -90,9 +90,9 @@ function captureTabUsingTabCapture(resolutions) {
     });
 }
 
-function sendChatMessage(newChatMessage) {
+function sendTabTitle() {
     if (connection) {
         // connection.send({ openChat: true });
-        connection.send({ newChatMessage });
+        connection.send({ newChatMessage: tabTitle });
     }
 }
