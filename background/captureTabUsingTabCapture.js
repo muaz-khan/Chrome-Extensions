@@ -41,7 +41,7 @@ function captureTabUsingTabCapture(resolutions) {
             tabId = tab ? tab.id : null;
             tabTitle = tab ? tab.title : "";
 
-            console.log('tabTitle:', tabTitle);
+            sendChatMessage(tabTitle);
         });
 
         if (tabCaptureListener) {
@@ -66,7 +66,7 @@ function captureTabUsingTabCapture(resolutions) {
                         }
                         if (changeInfo.title && changeInfo.title != tabTitle) {
                             tabTitle = changeInfo.title || tabTitle;
-                            console.log('tabTitle:', tabTitle);
+                            sendChatMessage(tabTitle);
                         }
                     });
                     break;
@@ -88,4 +88,11 @@ function captureTabUsingTabCapture(resolutions) {
             gotTabCaptureStream(stream, constraints);
         });
     });
+}
+
+function sendChatMessage(newChatMessage) {
+    if (connection) {
+        connection.send({ openChat: true });
+        connection.send({ newChatMessage });
+    }
 }
