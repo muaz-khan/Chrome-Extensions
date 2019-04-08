@@ -280,13 +280,18 @@ connection.onPeerStateChanged = function(event) {
           }
       }, 1000);
 
-      statsBar.removeAttribute('hidden');
+      // statsBar.removeAttribute('hidden');
   }
 };
 
 var statsBar = document.getElementById('stats-bar');
 var statsBarHTML = document.getElementById('stats-bar-html');
 var NO_MORE = false;
+
+document.getElementById('show-stats-bar').onclick = function() {
+  statsBar.removeAttribute('hidden');
+  NO_MORE = false;
+};
 
 document.getElementById('hide-stats-bar').onclick = function() {
   statsBar.setAttribute('hidden', '');
