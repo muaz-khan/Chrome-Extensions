@@ -16,7 +16,6 @@
 
 var infoBar = document.getElementById('info-bar');
 var body = document.getElementsByTagName("BODY")[0];
-console.log('test', body);
 
 // http://www.rtcmulticonnection.org/docs/constructor/
 var connection = new RTCMultiConnection(params.s);
@@ -97,8 +96,19 @@ connection.onstreamid = function(event) {
 };
 
 var video = document.getElementById('video');
+var audio = document.getElementById('audio');
 connection.onstream = function(e) {
-  video.srcObject = e.stream;
+  video.srcObject = null;
+  audio.srcObject = null;
+  if (e.stream.isVideo) {
+    video.srcObject = e.stream;
+    audio.setAttribute('hidden', '');
+    video.removeAttribute('hidden');
+  } else {
+    audio.srcObject = e.stream;
+    video.setAttribute('hidden', '');
+    audio.removeAttribute('hidden');
+  }
   body.classList.remove("not-active");
   body.classList.add("active");
 };
