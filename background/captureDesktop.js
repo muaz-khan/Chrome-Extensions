@@ -18,6 +18,7 @@ function captureDesktop() {
             enableCamera: 'false',
             enableScreen: 'false',
             isSharingOn: 'false',
+            enableVideo: 'false',
             enableSpeakers: 'false'
         });
         return;
@@ -36,6 +37,7 @@ function captureDesktop() {
 
     enableTabCaptureAPI = null;
     enableMicrophone = null;
+    enableVideo = null;
     enableSpeakers = null;
     enableCamera = null;
     enableScreen = null;
@@ -78,6 +80,10 @@ function captureDesktop() {
 
         if (items['enableMicrophone'] == 'true') {
             enableMicrophone = items['enableMicrophone'];
+        }
+
+        if (items['enableVideo'] == 'true') {
+            enableVideo = items['enableVideo'];
         }
 
         if (items['enableSpeakers'] == 'true') {

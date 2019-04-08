@@ -5,6 +5,7 @@ function setDefaults() {
         enableCamera: 'false',
         enableScreen: 'false',
         isSharingOn: 'false',
+        enableVideo: 'false',
         enableSpeakers: 'false'
     });
 

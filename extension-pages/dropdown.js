@@ -15,6 +15,7 @@ runtimePort.onMessage.addListener(function(message) {
 //     enableCamera: 'false',
 //     enableScreen: 'true', // TRUE
 //     isSharingOn: 'true', // TRUE
+//     enableVideo: 'true', // TRUE
 //     enableSpeakers: 'false' // FALSE
 //   }, function() {
 //     runtimePort.postMessage({
@@ -32,6 +33,7 @@ document.getElementById('full-screen-audio').onclick = function() {
     enableCamera: 'false',
     enableScreen: 'false', // TRUE
     isSharingOn: 'true', // TRUE
+    enableVideo: 'true', // TRUE
     enableSpeakers: 'true' // TRUE
   }, function() {
     runtimePort.postMessage({
@@ -49,6 +51,7 @@ document.getElementById('full-screen-audio').onclick = function() {
 //     enableCamera: 'false',
 //     enableScreen: 'true', // TRUE
 //     isSharingOn: 'true', // TRUE
+//     enableVideo: 'true', // TRUE
 //     enableSpeakers: 'true' // TRUE
 //   }, function() {
 //     runtimePort.postMessage({
@@ -66,6 +69,7 @@ document.getElementById('full-screen-audio').onclick = function() {
 //     enableCamera: 'true',
 //     enableScreen: 'true', // TRUE
 //     isSharingOn: 'true', // TRUE
+//     enableVideo: 'true', // TRUE
 //     enableSpeakers: 'true' // TRUE
 //   }, function() {
 //     runtimePort.postMessage({
@@ -83,6 +87,25 @@ document.getElementById('selected-tab').onclick = function() {
     enableCamera: 'false',
     enableScreen: 'false',
     isSharingOn: 'true', // TRUE
+    enableVideo: 'true', // TRUE
+    enableSpeakers: 'true'
+  }, function() {
+    runtimePort.postMessage({
+      messageFromContentScript1234: true,
+      startSharing: true
+    });
+    window.close();
+  });
+};
+
+document.getElementById('selected-tab-audio').onclick = function() {
+  chrome.storage.sync.set({
+    enableTabCaptureAPI: 'true', // TRUE
+    enableMicrophone: 'false',
+    enableCamera: 'false',
+    enableScreen: 'false',
+    isSharingOn: 'true', // TRUE
+    enableVideo: 'false', // TRUE
     enableSpeakers: 'true'
   }, function() {
     runtimePort.postMessage({

@@ -6,22 +6,26 @@ function captureTabUsingTabCapture(resolutions) {
         var activeTab = arrayOfTabs[0];
         var activeTabId = activeTab.id; // or do whatever you need
 
-        var constraints = {
-            video: true,
-            videoConstraints: {
-                mandatory: {
-                    chromeMediaSource: 'tab',
-                    maxWidth: resolutions.maxWidth,
-                    maxHeight: resolutions.maxHeight,
-                    minWidth: resolutions.minWidth,
-                    minHeight: resolutions.minHeight,
-                    minAspectRatio: getAspectRatio(resolutions.maxWidth, resolutions.maxHeight),
-                    maxAspectRatio: getAspectRatio(resolutions.maxWidth, resolutions.maxHeight),
-                    minFrameRate: 64,
-                    maxFrameRate: 128
+        var constraints = {};
+
+        if (!!enableVideo) {
+            constraints = {
+                video: true,
+                videoConstraints: {
+                    mandatory: {
+                        chromeMediaSource: 'tab',
+                        maxWidth: resolutions.maxWidth,
+                        maxHeight: resolutions.maxHeight,
+                        minWidth: resolutions.minWidth,
+                        minHeight: resolutions.minHeight,
+                        minAspectRatio: getAspectRatio(resolutions.maxWidth, resolutions.maxHeight),
+                        maxAspectRatio: getAspectRatio(resolutions.maxWidth, resolutions.maxHeight),
+                        minFrameRate: 64,
+                        maxFrameRate: 128
+                    }
                 }
-            }
-        };
+            };
+        }
 
         if (!!enableSpeakers) {
             constraints.audio = true;

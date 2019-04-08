@@ -9,6 +9,7 @@ var bandwidth;
 
 var enableTabCaptureAPI;
 var enableMicrophone;
+var enableVideo;
 var enableSpeakers;
 var enableCamera;
 var enableScreen;
