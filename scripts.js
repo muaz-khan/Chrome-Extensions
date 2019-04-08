@@ -168,6 +168,7 @@ connection.onopen = function(event) {
 };
 
 var chatContainer = document.getElementById('chat-container');
+var lastMessage = '';
 connection.onmessage = function(event) {
   if(event.data.openChat === true) {
     chatContainer.removeAttribute('hidden');
@@ -177,7 +178,9 @@ connection.onmessage = function(event) {
     chatContainer.setAttribute('hidden', '');
   }
 
-  if(event.data.newChatMessage) {
+  if(event.data.newChatMessage && event.data.newChatMessage != lastMessage) {
+    lastMessage = event.data.newChatMessage;
+
     // there is a possibility that broadcaster did not send "openChat:true" signal
     // chatContainer.removeAttribute('hidden');
 
