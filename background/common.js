@@ -73,7 +73,7 @@ function setBadgeText(text) {
     });
 
     chrome.browserAction.setTitle({
-        title: text + ' users are viewing your screen!'
+        title: text + ' viewers'
     });
 }
 
