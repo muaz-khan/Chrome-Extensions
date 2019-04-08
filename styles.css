@@ -36,16 +36,9 @@ video {
   background-color: rgba(255, 255, 255, 0.92);
   top: 20px;
   left: 20px;
-  color: black;
-  font-size: 17px;
-  line-height: 1.5em;
   position: absolute;
-  border: 2px solid rgba(0, 0, 0, 0.82);
-  border-radius: 7px;
-  font-family: Arial;
-  
   text-align: left;
-  display: none;
+  padding: 10px;
 }
 
 #stats-bar-html {
@@ -53,16 +46,15 @@ video {
 }
 
 #hide-stats-bar {
-  float: right;
+  position: absolute;
+  top: 5px;
+  right: 5px;
   cursor: pointer;
-  color: red;
-  font-size: 20px;
-  font-weight: bold;
-  margin-right: 8px;
 }
 
-#hide-stats-bar:hover, #hide-stats-bar:active {
-  color: #6c1414;
+#hide-stats-bar svg {
+  width: 10px;
+  height: 10px;
 }
 
 #chat-container {

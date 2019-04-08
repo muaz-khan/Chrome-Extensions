@@ -112,7 +112,7 @@ connection.onleave = connection.onstreamended = connection.onSessionClosed = fun
   infoBar.innerHTML = 'Screen sharing has been closed.';
   body.classList.remove("active");
   body.classList.add("not-active");
-  statsBar.style.display = 'none';
+  statsBar.setAttribute('hidden', '');
   connection.close();
   connection.closeSocket();
   connection.userid = connection.token();
@@ -270,7 +270,7 @@ connection.onPeerStateChanged = function(event) {
           }
       }, 1000);
 
-      statsBar.style.display = 'block';
+      statsBar.removeAttribute('hidden');
   }
 };
 
@@ -279,7 +279,7 @@ var statsBarHTML = document.getElementById('stats-bar-html');
 var NO_MORE = false;
 
 document.getElementById('hide-stats-bar').onclick = function() {
-  statsBar.style.display = 'none';
+  statsBar.setAttribute('hidden', '');
   NO_MORE = true;
 };
 
@@ -289,9 +289,11 @@ function onGettingWebRCStats(stats, userid) {
       return;
   }
 
-  var html = 'Codecs: ' + stats.audio.recv.codecs.concat(stats.video.recv.codecs).join(', ');
+  var html = 'Video: ' + stats.video.recv.codecs;
   html += '<br>';
-  html += 'Resolutions: ' + stats.resolutions.recv.width + 'x' + stats.resolutions.recv.height;
+  html += 'Resolution: ' + stats.resolutions.recv.width + 'x' + stats.resolutions.recv.height;
+  html += '<br>';
+  html += 'Audio: ' + stats.audio.recv.codecs;
   html += '<br>';
   html += 'Data: ' + bytesToSize(stats.audio.bytesReceived + stats.video.bytesReceived);
   // html += '<br>';
