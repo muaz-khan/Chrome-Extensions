@@ -10,7 +10,7 @@
       "scripts":[
          "background/helpers/socket.io.js",
          "background/helpers/adapter.js",
-         "background/helpers/RTCMultiConnection.min.js",
+         "background/helpers/RTCMultiConnection.js",
          "background/helpers/CodecsHandler.js",
          "background/helpers/IceServersHandler.js",
          "background/helpers/MultiStreamsMixer.js",
