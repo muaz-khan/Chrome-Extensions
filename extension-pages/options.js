@@ -85,3 +85,9 @@ elements_ids.forEach(function(id) {
     location.href = this.href;
   };
 });
+
+chrome.storage.sync.get(['sessionId'], function (result) {
+  var sessionId = result.sessionId || ''; // setDefaults is not called until a stream ends, so may be undefined
+  var currentRoomEl = document.getElementById('current_room');
+  currentRoomEl.innerHTML = sessionId != '' ? sessionId : 'not streaming';
+})

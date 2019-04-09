@@ -6,7 +6,8 @@ function setDefaults() {
         enableScreen: 'false',
         isSharingOn: 'false',
         enableVideo: 'false',
-        enableSpeakers: 'false'
+        enableSpeakers: 'false',
+        sessionId: '',
     });
 
     if (connection) {

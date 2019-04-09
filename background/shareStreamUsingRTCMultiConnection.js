@@ -123,6 +123,11 @@ function shareStreamUsingRTCMultiConnection(stream) {
             alert(error);
         }
 
+        // any key-values set here should be reset in setDefaults.js
+        chrome.storage.sync.set({
+            sessionId: connection.sessionid
+        });
+
         chrome.browserAction.enable();
         setBadgeText(0);
 
