@@ -95,23 +95,56 @@ connection.onstreamid = function(event) {
   infoBar.innerHTML = 'Remote peer is about to send his screen.';
 };
 
+var playButton = document.getElementById('play-button-container');
+var volumeSlider = document.getElementById('volume-slider');
+
 var video = document.getElementById('video');
 var audio = document.getElementById('audio');
+var stream = null;
 connection.onstream = function(e) {
   video.srcObject = null;
   audio.srcObject = null;
-  if (e.stream.isVideo) {
-    video.srcObject = e.stream;
-    audio.setAttribute('hidden', '');
+  stream = e.stream;
+  if (stream.isVideo) {
     video.removeAttribute('hidden');
+    video.srcObject = stream;
   } else {
-    audio.srcObject = e.stream;
-    video.setAttribute('hidden', '');
     audio.removeAttribute('hidden');
+    audio.srcObject = stream;
   }
+  playButton.removeAttribute('disabled');
+  volumeSlider.removeAttribute('disabled');
+  audio.srcObject = null;
   body.classList.remove("not-active");
   body.classList.add("active");
 };
+
+togglePlayback = function() {
+  playButton.classList.add('playing');
+  if (stream.isVideo) {
+    stream.getVideoTracks()[0].enabled = !stream.getVideoTracks()[0].enabled;
+    stream.getAudioTracks()[0] && (stream.getAudioTracks()[0].enabled = stream.getVideoTracks()[0].enabled);
+  } else {
+    stream.getAudioTracks()[0] && (stream.getAudioTracks()[0].enabled = !stream.getAudioTracks()[0].enabled);
+  }
+  if ((stream.isAudio && stream.getAudioTracks()[0].enabled) || (stream.isVideo && stream.getVideoTracks()[0].enabled)) {
+    playButton.classList.add('playing');
+  } else {
+    playButton.classList.remove('playing');
+  }
+};
+
+setVolume = function(input) {
+  if (input > 0) {
+    audio.volume = input;
+    video.volume = input;
+    stream.getAudioTracks()[0] && (stream.getAudioTracks()[0].enabled = true);
+    stream.isAudio && playButton.classList.add('playing');
+  } else {
+    stream.getAudioTracks()[0] && (stream.getAudioTracks()[0].enabled = false);
+    stream.isAudio && playButton.classList.remove('playing');
+  }
+}
 
 // if user left
 connection.onleave = connection.onstreamended = connection.onSessionClosed = function(e) {
@@ -120,8 +153,8 @@ connection.onleave = connection.onstreamended = connection.onSessionClosed = fun
   video.srcObject = null;
   
   infoBar.innerHTML = 'Screen sharing has been closed.';
-  body.classList.remove("active");
-  body.classList.add("not-active");
+  body.classList.remove('active');
+  body.classList.add('not-active');
   statsBar.setAttribute('hidden', '');
   connection.close();
   connection.closeSocket();
