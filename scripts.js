@@ -383,3 +383,8 @@ window.addEventListener('online', function() {
   infoBar.innerHTML = 'You are back online. Reloading the page...';
   location.reload();
 }, false);
+
+document.addEventListener('copy', function(e) {
+  e.clipboardData.setData('text/plain', e.target.textContent);
+  e.preventDefault();
+});
