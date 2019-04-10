@@ -121,8 +121,6 @@ connection.onstream = function(e) {
 };
 
 togglePlayback = function() {
-  video.paused && video.play();
-  audio.paused && audio.play();
   if (stream.isVideo) {
     stream.getVideoTracks()[0].enabled = !stream.getVideoTracks()[0].enabled;
     stream.getAudioTracks()[0] && (stream.getAudioTracks()[0].enabled = stream.getVideoTracks()[0].enabled);
@@ -134,6 +132,8 @@ togglePlayback = function() {
   } else {
     playButton.classList.remove('playing');
   }
+  video.paused && video.play();
+  audio.paused && audio.play();
 };
 
 setVolume = function(input) {
