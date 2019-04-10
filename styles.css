@@ -87,6 +87,7 @@ video {
   height: auto;
   object-fit: contain;
   margin-bottom: 20px;
+  background-color: #eaeaea;
 }
 
 #media-controls {

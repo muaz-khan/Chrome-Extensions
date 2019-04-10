@@ -32,15 +32,15 @@
       
       <div id="tab-title" class="mt-30 mb-20">&nbsp;</div>
 
-      <video id="video" class="shadow-light" autoplay playsinline hidden>
+      <video id="video" class="shadow-light" playsinline onclick="togglePlayback()" hidden>
           Your browser does not support the video element.
       </video>
-      <audio id="audio" autoplay hidden>
+      <audio id="audio" hidden>
           Your browser does not support the audio element.
       </audio>
 
       <div id="media-controls" class="frow justify-between nowrap">
-        <button type="button" id="play-button-container" class="playing frow nowrap button-none" onclick="togglePlayback()" disabled>
+        <button type="button" id="play-button-container" class="frow nowrap button-none" onclick="togglePlayback()" disabled>
           <div class="play-button play-button-before"></div>
           <div class="play-button play-button-after"></div>
         </button>

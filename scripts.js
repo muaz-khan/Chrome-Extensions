@@ -105,6 +105,8 @@ connection.onstream = function(e) {
   video.srcObject = null;
   audio.srcObject = null;
   stream = e.stream;
+  stream.getVideoTracks()[0] && (stream.getVideoTracks()[0].enabled = false);
+  stream.getAudioTracks()[0] && (stream.getAudioTracks()[0].enabled = false);
   if (stream.isVideo) {
     video.removeAttribute('hidden');
     video.srcObject = stream;
@@ -114,13 +116,13 @@ connection.onstream = function(e) {
   }
   playButton.removeAttribute('disabled');
   volumeSlider.removeAttribute('disabled');
-  audio.srcObject = null;
   body.classList.remove("not-active");
   body.classList.add("active");
 };
 
 togglePlayback = function() {
-  playButton.classList.add('playing');
+  video.paused && video.play();
+  audio.paused && audio.play();
   if (stream.isVideo) {
     stream.getVideoTracks()[0].enabled = !stream.getVideoTracks()[0].enabled;
     stream.getAudioTracks()[0] && (stream.getAudioTracks()[0].enabled = stream.getVideoTracks()[0].enabled);
