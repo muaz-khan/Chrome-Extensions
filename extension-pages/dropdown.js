@@ -177,15 +177,26 @@ function querySelectorAll(selector, element) {
   return Array.prototype.slice.call(element.querySelectorAll(selector));
 }
 
-chrome.storage.sync.get('isSharingOn', function(obj) {
+chrome.storage.sync.get(['isSharingOn', 'room_id', 'sessionId', 'room_password'], function(obj) {
   var isSharingOn = obj.isSharingOn === 'true';
   
   document.getElementById('stream-section').style.display = isSharingOn ? 'none' : 'block';
   document.getElementById('stop-section').style.display = isSharingOn ? 'block' : 'none';
 
-  // auto-stop-sharing
   if (isSharingOn) {
+    document.getElementById('room-id-label').hidden = true;
+    var linkToSession = document.getElementById('link-to-session');
+    linkToSession.innerHTML = '2n.fm/?s=' + obj.sessionId
+    linkToSession.href = 'https://' + linkToSession.innerHTML;
+    // if setDefaults hasn't been called yet, key-values are undefined, otherwise empty string
+    linkToSession.href += (obj.room_password || '') == '' ? '' : '&p=' + obj.room_password;
+    linkToSession.hidden = false;
+
+    // auto-stop-sharing
     // document.getElementById('stop-sharing').click();
+  } else {
+    // if setDefaults hasn't been called yet, key-values are undefined, otherwise empty string
+    document.getElementById('room-id').value = obj.room_id || '';
   }
 });
 
@@ -199,6 +210,20 @@ document.getElementById('stop-sharing').onclick = function() {
     });
     window.close();
   });
+};
+
+document.getElementById('room-id').onchange = function (event) {
+  event && event.stopPropagation();
+  this.disabled = true;
+
+  try {
+    chrome.storage.sync.set({ room_id: this.value }, () => {
+      this.disabled = false;
+    })
+  }
+  catch(e) {
+    location.reload();
+  }
 };
 
 // document.getElementById('enable-chat').onclick = function() {

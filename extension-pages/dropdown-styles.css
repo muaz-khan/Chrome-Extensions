@@ -27,6 +27,11 @@ body {
   fill: #000000;
 }
 
+#room-id-label {
+  max-width: 200px;
+  margin-bottom: 0;
+}
+
 @keyframes pulse {
   from {opacity: 1.0;}
   to {opacity: 0.5;}
@@ -46,4 +51,21 @@ body {
   padding: 20px;
   text-align: center;
   display: block;
+}
+
+/* Delete these styles after Frow 3.1 release */
+.shrink-0 {
+  flex-shrink: 0;
+}
+
+.shrink-1 {
+  flex-shrink: 1;
+}
+
+.grow-0 {
+  flex-grow: 0;
+}
+
+.grow-1 {
+  flex-grow: 1;
 }
