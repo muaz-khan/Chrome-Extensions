@@ -93,13 +93,6 @@ const getSupoortedFormats = [{
 2. Second step is, pass two parameters on `startRecording`. First paramter is named as `recording-formats` and last parameter is named as `recording-start-callback`.
 3. Manually stop the recording using `stopRecording` method. Callback contains two arguments. First argument is `Blob` object and second argument is `error` string.
 
-## YouTube
-
-Because RecordRTC extension is using YouTube API, so that users can upload their recorded videos on YouTube, this extension users must be aware of YouTube terms of service and privacy policy. (links below)
-
-* [Our Privacy Policy](https://www.webrtc-experiment.com/privacy/) -- [YouTube Privacy Policy](https://policies.google.com/privacy?hl=en-US)
-* [Our Terms of Service](https://www.webrtc-experiment.com/terms/) -- [YouTube Terms of Service](https://www.youtube.com/static?template=terms)
-
 ## License
 
 [Chrome-Extensions](https://github.com/muaz-khan/Chrome-Extensions) are released under [MIT license](https://github.com/muaz-khan/Chrome-Extensions/blob/master/LICENSE) . Copyright (c) [Muaz Khan](https://MuazKhan.com).
