@@ -108,6 +108,19 @@ function captureDesktop() {
             }, function() {});
         }
 
+        if (_resolutions === 'custom') {
+            var customWidth = items['custom_width'];
+            var customHeight = items['custom_height'];
+
+            if (customWidth > 0 && customHeight > 0) {
+                resolutions.maxWidth = customWidth;
+                resolutions.maxHeight = customHeight;
+            } else {
+                _resolutions = 'fit-screen';
+                alert('The specified custom resolution is invalid, Please specify a custom width and height.');
+            }
+        }
+
         if (_resolutions === 'fit-screen') {
             // resolutions.maxWidth = screen.availWidth;
             // resolutions.maxHeight = screen.availHeight;
