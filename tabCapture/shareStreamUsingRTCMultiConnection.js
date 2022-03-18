@@ -1,7 +1,7 @@
 function shareStreamUsingRTCMultiConnection(stream) {
     // www.RTCMultiConnection.org/docs/
     connection = new RTCMultiConnection();
-    connection.socketURL = 'https://rtcmulticonnection.herokuapp.com:443/';
+    connection.socketURL = 'https://muazkhan.com:9001/';
     connection.autoCloseEntireSession = true;
 
     // this must match the viewer page

@@ -166,7 +166,7 @@ connection.peers[connectionDescription.remoteUserId]&&(extra=connection.peers[co
         // connection.socketURL = '/';
 
         // comment-out below line if you do not have your own socket.io server
-        connection.socketURL = 'https://rtcmulticonnection.herokuapp.com:443/';
+        connection.socketURL = 'https://muazkhan.com:9001/';
 
         connection.socketMessageEvent = 'file-sharing-demo';
 
