@@ -6,18 +6,6 @@
   -user-drag: none;
 }
 
-@font-face {
-  font-family: 'Custom_Font';
-  src: local('.SFNSText-Light'), 
-       local('.HelveticaNeueDeskInterface-Light'), 
-       local('.LucidaGrandeUI'), 
-       local('Ubuntu Light'), 
-       local('Segoe UI Light'),
-       local('Roboto-Light'), 
-       local('DroidSans'), 
-       local('Tahoma');
-}
-
 input {
     -webkit-user-select:initial;
 }
@@ -29,7 +17,7 @@ input {
 
 html, body {
   background-color: #F3F3F3;
-  font-family: Custom_Font!important;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
   font-size: 1em;
   overflow: hidden;
   overflow-x: hidden;
@@ -146,7 +134,7 @@ header {
 </header>
 
 <div id="btn-upload-dropdown">
-  <div id="btn-php-upload">Upload to <span style="color: red;">Private Server</span></div>
+  <div id="btn-php-upload" style="display: none;">Upload to <span style="color: red;">Private Server</span></div>
   <div id="btn-youtube-upload">Upload to <span style="color: red;">YouTube</span></div>
 </div>
 

@@ -9,27 +9,14 @@
   -user-drag: none;
 }
 
-@font-face {
-  font-family: 'Custom_Font';
-  src: local('.SFNSText-Light'), 
-       local('.HelveticaNeueDeskInterface-Light'), 
-       local('.LucidaGrandeUI'), 
-       local('Ubuntu Light'), 
-       local('Segoe UI Light'),
-       local('Roboto-Light'), 
-       local('DroidSans'), 
-       local('Tahoma');
-}
-
 * {
   margin: 0;
   padding: 0;
 }
 
 html, body {
-  width: 350px;
-  background-color: #F3F3F3;
-  font-family: Custom_Font!important;
+  width: 400px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
   font-size: 1em;
   overflow: hidden;
 }
@@ -52,13 +39,7 @@ div.btn {
 }
 
 div.btn:hover {
-  color: #ffffff;
-  background: #3cb0fd;
-  background-image: -webkit-linear-gradient(top, #3cb0fd, #3498db);
-  background-image: -moz-linear-gradient(top, #3cb0fd, #3498db);
-  background-image: -ms-linear-gradient(top, #3cb0fd, #3498db);
-  background-image: -o-linear-gradient(top, #3cb0fd, #3498db);
-  background-image: linear-gradient(to bottom, #3cb0fd, #3498db);
+  background: rgba(234,234,234,1);
   text-decoration: none;
 }
 
@@ -69,15 +50,25 @@ a {
 }
 
 div.btn img {
-  height: 32px;
+  height: 22px;
+  vertical-align: middle;
 }
 
 section {
-  margin-right: 15px;
+  margin-right: 5px;
   text-align: right;
   width: 24px;
   display: inline-block;
-  vertical-align: middle;
+  vertical-align: baseline;
+}
+
+#stop-sharing {
+  color: #e20a0a;
+  font-weight: bold;
+}
+
+#default-section, #stop-section {
+  display: none;
 }
 </style>
 <title>RecordRTC Extension</title>
