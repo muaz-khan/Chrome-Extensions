@@ -4,7 +4,6 @@ var fsize = document.querySelector('#file-size');
 var fduration = document.querySelector('#file-duration');
 var fresolutions = document.querySelector('#file-resolutions');
 var header = document.querySelector('header');
-var header = document.querySelector('header');
 
 var browserCache = document.querySelector('#browser-cache');
 
